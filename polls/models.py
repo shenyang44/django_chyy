@@ -19,7 +19,8 @@ class Choice(models.Model):
         return self.choice_text
 
 class Account(models.Model):
-    name = models.CharField(max_length=150, unique=True)
+    name = models.CharField(max_length=150)
+    file_no = models.CharField(unique=True, max_length=100)
     created_at = models.DateTimeField(default=timezone.now())
     updated_at = models.DateTimeField('date updated')
     balance = models.IntegerField()

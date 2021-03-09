@@ -14,7 +14,7 @@
                     <input type="text" class="form-control" id="nameInput">
                 </div>
                 <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Account's Current Balance</label>
+                    <label for="balanceInput" class="form-label">Account's Current Balance</label>
                     <input type="text" class="form-control" id="balanceInput">
                 </div>
                 <select class="form-select w-25" aria-label="balance-select" id='balanceSelect'>
@@ -23,16 +23,25 @@
                     <option value="2">No</option>
                 </select>
                 <br>
-                <button type="submit" disabled class="btn btn-primary">Submit</button>
+                <button id='accBtn' type="submit" disabled class="btn btn-primary">Submit</button>
             </form>
         </div>
         <div class="col-sm">
         </div>
     </div>
 </div>
-<script>
-$(document)=>{
-
-}
+<script type='text/javascript' charset="utf-8">
+$(()=>{
+    let accBtn = $('#accBtn')
+    let nameValid, balValidm, selvalid;
+    updateBtn = () =>{
+        if (nameValid && balValid && selValid) {
+            accBtn.removeAttr('disabled')
+        } else {
+            accBtn.attr('disabled', true)
+        }
+    }
+})
 </script>
+
 {% endblock %}
