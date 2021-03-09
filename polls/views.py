@@ -18,7 +18,7 @@ class DetailView(generic.ListView):
         return Transaction.objects.filter(account_id = 1)
 
 def create_acc(request):
-    return HttpResponseRedirect(reverse('polls:results', args = (1,)))
+    return render(request, 'polls/create_acc.html')
 
 # class IndexView(generic.ListView):
 #     template_name = 'polls/index.html'
