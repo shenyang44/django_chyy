@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404, HttpResponseRedirect
 from .models import Question, Choice, Account
 from django.urls import reverse
@@ -18,7 +18,11 @@ class DetailView(generic.ListView):
         return Transaction.objects.filter(account_id = 1)
 
 def create_acc(request):
-    return render(request, 'polls/create_acc.html')
+    if request.method == 'GET':
+        return render(request, 'polls/create_acc.html')
+    else:
+        return redirect(reverse('polls:index'))
+
 
 # class IndexView(generic.ListView):
 #     template_name = 'polls/index.html'
