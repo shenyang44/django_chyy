@@ -1,9 +1,13 @@
-{% if latest_list %}
-    <ul>
-    {% for question in latest_list %}
-        <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No polls are available.</p>
-{% endif %}
+{% extends 'polls/layout.html' %}
+{% block title %}Index Page{% endblock %}
+{% block body %}
+    {% if latest_list %}
+        <ul>
+        {% for account in latest_list %}
+            <li><a href="{% url 'polls:detail' account.id %}">{{ account.name }}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No accounts are available.</p>
+    {% endif %}
+{% endblock %}

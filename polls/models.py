@@ -10,6 +10,7 @@ class Question(models.Model):
     def was_published_recently(self):
         now = timezone.now()
         return now >= self.pub_date >= now - datetime.timedelta(days=1)
+
 class Choice(models.Model): 
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     choice_text = models.CharField(max_length=200)
@@ -19,7 +20,11 @@ class Choice(models.Model):
 
 class Account(models.Model):
     name = models.CharField(max_length=150, unique=True)
+    created_at = models.DateTimeField(default=timezone.now())
+    updated_at = models.DateTimeField('date updated')
     balance = models.IntegerField()
+    def __str__(self):
+        return self.name
 
 class Transaction(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
