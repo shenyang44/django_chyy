@@ -9,7 +9,7 @@ class IndexView(generic.ListView):
     template_name = 'polls/index.html'
     context_object_name = 'latest_list'
     def get_queryset(self):
-        return Account.objects.filter(updated_at__lte=timezone.now()).order_by('-updated_at')[:30]
+        return Account.objects.filter(created_at__lte=timezone.now())
 
 class DetailView(generic.ListView):
     model = Account
@@ -21,6 +21,22 @@ def create_acc(request):
     if request.method == 'GET':
         return render(request, 'polls/create_acc.html')
     else:
+        name = request.POST['name']
+        balance = float(request.POST['balance'])
+        file_no = request.POST['file_no']
+        owing = request.POST['owing']
+        if owing == 1 :
+            balance = int(balance * 100)
+        else:
+            balance = int(-(balance * 100))
+        new_acc = Account(name = name, file_no= file_no, balance = balance)
+        try:
+            new_acc.save()
+        except:
+            return render(request, 'polls/create_acc.html', {
+                'error_message' : "Error encountered in saving the account failed.",
+            })
+            
         return redirect(reverse('polls:index'))
 
 
