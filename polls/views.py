@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404, HttpResponseRedirect
-from .models import Question, Choice, Account
+from .models import Question, Choice, Account, Transaction
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
@@ -15,7 +15,7 @@ class DetailView(generic.ListView):
     model = Account
     template_name='polls/detail.html'
     def get_queryset(self):
-        return Transaction.objects.filter(account_id = 1)
+        return Transaction.objects.filter(account_id = self.kwargs['pk'])
 
 def create_acc(request):
     if request.method == 'GET':
@@ -39,6 +39,9 @@ def create_acc(request):
             
         return redirect(reverse('polls:index'))
 
+def create_trans(request, acc_id):
+    if request.method == 'POST':
+        return redirect(reverse('polls:detail', args=[acc_id]))
 
 # class IndexView(generic.ListView):
 #     template_name = 'polls/index.html'

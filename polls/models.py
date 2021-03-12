@@ -22,7 +22,7 @@ class Account(models.Model):
     name = models.CharField(max_length=150)
     file_no = models.CharField(unique=True, max_length=100)
     created_at = models.DateTimeField(default=timezone.now())
-    updated_at = models.DateTimeField('date updated', null=True,)
+    updated_at = models.DateTimeField(auto_now=True)
     balance = models.IntegerField()
     def __str__(self):
         return self.name
