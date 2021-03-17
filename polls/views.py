@@ -17,6 +17,15 @@ class DetailView(generic.ListView):
     def get_queryset(self):
         return Transaction.objects.filter(account_id = self.kwargs['pk'])
 
+def show_acc(request, acc_id):
+    account = get_object_or_404(Question, pk=acc_id)
+    transactions = Transaction.objects.filter(account_id = acc_id)
+    context={
+        'account':account,
+        'transactions':transactions
+    }
+    return render(request, 'polls/show-acc.html', context=context)
+
 def create_acc(request):
     if request.method == 'GET':
         return render(request, 'polls/create_acc.html')
