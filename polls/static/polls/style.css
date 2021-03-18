@@ -3,3 +3,8 @@ main {
     width: 100%;
     padding: 15px;
 }
+
+.prefix div{
+    font: 2em;
+    font-weight: bold;
+}

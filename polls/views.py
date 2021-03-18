@@ -18,7 +18,7 @@ class DetailView(generic.ListView):
         return Transaction.objects.filter(account_id = self.kwargs['pk'])
 
 def show_acc(request, acc_id):
-    account = get_object_or_404(Question, pk=acc_id)
+    account = get_object_or_404(Account, pk=acc_id)
     transactions = Transaction.objects.filter(account_id = acc_id)
     context={
         'account':account,
@@ -51,6 +51,9 @@ def create_acc(request):
 def create_trans(request, acc_id):
     if request.method == 'POST':
         return redirect(reverse('polls:detail', args=[acc_id]))
+    else:
+        account = get_object_or_404(Account, pk=acc_id)
+        return render(request, 'polls/transaction.html', {'account':account})
 
 # class IndexView(generic.ListView):
 #     template_name = 'polls/index.html'

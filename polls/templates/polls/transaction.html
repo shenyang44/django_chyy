@@ -1,0 +1,55 @@
+{% extends 'polls/layout.html' %}
+{% block title %}New Transaction{% endblock %}
+
+{% block body %}
+{% if error_message %} 
+<div class="alert alert-danger" role="alert">
+    {{error_message}}
+</div>
+{% endif %}
+<div class="container">
+    <div class="row justify-content-center fs-4 m-4">New Transaction</div>
+    <div class="row">
+        <div class="col-sm">
+        </div>
+        <div class="col-lg-6">
+            <form id='transForm' action="{% url 'polls:create_trans' 1 %}" method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">For File : {{account.file_no}}</label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Name : {{account.name}}</label>
+                </div>
+                <div class="mb-3 w-50">
+                    <label for="amountInput" class="form-label">Transaction Amount:</label>
+                    <div class="d-flex prefix"><div class="d-flex align-items-center">RM&nbsp;</div><input data-id="1" name='amount' type="text" class="formInput form-control" id="amountInput"></div>
+                </div>
+                <label for='transSelect' class="form-label">Transaction Type</label>
+                <select data-id='3' name='owing' class="form-select w-25" aria-label="trans-select" id='transSelect'>
+                    <option value="" selected></option>
+                    <option value="1">Debit</option>
+                    <option value="0">Credit</option>
+                </select>
+                <br>
+                <button id='transBtn' type='button' class="btn btn-primary">Confirm</button>
+            </form>
+        </div>
+        <div class="col-sm">
+        </div>
+    </div>
+</div>
+<script charset="utf-8">
+$(()=>{
+    let transBtn = $('#transBtn')
+    transBtn.click(()=>{
+    let balVal = $('#amountInput').val()
+    if (/^\d+\.\d{2}$/.test(balVal)){
+        $('#transForm').submit()
+    } else{
+        alert('The transaction amount must be a positive number with 2 decimal places.')
+    }
+    })
+})
+</script>
+{% endblock %}

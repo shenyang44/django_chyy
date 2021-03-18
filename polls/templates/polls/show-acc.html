@@ -2,5 +2,6 @@
 {% block title %}{{account.file_no}}{% endblock %}
 
 {% block body %}
-whatup
+{{account}}
+<a href='{% url "polls:create_trans" account.id %}'><button type="button" class="btn btn-success">New Transaction</button></a>
 {% endblock %}
