@@ -25,14 +25,14 @@
                     <label for="amountInput" class="form-label">Transaction Amount:</label>
                     <div class="d-flex prefix"><div class="d-flex align-items-center">RM&nbsp;</div><input data-id="1" name='amount' type="text" class="formInput form-control" id="amountInput"></div>
                 </div>
-                <label for='transSelect' class="form-label">Transaction Type</label>
-                <select data-id='3' name='owing' class="form-select w-25" aria-label="trans-select" id='transSelect'>
+                <label for='transSelect' class="form-label">Transaction Type:</label>
+                <select name='trans_type' class="form-select w-25" aria-label="trans-select" id='transSelect'>
                     <option value="" selected></option>
-                    <option value="1">Debit</option>
-                    <option value="0">Credit</option>
+                    <option value="debit">Debit</option>
+                    <option value="credit">Credit</option>
                 </select>
                 <br>
-                <button id='transBtn' type='button' class="btn btn-primary">Confirm</button>
+                <button id='transBtn' disabled type='button' class="btn btn-primary">Confirm</button>
             </form>
         </div>
         <div class="col-sm">
@@ -42,6 +42,15 @@
 <script charset="utf-8">
 $(()=>{
     let transBtn = $('#transBtn')
+    $('#transSelect').change((e)=>{
+        if ($(e.target).val()){
+            transBtn.attr('disabled', false)
+        }
+        else{
+            transBtn.attr('disabled', true)
+        }
+    })
+    
     transBtn.click(()=>{
     let balVal = $('#amountInput').val()
     if (/^\d+\.\d{2}$/.test(balVal)){
