@@ -50,7 +50,22 @@ def create_acc(request):
 
 def create_trans(request, acc_id):
     if request.method == 'POST':
-        return redirect(reverse('polls:detail', args=[acc_id]))
+        trans_type = request.POST['trans_type']
+        amount = request.POST['amount']
+        account = get_object_or_404(Account, pk=reques.POST['acc_id'])
+        if trans_type == 'received':
+            received = True
+        else:
+            received = False
+        
+        try:
+            # new_trans = account.transaction_set.create(received=received, amount=amount)
+            print(x)
+        except:
+            return render(request, 'polls/transaction.html', {'account':account, 'error_message':'Saving the new transaction failed for:'})
+
+        return redirect(reverse('polls:create_trans', args=[acc_id]))
+        
     else:
         account = get_object_or_404(Account, pk=acc_id)
         return render(request, 'polls/transaction.html', {'account':account})
