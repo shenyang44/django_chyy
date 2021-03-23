@@ -52,7 +52,7 @@ def create_trans(request, acc_id):
     if request.method == 'POST':
         trans_type = request.POST['trans_type']
         amount = request.POST['amount']
-        account = get_object_or_404(Account, pk=reques.POST['acc_id'])
+        account = get_object_or_404(Account, pk=request.POST['acc_id'])
         if trans_type == 'received':
             received = True
         else:

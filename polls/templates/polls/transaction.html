@@ -4,7 +4,7 @@
 {% block body %}
 {% if error_message %} 
 <div class="alert alert-danger" role="alert">
-    {{error_message}}{{account.file_no}}
+    {{error_message}} {{account.file_no}}
 </div>
 {% endif %}
 <div class="container">
@@ -36,7 +36,7 @@
                     </colgroup>
                     <tr>
                       <th>&nbsp For</th>
-                      <th>&nbsp Amount</th>
+                      <th>&nbsp RM</th>
                     </tr>
                     <tr class="trIn">
                       <td><input type="text" class="descript"></td>
@@ -44,11 +44,8 @@
                     </tr>
                 </table>
                 <br>
-                <div class="d-flex justify-content-evenly"><button id='addBtn' type="button">+ New Row</button> <button id='rmvBtn' type="button">- Remove Row</button></div>
-                <div class="mb-3 w-50">
-                    <label for="amountInput" class="form-label">Transaction Amount:</label>
-                    <div class="d-flex prefix"><div class="d-flex align-items-center">RM&nbsp;</div><input data-id="1" name='amount' type="text" class="formInput form-control" id="amountInput"></div>
-                </div>
+                <div class="d-flex justify-content-evenly"><button id='addBtn' type="button">+ New Row</button> <button id='rmvBtn' type="button">- Remove Row</button></div> 
+                <input hidden name='' type="text">
                 <br>
                 <button id='transBtn' disabled type='button' class="btn btn-primary">Confirm</button>
             </form>
@@ -60,6 +57,7 @@
 <script charset="utf-8">
 $(()=>{
     let transBtn = $('#transBtn')
+    // Button is disabled if select input val is empty.
     $('#transSelect').change((e)=>{
         if ($(e.target).val()){
             transBtn.attr('disabled', false)
@@ -68,14 +66,40 @@ $(()=>{
             transBtn.attr('disabled', true)
         }
     })
-    
-    transBtn.click(()=>{
-    let balVal = $('#amountInput').val()
-    if (/^\d+\.\d{2}$/.test(balVal)){
-        $('#transForm').submit()
-    } else{
-        alert('The transaction amount must be a positive number with 2 decimal places.')
+
+    // checks if all descript class inputs are filled.
+    emptyCheck = () =>{
+        let x = true
+        $('.descript').each((i,e)=>{
+            if ($(e).val() == ''){
+                x = false
+            }
+        })
+        return x 
     }
+    // checks if all .amount inputs are positive numbs with 2 decimal places.
+    amountCheck = () =>{
+        let y = true
+        $('.amount').each((i,e)=>{
+            if (!/^\d+\.\d{2}$/.test($(e).val())){
+                y = false
+            }
+        })
+        return y
+    }
+
+    // runs both functions above, and submits form if both are true.
+    transBtn.click(()=>{
+        if (emptyCheck()){
+            if (amountCheck()){
+                // $('#transForm').submit()
+                alert('success')
+            }else{
+                alert('The transaction amount must be a positive number with 2 decimal places.')
+            }
+        }else{
+            alert('No table cells can be left empty.')
+        }
     })
 
     $('#addBtn').click(()=>{
