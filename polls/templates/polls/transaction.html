@@ -45,7 +45,7 @@
                 </table>
                 <br>
                 <div class="d-flex justify-content-evenly"><button id='addBtn' type="button">+ New Row</button> <button id='rmvBtn' type="button">- Remove Row</button></div> 
-                <input hidden name='' type="text">
+                <input hidden name='table_data' id='tableData' type="text">
                 <br>
                 <button id='transBtn' disabled type='button' class="btn btn-primary">Confirm</button>
             </form>
@@ -56,44 +56,58 @@
 </div>
 <script charset="utf-8">
 $(()=>{
-    let transBtn = $('#transBtn')
+    let transBtn = $('#transBtn');
     // Button is disabled if select input val is empty.
     $('#transSelect').change((e)=>{
         if ($(e.target).val()){
             transBtn.attr('disabled', false)
-        }
-        else{
+        } else{
             transBtn.attr('disabled', true)
         }
     })
 
+    // initialising arrays to pass to server.
+    let descriptions = [];
+    let amounts = [];
+
     // checks if all descript class inputs are filled.
     emptyCheck = () =>{
-        let x = true
+        let x = true;
         $('.descript').each((i,e)=>{
-            if ($(e).val() == ''){
-                x = false
+            let desc = $(e).val()
+            if (desc == ''){
+                x = false;
+            } else {
+                descriptions[i] = desc;
             }
         })
-        return x 
+        return x;
     }
+
     // checks if all .amount inputs are positive numbs with 2 decimal places.
     amountCheck = () =>{
-        let y = true
+        let y = true;
         $('.amount').each((i,e)=>{
-            if (!/^\d+\.\d{2}$/.test($(e).val())){
-                y = false
+            let amt = $(e).val();
+            if (!/^\d+\.\d{2}$/.test(amt)){
+                y = false;
+            } else{
+                amounts[i] = amt;
             }
         })
-        return y
+        return y;
     }
 
     // runs both functions above, and submits form if both are true.
     transBtn.click(()=>{
         if (emptyCheck()){
             if (amountCheck()){
-                // $('#transForm').submit()
-                alert('success')
+                let tableData = {
+                    descriptions : descriptions,
+                    amounts : amounts
+                };
+                $('#tableData').val(JSON.stringify(tableData));
+                $('#transForm').submit();
             }else{
                 alert('The transaction amount must be a positive number with 2 decimal places.')
             }
@@ -101,7 +115,7 @@ $(()=>{
             alert('No table cells can be left empty.')
         }
     })
-
+    // 2 buttons to add or remove input rows.
     $('#addBtn').click(()=>{
         $('table').append(`
             <tr class='trIn'>
