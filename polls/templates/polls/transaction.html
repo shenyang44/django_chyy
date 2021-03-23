@@ -12,7 +12,7 @@
     <div class="row">
         <div class="col-sm">
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-8 col-sm-10">
             <form id='transForm' action="{% url 'polls:create_trans' 1 %}" method="post">
                 {% csrf_token %}
                 <div class="mb-3">
@@ -22,16 +22,33 @@
                     <label class="form-label">Name : {{account.name}}</label>
                 </div>
                 <input hidden name="acc_id" value="{{account.id}}">
-                <div class="mb-3 w-50">
-                    <label for="amountInput" class="form-label">Transaction Amount:</label>
-                    <div class="d-flex prefix"><div class="d-flex align-items-center">RM&nbsp;</div><input data-id="1" name='amount' type="text" class="formInput form-control" id="amountInput"></div>
-                </div>
                 <label for='transSelect' class="form-label">Transaction Type:</label>
                 <select name='trans_type' class="form-select w-25" aria-label="trans-select" id='transSelect'>
                     <option value="" selected></option>
                     <option value="debited">Debit</option>
                     <option value="received">Credit</option>
                 </select>
+                <br>
+                <table style="width:100%">
+                    <colgroup>
+                        <col style="width:75%">
+                        <col style="width:25%">
+                    </colgroup>
+                    <tr>
+                      <th>&nbsp For</th>
+                      <th>&nbsp Amount</th>
+                    </tr>
+                    <tr class="trIn">
+                      <td><input type="text" class="descript"></td>
+                      <td><input type="text" class="amount"></td>
+                    </tr>
+                </table>
+                <br>
+                <div class="d-flex justify-content-evenly"><button id='addBtn' type="button">+ New Row</button> <button id='rmvBtn' type="button">- Remove Row</button></div>
+                <div class="mb-3 w-50">
+                    <label for="amountInput" class="form-label">Transaction Amount:</label>
+                    <div class="d-flex prefix"><div class="d-flex align-items-center">RM&nbsp;</div><input data-id="1" name='amount' type="text" class="formInput form-control" id="amountInput"></div>
+                </div>
                 <br>
                 <button id='transBtn' disabled type='button' class="btn btn-primary">Confirm</button>
             </form>
@@ -59,6 +76,18 @@ $(()=>{
     } else{
         alert('The transaction amount must be a positive number with 2 decimal places.')
     }
+    })
+
+    $('#addBtn').click(()=>{
+        $('table').append(`
+            <tr class='trIn'>
+                <td><input type="text" class="descript" id=""></td>
+                <td><input type="text" class="amount" id=""></td>
+            </tr>
+        `)
+    })
+    $('#rmvBtn').click(()=>{
+        $('.trIn').last().remove()
     })
 })
 </script>
