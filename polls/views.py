@@ -59,19 +59,28 @@ def create_trans(request, acc_id):
         else:
             received = False
         
-        print(table_data['amounts'])
-        print(table_data['descriptions'])
-        # try:
-        #     # new_trans = account.transaction_set.create(received=received, amount=amount)
-        #     print(x)
-        # except:
-        #     return render(request, 'polls/transaction.html', {'account':account, 'error_message':'Saving the new transaction failed for:'})
+        amounts=[]
+        descriptions=[]
+        for amount, i in table_data['amounts']:
+            amounts[i] = amount
+        
+        for desc, i in table_data['descriptions']:
+            descriptions[i] = desc
 
-        return redirect(reverse('polls:create_trans', args=[acc_id]))
+        try:
+            new_trans = account.transaction_set.create(received=received, amount=amount)
+        except:
+            return render(request, 'polls/transaction.html', {'account':account, 'error_message':'Saving the new transaction failed for:'})
+        trans_id = new_trans.id
+        return redirect(reverse('polls:voucher', args=(trans_id,)))
         
     else:
         account = get_object_or_404(Account, pk=acc_id)
         return render(request, 'polls/transaction.html', {'account':account})
+
+def voucher_view(request, trans_id):
+    transaction = get_object_or_404(Transaction, pk = trans_id)
+    return render(request, 'polls/voucher.html', {'transaction':transaction})
 
 # class IndexView(generic.ListView):
 #     template_name = 'polls/index.html'
