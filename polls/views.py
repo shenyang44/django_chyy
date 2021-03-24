@@ -58,21 +58,21 @@ def create_trans(request, acc_id):
             received = True
         else:
             received = False
-        
         amounts=[]
         descriptions=[]
-        for amount, i in table_data['amounts']:
-            amounts[i] = amount
+        for amount in table_data['amounts']:
+            amounts.append(amount)
         
-        for desc, i in table_data['descriptions']:
-            descriptions[i] = desc
+        for desc in table_data['descriptions']:
+            descriptions.append(desc)
 
         try:
             new_trans = account.transaction_set.create(received=received, amount=json.dumps(amounts), descriptions=json.dumps(descriptions))
         except:
             return render(request, 'polls/transaction.html', {'account':account, 'error_message':'Saving the new transaction failed for:'})
         trans_id = new_trans.id
-        return redirect(reverse('polls:voucher', args=(trans_id,)))
+        # return redirect(reverse('polls:voucher', args=(trans_id,)))
+        return redirect(reverse('polls:index'))
         
     else:
         account = get_object_or_404(Account, pk=acc_id)
