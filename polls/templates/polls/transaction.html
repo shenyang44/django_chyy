@@ -4,7 +4,7 @@
 {% block body %}
 {% if error_message %} 
 <div class="alert alert-danger" role="alert">
-    {{error_message}}{{account.file_no}}
+    {{error_message}} {{account.file_no}}
 </div>
 {% endif %}
 <div class="container">
@@ -12,7 +12,7 @@
     <div class="row">
         <div class="col-sm">
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-8 col-sm-10">
             <form id='transForm' action="{% url 'polls:create_trans' 1 %}" method="post">
                 {% csrf_token %}
                 <div class="mb-3">
@@ -22,16 +22,30 @@
                     <label class="form-label">Name : {{account.name}}</label>
                 </div>
                 <input hidden name="acc_id" value="{{account.id}}">
-                <div class="mb-3 w-50">
-                    <label for="amountInput" class="form-label">Transaction Amount:</label>
-                    <div class="d-flex prefix"><div class="d-flex align-items-center">RM&nbsp;</div><input data-id="1" name='amount' type="text" class="formInput form-control" id="amountInput"></div>
-                </div>
                 <label for='transSelect' class="form-label">Transaction Type:</label>
                 <select name='trans_type' class="form-select w-25" aria-label="trans-select" id='transSelect'>
                     <option value="" selected></option>
                     <option value="debited">Debit</option>
                     <option value="received">Credit</option>
                 </select>
+                <br>
+                <table style="width:100%">
+                    <colgroup>
+                        <col style="width:75%">
+                        <col style="width:25%">
+                    </colgroup>
+                    <tr>
+                      <th>&nbsp For</th>
+                      <th>&nbsp RM</th>
+                    </tr>
+                    <tr class="trIn">
+                      <td><input type="text" class="descript"></td>
+                      <td><input type="text" class="amount"></td>
+                    </tr>
+                </table>
+                <br>
+                <div class="d-flex justify-content-evenly"><button id='addBtn' type="button">+ New Row</button> <button id='rmvBtn' type="button">- Remove Row</button></div> 
+                <input hidden name='table_data' id='tableData' type="text">
                 <br>
                 <button id='transBtn' disabled type='button' class="btn btn-primary">Confirm</button>
             </form>
@@ -42,23 +56,76 @@
 </div>
 <script charset="utf-8">
 $(()=>{
-    let transBtn = $('#transBtn')
+    let transBtn = $('#transBtn');
+    // Button is disabled if select input val is empty.
     $('#transSelect').change((e)=>{
         if ($(e.target).val()){
             transBtn.attr('disabled', false)
-        }
-        else{
+        } else{
             transBtn.attr('disabled', true)
         }
     })
-    
-    transBtn.click(()=>{
-    let balVal = $('#amountInput').val()
-    if (/^\d+\.\d{2}$/.test(balVal)){
-        $('#transForm').submit()
-    } else{
-        alert('The transaction amount must be a positive number with 2 decimal places.')
+
+    // initialising arrays to pass to server.
+    let descriptions = [];
+    let amounts = [];
+
+    // checks if all descript class inputs are filled.
+    emptyCheck = () =>{
+        let x = true;
+        $('.descript').each((i,e)=>{
+            let desc = $(e).val()
+            if (desc == ''){
+                x = false;
+            } else {
+                descriptions[i] = desc;
+            }
+        })
+        return x;
     }
+
+    // checks if all .amount inputs are positive numbs with 2 decimal places.
+    amountCheck = () =>{
+        let y = true;
+        $('.amount').each((i,e)=>{
+            let amt = $(e).val();
+            if (!/^\d+\.\d{2}$/.test(amt)){
+                y = false;
+            } else{
+                amounts[i] = amt;
+            }
+        })
+        return y;
+    }
+
+    // runs both functions above, and submits form if both are true.
+    transBtn.click(()=>{
+        if (emptyCheck()){
+            if (amountCheck()){
+                let tableData = {
+                    descriptions : descriptions,
+                    amounts : amounts
+                };
+                $('#tableData').val(JSON.stringify(tableData));
+                $('#transForm').submit();
+            }else{
+                alert('The transaction amount must be a positive number with 2 decimal places.')
+            }
+        }else{
+            alert('No table cells can be left empty.')
+        }
+    })
+    // 2 buttons to add or remove input rows.
+    $('#addBtn').click(()=>{
+        $('table').append(`
+            <tr class='trIn'>
+                <td><input type="text" class="descript" id=""></td>
+                <td><input type="text" class="amount" id=""></td>
+            </tr>
+        `)
+    })
+    $('#rmvBtn').click(()=>{
+        $('.trIn').last().remove()
     })
 })
 </script>
