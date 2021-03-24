@@ -68,7 +68,7 @@ def create_trans(request, acc_id):
             descriptions[i] = desc
 
         try:
-            new_trans = account.transaction_set.create(received=received, amount=amount)
+            new_trans = account.transaction_set.create(received=received, amount=json.dumps(amounts), descriptions=json.dumps(descriptions))
         except:
             return render(request, 'polls/transaction.html', {'account':account, 'error_message':'Saving the new transaction failed for:'})
         trans_id = new_trans.id
@@ -78,7 +78,7 @@ def create_trans(request, acc_id):
         account = get_object_or_404(Account, pk=acc_id)
         return render(request, 'polls/transaction.html', {'account':account})
 
-def voucher_view(request, trans_id):
+def voucher(request, trans_id):
     transaction = get_object_or_404(Transaction, pk = trans_id)
     return render(request, 'polls/voucher.html', {'transaction':transaction})
 
