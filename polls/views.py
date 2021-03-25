@@ -60,16 +60,28 @@ def create_trans(request, acc_id):
             received = False
         amounts=[]
         descriptions=[]
-        for amount in table_data['amounts']:
-            amounts.append(amount)
-        
+        total = 0
+
+        # iterates over all amounts in trans, adding inted vals to account.balance and to total, float amt to amounts.
+        for x in table_data['amounts']:
+            f_amount = float(x)
+            amount = int(f_amount*100)  
+            if received == True:
+                total += amount
+            else:
+                total -= amount
+            amounts.append(f_amount)
+
         for desc in table_data['descriptions']:
             descriptions.append(desc)
 
         try:
-            new_trans = account.transaction_set.create(received=received, amount=json.dumps(amounts), descriptions=json.dumps(descriptions))
+            new_trans = account.transaction_set.create(received=received, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total)
+            account.balance += total
+            account.save()
         except:
             return render(request, 'polls/transaction.html', {'account':account, 'error_message':'Saving the new transaction failed for:'})
+
         trans_id = new_trans.id
         # return redirect(reverse('polls:voucher', args=(trans_id,)))
         return redirect(reverse('polls:index'))
