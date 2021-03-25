@@ -30,4 +30,5 @@ class Account(models.Model):
 class Transaction(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     received = models.BooleanField(default=True)
-    amount = models.IntegerField()
+    descriptions = models.TextField()
+    amount = models.TextField()
