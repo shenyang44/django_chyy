@@ -70,7 +70,7 @@ def create_trans(request, acc_id):
                 total += amount
             else:
                 total -= amount
-            amounts.append(f_amount)
+            amounts.append(x)
 
         for desc in table_data['descriptions']:
             descriptions.append(desc)
@@ -91,7 +91,17 @@ def create_trans(request, acc_id):
 
 def voucher(request, trans_id):
     transaction = get_object_or_404(Transaction, pk = trans_id)
-    return render(request, 'polls/voucher.html', {'transaction':transaction, 'account':transaction.account})
+    descriptions = json.loads(transaction.descriptions)
+    amounts = json.loads(transaction.amounts)
+    entries=[]
+    for i in range(len(descriptions)):
+        entries.append((descriptions[i],amounts[i]))
+    context = {
+        'transaction':transaction,
+        'account':transaction.account,
+        'entries':entries,
+    }
+    return render(request, 'polls/voucher.html', context=context)
 
 # class IndexView(generic.ListView):
 #     template_name = 'polls/index.html'

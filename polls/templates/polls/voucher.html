@@ -7,7 +7,7 @@
     {{error_message}} {{account.file_no}}
 </div>
 {% endif %}
-<div class='print-n'>
+<div class='print-y p-2 m-2'>
     <header class='d-flex flex-column align-items-center'>
         <div class='fs-2 fw-bold'>C. H. YEOH & YIEW</div>
         <div>Lot 25, 2nd Floor Block B, Plaza Pekeliling, Jalan Tun Razak,</div>
@@ -26,26 +26,18 @@
             <div class="col-3"></div>
             <div class="col-4 d-flex">Date.&nbsp;<div class="w-75 dotted text-center">{{transaction.created_at|date:"j. n. Y"}}</div></div>
         </div>
-    </div>
-    <button class="btn btn-secondary" type="button" onclick="window.print()">Print</button>
-</div>
-
-
-<!-- Hidden div -->
-<div id='printDiv' class='print-y'>
-    <header class='d-flex flex-column align-items-center'>
-        <div class='fs-2 fw-bold'>C. H. YEOH & YIEW</div>
-        <div>Lot 25, 2nd Floor Block B, Plaza Pekeliling, Jalan Tun Razak,</div>
-        <div>50400 Kuala Lumpur, Malaysia,</div>
-        <div>Tel: 03-40413288</div>
-    </header>
-    <div class="container mt-3">
-        <div class="fw-bold row justify-content-center">
-            BAUCER
+        <div class="row mb-2">Debit (FILLTHIS) <div class="mx-2 dotted w-50"></div> Account</div>
+        <div class="row my-3">Bayaran Kepada / Pay / FILLTHIS <div class="mx-2 dotted w-50"></div></div>
+        <div class="row ">Untuk / For / FILLTHIS</div>
+        {% for desc, amt in entries %}
+        <div class="row">
+            <div class="col dotted">{{desc}}</div>
+            <div class="col">{{amt}}</div>
         </div>
-        <div class="fw-bold row justify-content-center">CLIENTS ACCOUNT'S VOUCHER</div>
+        {% endfor %}
     </div>
 </div>
+<div class='print-n'><button class="btn btn-secondary" type="button" onclick="window.print()">Print</button></div>
 
 {% endblock %}
 
