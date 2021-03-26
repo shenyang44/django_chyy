@@ -9,5 +9,6 @@ urlpatterns = [
     path('create_acc/', views.create_acc, name='create_acc'),
     path('<int:acc_id>/create_trans/', views.create_trans, name='create_trans'),
     path('<int:acc_id>/show_acc/', views.show_acc, name='show_acc'),
+    path('<int:trans_id>/voucher/', views.voucher, name='voucher')
     # path('<int:question_id>/vote/', views.vote, name='vote'),
 ]
