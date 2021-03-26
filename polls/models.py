@@ -21,13 +21,14 @@ class Choice(models.Model):
 class Account(models.Model):
     name = models.CharField(max_length=150)
     file_no = models.CharField(unique=True, max_length=100)
-    created_at = models.DateTimeField(default=timezone.now())
+    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     balance = models.IntegerField()
     def __str__(self):
         return self.name
 
 class Transaction(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     received = models.BooleanField(default=True)
     descriptions = models.TextField()

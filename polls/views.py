@@ -83,8 +83,7 @@ def create_trans(request, acc_id):
             return render(request, 'polls/transaction.html', {'account':account, 'error_message':'Saving the new transaction failed for:'})
 
         trans_id = new_trans.id
-        # return redirect(reverse('polls:voucher', args=(trans_id,)))
-        return redirect(reverse('polls:index'))
+        return redirect(reverse('polls:voucher', args=(trans_id,)))
         
     else:
         account = get_object_or_404(Account, pk=acc_id)
@@ -92,7 +91,7 @@ def create_trans(request, acc_id):
 
 def voucher(request, trans_id):
     transaction = get_object_or_404(Transaction, pk = trans_id)
-    return render(request, 'polls/voucher.html', {'transaction':transaction})
+    return render(request, 'polls/voucher.html', {'transaction':transaction, 'account':transaction.account})
 
 # class IndexView(generic.ListView):
 #     template_name = 'polls/index.html'

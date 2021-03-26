@@ -18,3 +18,24 @@ tr input{
     border: none;
     width: 100%;
 }
+
+.print-y{
+    display: none;
+}
+
+@media print {
+    .print-y{
+        display: block;
+    }
+    .print-n{
+        display: none;
+    }
+}
+
+#voucher-id{
+    color: red;
+}
+
+.dotted{
+    border-bottom: 1px dotted black;
+}
