@@ -18,18 +18,10 @@ class DetailView(generic.ListView):
     def get_queryset(self):
         return Transaction.objects.filter(account_id = self.kwargs['pk'])
 
-def show_acc(request, acc_id):
-    account = get_object_or_404(Account, pk=acc_id)
-    transactions = Transaction.objects.filter(account_id = acc_id)
-    context={
-        'account':account,
-        'transactions':transactions
-    }
-    return render(request, 'polls/show-acc.html', context=context)
 
 def create_acc(request):
     if request.method == 'GET':
-        return render(request, 'polls/create_acc.html')
+        return render(request, 'polls/create-acc.html')
     else:
         name = request.POST['name']
         balance = float(request.POST['balance'])
@@ -43,11 +35,24 @@ def create_acc(request):
         try:
             new_acc.save()
         except:
-            return render(request, 'polls/create_acc.html', {
+            return render(request, 'polls/create-acc.html', {
                 'error_message' : "Error encountered in saving the account failed.",
             })
             
         return redirect(reverse('polls:index'))
+
+
+def show_acc(request, acc_id):
+    account = get_object_or_404(Account, pk=acc_id)
+    transactions = account.transaction_set.all()
+    totals = [trans.total/100 for trans in transactions]
+    trans_total_list = zip(transactions, totals)
+    context={
+        'account':account,
+        'trans_total_list': trans_total_list,
+    }
+    return render(request, 'polls/show-acc.html', context=context)
+
 
 def create_trans(request, acc_id):
     if request.method == 'POST':
@@ -65,7 +70,7 @@ def create_trans(request, acc_id):
         # iterates over all amounts in trans, adding inted vals to account.balance and to total, float amt to amounts.
         for x in table_data['amounts']:
             f_amount = float(x)
-            amount = int(f_amount*100)  
+            amount = int(f_amount*100) 
             if received == True:
                 total += amount
             else:
@@ -93,6 +98,7 @@ def voucher(request, trans_id):
     transaction = get_object_or_404(Transaction, pk = trans_id)
     descriptions = json.loads(transaction.descriptions)
     amounts = json.loads(transaction.amounts)
+    total = abs(transaction.total/100)
     entries=[]
     for i in range(len(descriptions)):
         entries.append((descriptions[i],amounts[i]))
@@ -100,6 +106,7 @@ def voucher(request, trans_id):
         'transaction':transaction,
         'account':transaction.account,
         'entries':entries,
+        'total':total,
     }
     return render(request, 'polls/voucher.html', context=context)
 
