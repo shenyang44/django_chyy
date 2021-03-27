@@ -58,7 +58,10 @@ def create_trans(request, acc_id):
     if request.method == 'POST':
         table_data = json.loads(request.POST['table_data'])
         trans_type = request.POST['trans_type']
+        other_party = request.POST['other_party']
+        other_name = request.POST['other_name']
         account = get_object_or_404(Account, pk=request.POST['acc_id'])
+        
         if trans_type == 'received':
             received = True
         else:
@@ -80,6 +83,10 @@ def create_trans(request, acc_id):
         for desc in table_data['descriptions']:
             descriptions.append(desc)
 
+        if other_party == 'office':
+            off_acc = get_object_or_404(Account, file_no='OFFICE')
+            off_acc.balance -= total
+            
         try:
             new_trans = account.transaction_set.create(received=received, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total)
             account.balance += total

@@ -32,7 +32,7 @@
                 <label for='otherParty' class="form-label">Other Party:</label>
                 <select name='other_party' class="mb-3 form-select w-25" aria-label="trans-select" id='otherParty'>
                     <option value="" selected></option>
-                    <option value="off">Office</option>
+                    <option value="office">Office</option>
                     <option value="other">3rd Party</option>
                 </select>
                 <table style="width:100%">
@@ -63,13 +63,14 @@
 <script charset="utf-8">
 $(()=>{
     let transBtn = $('#transBtn');
-    // Button is disabled if select input val is empty.
+    // Button is disabled if select input val is empty on either element.
     $('select').change(()=>{
         let selectValid = true;
         $('select').each((i, e)=>{
             if (!$(e).val()){
                 selectValid = false;
             }
+            // if other is selected then input is added for account name.
             if (i==1 && $(e).val() == 'other'){
                 if (!$('#otherInput').length){
                     $('#otherParty').after(`
