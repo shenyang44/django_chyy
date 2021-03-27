@@ -29,6 +29,12 @@
                     <option value="received">Credit</option>
                 </select>
                 <br>
+                <label for='otherParty' class="form-label">Other Party:</label>
+                <select name='other_party' class="mb-3 form-select w-25" aria-label="trans-select" id='otherParty'>
+                    <option value="" selected></option>
+                    <option value="off">Office</option>
+                    <option value="other">3rd Party</option>
+                </select>
                 <table style="width:100%">
                     <colgroup>
                         <col style="width:75%">
@@ -58,8 +64,26 @@
 $(()=>{
     let transBtn = $('#transBtn');
     // Button is disabled if select input val is empty.
-    $('#transSelect').change((e)=>{
-        if ($(e.target).val()){
+    $('select').change(()=>{
+        let selectValid = true;
+        $('select').each((i, e)=>{
+            if (!$(e).val()){
+                selectValid = false;
+            }
+            if (i==1 && $(e).val() == 'other'){
+                if (!$('#otherInput').length){
+                    $('#otherParty').after(`
+                        <div id='otherInput' class="mb-3">
+                            <label for="otherName" class="form-label">Other Account's Name:</label>
+                            <input name='other_name' type="text" class="formInput form-control" id="otherName">
+                        </div>
+                    `)
+                };
+            } else if (i==1){
+                $('#otherInput').remove()
+            }
+        })
+        if(selectValid){
             transBtn.attr('disabled', false)
         } else{
             transBtn.attr('disabled', true)
