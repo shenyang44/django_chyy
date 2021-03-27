@@ -20,13 +20,10 @@ tr input{
 }
 
 .print-y{
-    display: none;
+    box-sizing: border-box;
 }
 
 @media print {
-    .print-y{
-        display: block;
-    }
     .print-n{
         display: none;
     }
