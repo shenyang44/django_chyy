@@ -29,8 +29,8 @@ class Account(models.Model):
 
 class Transaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    receiver = models.ForeignKey(Account, on_delete=models.CASCADE)
-    payee = models.ForeignKey(Account, on_delete=models.CASCADE)
+    receiver = models.ForeignKey(Account, related_name='trans_in', on_delete=models.CASCADE)
+    payee = models.ForeignKey(Account, related_name='trans_out', on_delete=models.CASCADE)
     received = models.BooleanField(default=True)
     descriptions = models.TextField()
     amounts = models.TextField()

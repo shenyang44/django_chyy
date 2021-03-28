@@ -13,7 +13,7 @@
         <div class="col-sm">
         </div>
         <div class="col-lg-8 col-sm-10">
-            <form id='transForm' action="{% url 'polls:create_trans' 1 %}" method="post">
+            <form id='transForm' action="{% url 'polls:create_trans' account.id %}" method="post">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label class="form-label">For File : {{account.file_no}}</label>
@@ -75,7 +75,7 @@ $(()=>{
                 if (!$('#otherInput').length){
                     $('#otherParty').after(`
                         <div id='otherInput' class="mb-3">
-                            <label for="otherName" class="form-label">Other Account's Name:</label>
+                            <label for="otherName" class="form-label">Other Party's Name:</label>
                             <input name='other_name' type="text" class="formInput form-control" id="otherName">
                         </div>
                     `)

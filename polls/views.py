@@ -5,19 +5,19 @@ from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
 import json
+from django.db.models import Q
 
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'
     context_object_name = 'latest_list'
     def get_queryset(self):
-        return Account.objects.filter(created_at__lte=timezone.now())
+        return Account.objects.filter(created_at__lte=timezone.now()).exclude(file_no__startswith='EXTERNAL')
 
 class DetailView(generic.ListView):
     model = Account
     template_name='polls/detail.html'
     def get_queryset(self):
         return Transaction.objects.filter(account_id = self.kwargs['pk'])
-
 
 def create_acc(request):
     if request.method == 'GET':
@@ -39,14 +39,25 @@ def create_acc(request):
                 'error_message' : "Error encountered in saving the account failed.",
             })
             
-        return redirect(reverse('polls:index'))
+        return redirect(reverse('polls:index', args=()))
 
 
 def show_acc(request, acc_id):
     account = get_object_or_404(Account, pk=acc_id)
-    transactions = account.transaction_set.all()
-    totals = [trans.total/100 for trans in transactions]
-    trans_total_list = zip(transactions, totals)
+    if account.file_no.startswith('EXTERNAL'):
+        return redirect(reverse('polls:index'))
+    try:
+        transactions = Transaction.objects.filter(
+            Q(payee=account) | Q(receiver=account)
+        )
+    except:
+        transactions = ''
+    if not transactions:
+        trans_total_list = ''
+    else:
+        totals = [trans.total/100 for trans in transactions]
+        trans_total_list = zip(transactions, totals)
+
     context={
         'account':account,
         'trans_total_list': trans_total_list,
@@ -60,12 +71,27 @@ def create_trans(request, acc_id):
         trans_type = request.POST['trans_type']
         other_party = request.POST['other_party']
         other_name = request.POST['other_name']
-        account = get_object_or_404(Account, pk=request.POST['acc_id'])
         
+        if other_party == 'office':
+            other_party = get_object_or_404(Account, file_no='OFFICE')
+        else:
+            try:
+                other_party = Account.objects.get(name=other_name)
+            except:
+                count = 0
+                count += len(Account.objects.filter(file_no__startswith='EXTERNAL'))
+                other_party = Account(name=other_name, file_no=f"EXTERNAL{count}", balance=0)
+                other_party.save()
+    
         if trans_type == 'received':
+            payee = other_party
+            receiver = get_object_or_404(Account, pk=acc_id)
             received = True
         else:
+            payee = get_object_or_404(Account, pk=acc_id) 
+            receiver = other_party
             received = False
+
         amounts=[]
         descriptions=[]
         total = 0
@@ -74,25 +100,22 @@ def create_trans(request, acc_id):
         for x in table_data['amounts']:
             f_amount = float(x)
             amount = int(f_amount*100) 
-            if received == True:
-                total += amount
-            else:
-                total -= amount
+            total += amount
             amounts.append(x)
 
         for desc in table_data['descriptions']:
             descriptions.append(desc)
 
-        if other_party == 'office':
-            off_acc = get_object_or_404(Account, file_no='OFFICE')
-            off_acc.balance -= total
-            
+        new_trans = Transaction(payee=payee, receiver=receiver, received=received, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total)
+        payee.balance -= total
+        receiver.balance += total
         try:
-            new_trans = account.transaction_set.create(received=received, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total)
-            account.balance += total
-            account.save()
+            print(payee.id)
+            new_trans.save()
+            payee.save()
+            receiver.save()
         except:
-            return render(request, 'polls/transaction.html', {'account':account, 'error_message':'Saving the new transaction failed for:'})
+            return render(request, 'polls/transaction.html', {'account':payee, 'error_message':'Saving the new transaction failed for:'})
 
         trans_id = new_trans.id
         return redirect(reverse('polls:voucher', args=(trans_id,)))
@@ -111,7 +134,7 @@ def voucher(request, trans_id):
         entries.append((descriptions[i],amounts[i]))
     context = {
         'transaction':transaction,
-        'account':transaction.account,
+        'account':transaction.payee,
         'entries':entries,
         'total':total,
     }
