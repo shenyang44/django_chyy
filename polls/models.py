@@ -35,3 +35,4 @@ class Transaction(models.Model):
     descriptions = models.TextField()
     amounts = models.TextField()
     total = models.IntegerField()
+    cheque_text = models.TextField(null=True)
