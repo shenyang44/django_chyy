@@ -23,7 +23,7 @@
                     <div><a href="{% url 'polls:voucher' trans.id %}">View transaction</a></div>
                 </div>
             </td>
-            <td class="text-center">{{total|floatformat:2}}</td>
+            <td class="text-center">{% if trans.received == False %}-{% endif %}{{total|floatformat:2}}</td>
         </tr>
     {% endfor %}
     </tbody>

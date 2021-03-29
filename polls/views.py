@@ -134,7 +134,7 @@ def voucher(request, trans_id):
         entries.append((descriptions[i],amounts[i]))
     context = {
         'transaction':transaction,
-        'account':transaction.payee,
+        'payee':transaction.payee,
         'entries':entries,
         'total':total,
     }
