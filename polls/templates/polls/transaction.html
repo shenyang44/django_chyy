@@ -21,7 +21,6 @@
                 <div class="mb-3">
                     <label class="form-label">Name : {{account.name}}</label>
                 </div>
-                <input hidden name="acc_id" value="{{account.id}}">
                 <label for='transSelect' class="form-label">Transaction Type:</label>
                 <select name='trans_type' class="form-select w-25" aria-label="trans-select" id='transSelect'>
                     <option value="" selected></option>
@@ -52,6 +51,8 @@
                 <br>
                 <div class="d-flex justify-content-evenly"><button id='addBtn' type="button">+ New Row</button> <button id='rmvBtn' type="button">- Remove Row</button></div> 
                 <input hidden name='table_data' id='tableData' type="text">
+                <label class="form-label" for="cheque-text">Cheque No.</label>
+                <input class="formInput form-control" type="text" name="chequeText" id="cheque-text">
                 <br>
                 <button id='transBtn' disabled type='button' class="btn btn-primary">Confirm</button>
             </form>
