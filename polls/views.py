@@ -71,7 +71,7 @@ def create_trans(request, acc_id):
         trans_type = request.POST['trans_type']
         other_party = request.POST['other_party']
         other_name = request.POST['other_name']
-        
+        cheque_text = request.POST['cheque_text']
         if other_party == 'office':
             other_party = get_object_or_404(Account, file_no='OFFICE')
         else:
@@ -106,7 +106,7 @@ def create_trans(request, acc_id):
         for desc in table_data['descriptions']:
             descriptions.append(desc)
 
-        new_trans = Transaction(payee=payee, receiver=receiver, received=received, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total)
+        new_trans = Transaction(payee=payee, receiver=receiver, received=received, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text)
         payee.balance -= total
         receiver.balance += total
         try:

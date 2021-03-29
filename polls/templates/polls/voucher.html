@@ -41,7 +41,7 @@
         </div>
         {% endfor %}
         <div class="row justify-content-end p-3" >Jumlah / Total / FILLTHIS <div class="fw-bold w-auto">RM</div>{{ total|floatformat:2 }}</div>
-        <div class="row dotted w-75 fw-bold">CHEQUE No.</div>
+        <div class="row dotted w-75 "><span class="w-auto mr-2 fw-bold">CHEQUE No.</span><span class="w-auto fs-5">{{transaction.cheque_text}}</span></div>
         <div class="row my-3">
             <div class="col">
                 <div>Diluluskan Oleh:</div>
