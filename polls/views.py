@@ -124,21 +124,29 @@ def create_trans(request, acc_id):
         account = get_object_or_404(Account, pk=acc_id)
         return render(request, 'polls/transaction.html', {'account':account})
 
-def voucher(request, trans_id):
+def receipt_voucher_retriever(trans_id):
     transaction = get_object_or_404(Transaction, pk = trans_id)
     descriptions = json.loads(transaction.descriptions)
     amounts = json.loads(transaction.amounts)
-    total = abs(transaction.total/100)
+    total = transaction.total/100
     entries=[]
     for i in range(len(descriptions)):
         entries.append((descriptions[i],amounts[i]))
-    context = {
+
+    con_dict = {
         'transaction':transaction,
-        'payee':transaction.payee,
         'entries':entries,
         'total':total,
     }
+    return con_dict
+
+def voucher(request, trans_id):
+    context = receipt_voucher_retriever(trans_id)
     return render(request, 'polls/voucher.html', context=context)
+
+def receipt(request, trans_id):
+    context = receipt_voucher_retriever(trans_id)
+    return render(request, 'polls/receipt.html', context=context)
 
 # class IndexView(generic.ListView):
 #     template_name = 'polls/index.html'
