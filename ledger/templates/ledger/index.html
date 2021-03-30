@@ -1,0 +1,13 @@
+{% extends 'ledger/layout.html' %}
+{% block title %}Index Page{% endblock %}
+{% block body %}
+    {% if accounts %}
+        <ul>
+        {% for account in accounts %}
+            <li><a href="{% url 'ledger:show_acc' account.id %}">{{ account.name }}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No accounts are available.</p>
+    {% endif %}
+{% endblock %}
