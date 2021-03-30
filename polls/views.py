@@ -6,6 +6,8 @@ from django.views import generic
 from django.utils import timezone
 import json
 from django.db.models import Q
+import inflect
+
 
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'
@@ -70,11 +72,12 @@ def create_trans(request, acc_id):
         table_data = json.loads(request.POST['table_data'])
         trans_type = request.POST['trans_type']
         other_party = request.POST['other_party']
-        other_name = request.POST['other_name']
+        
         cheque_text = request.POST['cheque_text']
         if other_party == 'office':
             other_party = get_object_or_404(Account, file_no='OFFICE')
         else:
+            other_name = request.POST['other_name']
             try:
                 other_party = Account.objects.get(name=other_name)
             except:
@@ -145,7 +148,11 @@ def voucher(request, trans_id):
     return render(request, 'polls/voucher.html', context=context)
 
 def receipt(request, trans_id):
+    p = inflect.engine()
     context = receipt_voucher_retriever(trans_id)
+    total_worded = p.number_to_words(context['total'])
+    context.update({'total_worded': total_worded})
+
     return render(request, 'polls/receipt.html', context=context)
 
 # class IndexView(generic.ListView):
