@@ -2,11 +2,16 @@
 {% block title %}Index Page{% endblock %}
 {% block body %}
     {% if accounts %}
-        <ul>
-        {% for account in accounts %}
-            <li><a href="{% url 'ledger:show_acc' account.id %}">{{ account.name }}</a></li>
-        {% endfor %}
-        </ul>
+        <div class="container">
+            <div class="row">
+                {% for account in accounts %}
+                    <div class="col-lg-4 col-6">
+                        <a href="{% url 'ledger:show_acc' account.id %}">{{account.name}}</a>
+                        <div>Current balance: account.balance</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     {% else %}
         <p>No accounts are available.</p>
     {% endif %}
