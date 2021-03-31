@@ -82,11 +82,15 @@ def show_acc(request, acc_id):
 
 def create_trans(request, acc_id):
     if request.method == 'POST':
+        # retrieving form data
         table_data = json.loads(request.POST['table_data'])
         trans_type = request.POST['trans_type']
         other_party = request.POST['other_party']
-        
         cheque_text = request.POST['cheque_text']
+
+        curr_account = get_object_or_404(Account, pk=acc_id)
+        settled = True
+
         if other_party == 'office':
             other_party = get_object_or_404(Account, file_no='OFFICE')
         else:
@@ -101,10 +105,10 @@ def create_trans(request, acc_id):
     
         if trans_type == 'received':
             payee = other_party
-            receiver = get_object_or_404(Account, pk=acc_id)
+            receiver = curr_account
             received = True
         else:
-            payee = get_object_or_404(Account, pk=acc_id) 
+            payee = curr_account
             receiver = other_party
             received = False
 
@@ -131,13 +135,15 @@ def create_trans(request, acc_id):
             payee.save()
             receiver.save()
         except:
-            return render(request, 'ledger/transaction.html', {'account':payee, 'error_message':'Saving the new transaction failed for:'})
+            return render(request, 'ledger/transaction.html', {'account':payee, 'error_message':f'Saving the new transaction failed for: {curr_account.name}'})
 
         trans_id = new_trans.id
         return redirect(reverse('ledger:voucher', args=(trans_id,)))
         
     else:
         account = get_object_or_404(Account, pk=acc_id)
+        if account.file_no.startswith('EXTERNAL') or account.file_no == 'OFFICE':
+            return redirect(reverse('ledger:index'))
         return render(request, 'ledger/transaction.html', {'account':account})
 
 def receipt_voucher_retriever(trans_id):

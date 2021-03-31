@@ -27,6 +27,12 @@ class Account(models.Model):
     def __str__(self):
         return self.name
 
+    def owing_us(self):
+        if self.file_no == 'OFFICE':
+            return self.trans_out.all().filter(settled=False)
+        else: 
+            return "Sorry but you do not have access to this."
+
 class Transaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     receiver = models.ForeignKey(Account, related_name='trans_in', on_delete=models.CASCADE)
@@ -36,3 +42,4 @@ class Transaction(models.Model):
     amounts = models.TextField()
     total = models.IntegerField()
     cheque_text = models.TextField(null=True)
+    settled = models.BooleanField(default=True)
