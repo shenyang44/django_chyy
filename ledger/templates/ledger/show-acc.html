@@ -8,10 +8,16 @@
 </header>
 
 <table class="table">
+    <colgroup>
+        <col style="width:70%">
+        <col style="width:15%">
+        <col style="width: 15%;">
+    </colgroup>
     <thead>
         <tr>
             <th scope="col">Date</th>
-            <th class="text-center" scope="col">Total</th>
+            <th class="text-center" scope="col">Debit</th>
+            <th class="text-center" scope="col">Credit</th>
         </tr>
     </thead>
     <tbody>
@@ -20,14 +26,20 @@
             <td>
                 <div class="d-flex justify-content-between">
                     <div>{{trans.created_at|date:"j. n. Y"}}</div>
-                    <div><a href="{% url 'ledger:voucher' trans.id %}">View transaction</a></div>
+                    <div>
+                        <a href="{% url 'ledger:voucher' trans.id %}"><button type="button" class="btn btn-secondary">View voucher</button></a>
+                        <a href="{% url 'ledger:receipt' trans.id %}"><button type="button" class="btn btn-secondary">View receipt</button></a>
+                    </div>
                 </div>
             </td>
-            <td class="text-center">{% if trans.received == False %}-{% endif %}{{total|floatformat:2}}</td>
+            <td class="text-center">{% if trans.received == False %}{{total|floatformat:2}}{% endif %}</td>
+            <td class="text-center">{% if trans.received == True %}{{total|floatformat:2}}{% endif %}</td>
         </tr>
     {% endfor %}
     </tbody>
   </table>
+  <div>Account Balance: {{balance|floatformat:2 }}</div>
+  <br>
 
 <a href='{% url "ledger:create_trans" account.id %}'><button type="button" class="btn btn-success">New Transaction</button></a>
 {% endblock %}

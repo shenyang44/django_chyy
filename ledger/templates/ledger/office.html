@@ -1,0 +1,15 @@
+{% extends 'ledger/layout.html' %}
+{% block title %}Office Account{% endblock %}
+
+{% block body %}
+incoming:
+{% for trans, total in ins %}
+    <div>
+        {{trans.payee.name}} : {{total}}
+    </div>
+{% endfor %}
+outgoing:
+{% for trans, total in outs %}
+    {{trans.receiver.name}} : {{total}}
+{% endfor %}
+{% endblock %}

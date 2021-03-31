@@ -1,18 +1,30 @@
 {% extends 'ledger/layout.html' %}
 {% block title %}Index Page{% endblock %}
 {% block body %}
-    {% if accounts %}
+    {% if zipped %} 
         <div class="container">
-            <div class="row">
-                {% for account in accounts %}
-                    <div class="col-lg-4 col-6">
-                        <a href="{% url 'ledger:show_acc' account.id %}">{{account.name}}</a>
-                        <div>Current balance: account.balance</div>
+            <div class="row align-items-center d-flex justify-content-center">
+                {% for account, balance in zipped %}
+                    <div data-id = '{{account.id}}' class="col-lg-3 col-4 index-cols">
+                        <div>{{account.name}}</div>
+                        
+                        <div>Current balance: {{balance|floatformat:2}}</div>
                     </div>
+                    <div class="col-1"></div>
+                    <a id='a{{account.id}}' href="{% url 'ledger:show_acc' account.id %}" style="visibility: hidden; width: 0px; padding: 0px;"></a>
                 {% endfor %}
             </div>
         </div>
     {% else %}
         <p>No accounts are available.</p>
     {% endif %}
+
+    <script charset="utf-8">
+        $(()=>{
+            $('.index-cols').click((e)=>{
+                acc_id = $(e.currentTarget).attr('data-id')
+                $(`#a${acc_id}`)[0].click()
+            })
+        })
+    </script>
 {% endblock %}
