@@ -36,3 +36,14 @@ tr input{
 .dotted{
     border-bottom: 1px dotted black;
 }
+
+.index-cols{
+    margin-top: 2em;
+    box-sizing: border-box;
+    border: 1px solid black;
+    z-index: 5;
+}
+.index-cols:hover{
+    cursor: pointer;
+    background-color: rgb(245, 245, 245);
+}

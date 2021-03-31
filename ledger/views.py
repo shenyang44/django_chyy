@@ -10,14 +10,28 @@ import inflect
 
 
 def index(request):
-    accounts =  Account.objects.filter(created_at__lte=timezone.now()).exclude(file_no__startswith='EXTERNAL')
-    return render(request, 'ledger/index.html', {'accounts':accounts})
+    accounts =  Account.objects.filter(created_at__lte=timezone.now()).exclude(file_no__startswith='EXTERNAL').exclude(file_no__startswith='OFFICE')
+    balance = [acc.balance/100 for acc in accounts]
+    zipped = zip(accounts, balance)
+    return render(request, 'ledger/index.html', {'zipped':zipped})
 
-class DetailView(generic.ListView):
-    model = Account
-    template_name='ledger/detail.html'
-    def get_queryset(self):
-        return Transaction.objects.filter(account_id = self.kwargs['pk'])
+def show_off(request):
+    account = get_object_or_404(Account, file_no = 'OFFICE')
+
+    incoming_trans = account.trans_in.all()
+    in_totals = [trans.total/100 for trans in incoming_trans]
+    ins = zip(incoming_trans, in_totals)
+
+    outgoing_trans = account.trans_out.all()
+    totals = [trans.total/100 for trans in outgoing_trans]
+    outs = zip(outgoing_trans, totals)
+
+    context = {
+        'account':account,
+        'ins' : ins,
+        'outs' : outs,
+    }
+    return render(request, 'ledger/office.html', context=context)
 
 def create_acc(request):
     if request.method == 'GET':
@@ -61,6 +75,7 @@ def show_acc(request, acc_id):
     context={
         'account':account,
         'trans_total_list': trans_total_list,
+        'balance' : account.balance/100,
     }
     return render(request, 'ledger/show-acc.html', context=context)
 
@@ -155,9 +170,9 @@ def receipt(request, trans_id):
 
 
 
-class ResultsView(generic.DetailView):
-    model= Question
-    template_name = 'ledger/results.html'
+# class ResultsView(generic.DetailView):
+#     model= Question
+#     template_name = 'ledger/results.html'
 
 
 # class IndexView(generic.ListView):
