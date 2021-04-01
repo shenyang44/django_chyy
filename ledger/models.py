@@ -28,7 +28,7 @@ class Account(models.Model):
         return self.name
 
     def owing_us(self):
-        if self.file_no == 'OFFICE':
+        if self.file_no.startswith('OFFICE'):
             return self.trans_out.all().filter(settled=False)
         else: 
             return "Sorry but you do not have access to this."

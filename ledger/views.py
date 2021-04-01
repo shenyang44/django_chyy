@@ -87,14 +87,14 @@ def create_trans(request, acc_id):
         trans_type = request.POST['trans_type']
         other_party = request.POST['other_party']
         cheque_text = request.POST['cheque_text']
-
+        other_name = request.POST['other_name']
         curr_account = get_object_or_404(Account, pk=acc_id)
         settled = True
 
         if other_party == 'office':
-            other_party = get_object_or_404(Account, file_no='OFFICE')
+            other_party = get_object_or_404(Account, name=other_name)
         else:
-            other_name = request.POST['other_name']
+            
             try:
                 other_party = Account.objects.get(name=other_name)
             except:
@@ -142,9 +142,10 @@ def create_trans(request, acc_id):
         
     else:
         account = get_object_or_404(Account, pk=acc_id)
-        if account.file_no.startswith('EXTERNAL') or account.file_no == 'OFFICE':
+        off_accs = Account.objects.filter(file_no__startswith='OFFICE')
+        if account.file_no.startswith('EXTERNAL') or account.file_no.startswith('OFFICE'):
             return redirect(reverse('ledger:index'))
-        return render(request, 'ledger/transaction.html', {'account':account})
+        return render(request, 'ledger/transaction.html', {'account':account, 'off_accs':off_accs})
 
 def receipt_voucher_retriever(trans_id):
     transaction = get_object_or_404(Transaction, pk = trans_id)
