@@ -93,8 +93,9 @@ def create_trans(request, acc_id):
 
         if other_party == 'office':
             other_party = get_object_or_404(Account, name=other_name)
+        elif other_party == 'client':
+            other_party = get_object_or_404(Account, file_no=other_name )
         else:
-            
             try:
                 other_party = Account.objects.get(name=other_name)
             except:
@@ -130,7 +131,6 @@ def create_trans(request, acc_id):
         payee.balance -= total
         receiver.balance += total
         try:
-            print(payee.id)
             new_trans.save()
             payee.save()
             receiver.save()

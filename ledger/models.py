@@ -18,12 +18,23 @@ class Choice(models.Model):
     def __str__(self):
         return self.choice_text
 
+class Client_Account(models.Model):
+    account_no = models.IntegerField()
+
+    def get_balance(self):
+        balance = 0
+        accounts = self.account_set.all()
+        for acc in accounts:
+            balance += (acc.balance/100)
+        return balance
+    
 class Account(models.Model):
     name = models.CharField(max_length=150)
     file_no = models.CharField(unique=True, max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     balance = models.IntegerField()
+    client_account = models.ForeignKey(Client_Account, on_delete=models.CASCADE, null=True)
     def __str__(self):
         return self.name
 

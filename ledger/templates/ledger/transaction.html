@@ -86,7 +86,7 @@ $(()=>{
                     $('#otherParty').after(`
                         <div id='otherInput' class="mb-3">
                             <label for="officeNo" class="form-label">Office Account Number:</label>
-                            <select name='otherName' class="mb-3 form-select w-25" aria-label="trans-select" id='officeNo'>
+                            <select name='other_name' class="mb-3 form-select w-25" aria-label="trans-select" id='officeNo'>
                                 <option value="" selected></option>
                                 {% for off_acc in off_accs %}
                                     <option value="{{off_acc.id}}">{{off_acc.name}}</option>
