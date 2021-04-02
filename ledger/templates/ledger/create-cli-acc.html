@@ -1,0 +1,51 @@
+{% extends 'ledger/layout.html' %}
+{% block title %}New Client Account{% endblock %}
+
+{% block body %}
+<h4>Create New Client Account</h4>
+<div class="d-flex">
+    <form>
+        <div class="mb-3">
+        <label for="nameInput" class="form-label">Account Number/Name </label>
+        <input type="text" class="form-control" id="nameInput" aria-describedby="nameHelp">
+        <div id="nameHelp" class="form-text">(How you want to refer/identify this account.)</div>
+        </div>
+        <div class="mb-3">
+        <label for="exampleInputPassword1" class="form-label">Password</label>
+        <input type="password" class="form-control" id="exampleInputPassword1">
+        </div>
+        <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+        <label class="form-check-label" for="exampleCheck1">Check me out</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+
+<!-- Modal for warning of use of this page. -->
+<div class="modal fade" id="newCliModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="newCliModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="newCliModalLabel">Read Carefully!</h5>
+        </div>
+        <div class="modal-body">
+            <p>This page does NOT create a new "account/ledger/file" entry for an individual client. It creates an entry for an overarching client bank account, for example: A new bank account which client files will be tied to should be created here.</p>
+            <p>If you intended to create a new file entry for a single client click on the "Redirect Me" button below.</p>
+        </div>
+        <div class="modal-footer">
+            <a href="{% url 'ledger:create_acc' %}" class="btn btn-secondary">Redirect Me</a>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Understood</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<script charset="utf-8">
+    $(()=>{
+        // launches modal on page load.
+        $('#newCliModal').modal('toggle')
+    })
+</script>
+{% endblock %}

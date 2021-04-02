@@ -175,8 +175,20 @@ def receipt(request, trans_id):
 
     return render(request, 'ledger/receipt.html', context=context)
 
+def create_cli_acc(request):
+    if request == 'POST':
+        return
+    else:
+        return render(request, 'ledger/create-cli-acc.html')
 
+def create_off_acc(request):
+    if request =='POST':
+        return
+    else:
+        return render(request, 'ledger/create-off-acc.html')
 
+def admin_options(request):
+    return render(request, 'ledger/admin-options.html')
 # class ResultsView(generic.DetailView):
 #     model= Question
 #     template_name = 'ledger/results.html'
