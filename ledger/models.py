@@ -19,21 +19,16 @@ class Choice(models.Model):
         return self.choice_text
 
 class Client_Account(models.Model):
-    account_no = models.IntegerField()
-
-    def get_balance(self):
-        balance = 0
-        accounts = self.account_set.all()
-        for acc in accounts:
-            balance += (acc.balance/100)
-        return balance
+    created_at = models.DateTimeField(auto_now_add=True)
+    name = models.TextField(unique=True)
+    balance = models.DecimalField(max_digits=11 ,decimal_places=2)
     
 class Account(models.Model):
     name = models.CharField(max_length=150)
     file_no = models.CharField(unique=True, max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    balance = models.IntegerField()
+    balance = models.DecimalField(max_digits=11, decimal_places=2)
     client_account = models.ForeignKey(Client_Account, on_delete=models.CASCADE, null=True)
     def __str__(self):
         return self.name
@@ -51,6 +46,6 @@ class Transaction(models.Model):
     received = models.BooleanField(default=True)
     descriptions = models.TextField()
     amounts = models.TextField()
-    total = models.IntegerField()
+    total = models.DecimalField(max_digits=11, decimal_places=2)
     cheque_text = models.TextField(null=True)
     settled = models.BooleanField(default=True)

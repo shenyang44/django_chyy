@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404, HttpResponseRedirect
-from .models import Question, Choice, Account, Transaction
+from .models import Question, Choice, Account, Transaction, Client_Account
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
@@ -176,14 +176,19 @@ def receipt(request, trans_id):
     return render(request, 'ledger/receipt.html', context=context)
 
 def create_cli_acc(request):
-    if request == 'POST':
-        return
+    if request.method == 'POST':
+        acc_name = request.POST['acc_name']
+        balance = request.POST['balance']
+
+        new_cli_acc = Clit
+        return redirect(reverse('ledger:index'))
     else:
         return render(request, 'ledger/create-cli-acc.html')
 
 def create_off_acc(request):
-    if request =='POST':
-        return
+    if request.method =='POST':
+
+        return redirect(reverse('ledger:index'))
     else:
         return render(request, 'ledger/create-off-acc.html')
 
