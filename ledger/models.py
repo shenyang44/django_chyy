@@ -33,11 +33,17 @@ class Account(models.Model):
     def __str__(self):
         return self.name
 
-    def owing_us(self):
+    def outstanding(self):
         if self.file_no.startswith('OFFICE'):
             return self.trans_out.all().filter(settled=False)
         else: 
             return "Sorry but you do not have access to this."
+    
+    def is_client(self):
+        if self.client_account:
+            return True
+        else:
+            return False 
 
 class Transaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
