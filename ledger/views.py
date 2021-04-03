@@ -35,9 +35,10 @@ def show_off(request):
 
 def show_cli(request):
     return render(request, 'ledger/client.html', {})
+
 def create_acc(request):
     if request.method == 'GET':
-        return render(request, 'ledger/create-acc.html')
+        return render(request, 'ledger/create-acc.html', {'cli_accs':Client_Account.objects.all()})
     else:
         name = request.POST['name']
         balance = float(request.POST['balance'])
@@ -130,14 +131,7 @@ def create_trans(request, acc_id):
         new_trans = Transaction(payee=payee, receiver=receiver, received=received, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text)
 
         payee.balance -= total
-        if payee.is_client():
-            payee.client_account.balance -= total
-            payee.client_account.save()
-
         receiver.balance += total
-        if receiver.is_client():
-            receiver.client_account.balance += total
-            receiver.client_account.save()
 
         try:
             new_trans.save()
@@ -186,8 +180,8 @@ def receipt(request, trans_id):
 def create_cli_acc(request):
     if request.method == 'POST':
         acc_name = request.POST['acc_name']
-        balance = request.POST['balance']
-        new_cli_acc = Client_Account(account_no=acc_name, balance=balance)
+        # balance = request.POST['balance']
+        new_cli_acc = Client_Account(name=acc_name)
         new_cli_acc.save()
         return redirect(reverse('ledger:index'))
     else:
