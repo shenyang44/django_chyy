@@ -16,13 +16,16 @@
           <a class="nav-link" aria-current="page" href="{% url 'ledger:index' %}">Index</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'ledger:create_acc' %}">Create New Account</a>
+          <a class="nav-link" href="{% url 'ledger:create_acc' %}">Create New File</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'ledger:show_off' %}">Office Acc</a>
+          <a class="nav-link" href="{% url 'ledger:show_off' %}">Office Account</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Disabled</a>
+          <a class="nav-link" href="{% url 'ledger:show_cli' %}">Client Account</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'ledger:admin_options' %}">Admin Options</a>
         </li>
     </ul>
     <main>

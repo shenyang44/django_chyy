@@ -1,0 +1,78 @@
+{% extends 'ledger/layout.html' %}
+{% block title %}New Client Account{% endblock %}
+
+{% block body %}
+<div class="d-flex flex-column align-items-center">
+    <h4 class="mb-3">Create New Client Account</h4>
+    <form action="{% url 'ledger:create_cli_acc' %}" method="POST" id='newCliAccForm' class="w-50">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="nameInput" class="form-label">Account Number/Name </label>
+            <input type="text" class="form-control" id="nameInput" name='acc_name' aria-describedby="nameHelp">
+            <div id="nameHelp" class="form-text">(How you want to refer to/identify this account)</div>
+        </div>
+        <div class="mb-3">
+            <label for="balanceInput" class="form-label">Current Balance:</label>
+            <div class="d-flex align-items-center">
+                <span>RM&nbsp;</span>
+                <input type="text" name='balance' class="form-control" id="balanceInput">
+            </div>
+        </div>
+        <button id='subBtn' type="button" disabled class="btn btn-primary">Confirm</button>
+    </form>
+</div>
+
+<!-- Modal for warning of use of this page. -->
+<div class="modal fade" id="newCliModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="newCliModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="newCliModalLabel">Read Carefully!</h5>
+        </div>
+        <div class="modal-body">
+            <p>This page does NOT create a new "account/ledger/file" entry for an individual client. It creates an entry for an overarching client bank account, for example: A new bank account which client files will be tied to should be created here.</p>
+            <p>If you intended to create a new file entry for a single client click on the "Redirect Me" button below.</p>
+        </div>
+        <div class="modal-footer">
+            <a href="{% url 'ledger:create_acc' %}" class="btn btn-secondary">Redirect Me</a>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Understood</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<script charset="utf-8">
+    $(()=>{
+        // launches modal on page load.
+        $('#newCliModal').modal('toggle');
+        subBtn = $('#subBtn')
+        formInputs = $('.form-control')
+
+        // disabled button if either input field is blank.
+        formInputs.keyup(()=>{
+            let filled = true;
+            formInputs.each((i,e)=>{
+                if (!$(e).val()){
+                    filled=false;
+                }
+            })
+            if (filled){
+                subBtn.attr('disabled', false)
+            } else{
+                subBtn.attr('disabled', true)
+            }
+        })
+        // Ensures the balance provided is a float to 2 decimal places.
+        subBtn.click(()=>{
+            let balVal = $('#balanceInput').val()
+            if (/^\d+\.\d{2}$/.test(balVal)){
+                $('#newCliAccForm').submit()
+            } else{
+                alert('The balance value must be a positive number with 2 decimal places.');
+            }
+        })
+
+
+    })
+</script>
+{% endblock %}

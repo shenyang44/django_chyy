@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404, HttpResponseRedirect
-from .models import Question, Choice, Account, Transaction
+from .models import Question, Choice, Account, Transaction, Client_Account
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
@@ -11,7 +11,7 @@ import inflect
 
 def index(request):
     accounts =  Account.objects.filter(created_at__lte=timezone.now()).exclude(file_no__startswith='EXTERNAL').exclude(file_no__startswith='OFFICE')
-    balance = [acc.balance/100 for acc in accounts]
+    balance = [acc.balance for acc in accounts]
     zipped = zip(accounts, balance)
     return render(request, 'ledger/index.html', {'zipped':zipped})
 
@@ -19,11 +19,11 @@ def show_off(request):
     account = get_object_or_404(Account, file_no = 'OFFICE')
 
     incoming_trans = account.trans_in.all()
-    in_totals = [trans.total/100 for trans in incoming_trans]
+    in_totals = [trans.total for trans in incoming_trans]
     ins = zip(incoming_trans, in_totals)
 
     outgoing_trans = account.trans_out.all()
-    totals = [trans.total/100 for trans in outgoing_trans]
+    totals = [trans.total for trans in outgoing_trans]
     outs = zip(outgoing_trans, totals)
 
     context = {
@@ -33,6 +33,8 @@ def show_off(request):
     }
     return render(request, 'ledger/office.html', context=context)
 
+def show_cli(request):
+    return render(request, 'ledger/client.html', {})
 def create_acc(request):
     if request.method == 'GET':
         return render(request, 'ledger/create-acc.html')
@@ -41,10 +43,10 @@ def create_acc(request):
         balance = float(request.POST['balance'])
         file_no = request.POST['file_no']
         owing = request.POST['owing']
-        if owing == 1 :
-            balance = int(balance * 100)
-        else:
-            balance = int(-(balance * 100))
+        if not owing:
+            balance = float(balance)
+        # else:
+            # new_trans = Transaction(settled=False, receiver='carried over balance', payee='office', descriptions='Owing us from previous ') WIP
         new_acc = Account(name = name, file_no= file_no, balance = balance)
         try:
             new_acc.save()
@@ -69,13 +71,13 @@ def show_acc(request, acc_id):
     if not transactions:
         trans_total_list = ''
     else:
-        totals = [trans.total/100 for trans in transactions]
+        totals = [trans.total for trans in transactions]
         trans_total_list = zip(transactions, totals)
 
     context={
         'account':account,
         'trans_total_list': trans_total_list,
-        'balance' : account.balance/100,
+        'balance' : account.balance,
     }
     return render(request, 'ledger/show-acc.html', context=context)
 
@@ -117,19 +119,26 @@ def create_trans(request, acc_id):
         descriptions=[]
         total = 0
 
-        # iterates over all amounts in trans, adding inted vals to account.balance and to total, float amt to amounts.
+        # iterates over all amounts in trans, adding floated vals to total and raw text to to amounts.
         for x in table_data['amounts']:
-            f_amount = float(x)
-            amount = int(f_amount*100) 
-            total += amount
+            total += float(x)
             amounts.append(x)
 
         for desc in table_data['descriptions']:
             descriptions.append(desc)
 
         new_trans = Transaction(payee=payee, receiver=receiver, received=received, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text)
+
         payee.balance -= total
+        if payee.is_client():
+            payee.client_account.balance -= total
+            payee.client_account.save()
+
         receiver.balance += total
+        if receiver.is_client():
+            receiver.client_account.balance += total
+            receiver.client_account.save()
+
         try:
             new_trans.save()
             payee.save()
@@ -137,8 +146,7 @@ def create_trans(request, acc_id):
         except:
             return render(request, 'ledger/transaction.html', {'account':payee, 'error_message':f'Saving the new transaction failed for: {curr_account.name}'})
 
-        trans_id = new_trans.id
-        return redirect(reverse('ledger:voucher', args=(trans_id,)))
+        return redirect(reverse('ledger:voucher', args=(new_trans.id,)))
         
     else:
         account = get_object_or_404(Account, pk=acc_id)
@@ -151,7 +159,7 @@ def receipt_voucher_retriever(trans_id):
     transaction = get_object_or_404(Transaction, pk = trans_id)
     descriptions = json.loads(transaction.descriptions)
     amounts = json.loads(transaction.amounts)
-    total = transaction.total/100
+    total = transaction.total
     entries=[]
     for i in range(len(descriptions)):
         entries.append((descriptions[i],amounts[i]))
@@ -175,8 +183,25 @@ def receipt(request, trans_id):
 
     return render(request, 'ledger/receipt.html', context=context)
 
+def create_cli_acc(request):
+    if request.method == 'POST':
+        acc_name = request.POST['acc_name']
+        balance = request.POST['balance']
+        new_cli_acc = Client_Account(account_no=acc_name, balance=balance)
+        new_cli_acc.save()
+        return redirect(reverse('ledger:index'))
+    else:
+        return render(request, 'ledger/create-cli-acc.html')
 
+def create_off_acc(request):
+    if request.method =='POST':
 
+        return redirect(reverse('ledger:index'))
+    else:
+        return render(request, 'ledger/create-off-acc.html')
+
+def admin_options(request):
+    return render(request, 'ledger/admin-options.html')
 # class ResultsView(generic.DetailView):
 #     model= Question
 #     template_name = 'ledger/results.html'
