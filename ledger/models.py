@@ -21,7 +21,11 @@ class Choice(models.Model):
 class Client_Account(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.TextField(unique=True)
-    balance = models.DecimalField(max_digits=11 ,decimal_places=2)
+    def balance(self):
+        accs = self.account_set.all()
+        balance = 0
+        for acc in accs:
+            balance += acc.balance
     
 class Account(models.Model):
     name = models.CharField(max_length=150)

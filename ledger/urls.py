@@ -13,5 +13,5 @@ urlpatterns = [
     path('create-cli-acc/', views.create_cli_acc, name='create_cli_acc'),
     path('create-off-acc/', views.create_off_acc, name='create_off_acc'),
     path('admin-options/', views.admin_options, name='admin_options'),
-    # path('<int:question_id>/vote/', views.vote, name='vote'),
+    path('show-client-accounts/', views.show_cli, name='show_cli'),
 ]

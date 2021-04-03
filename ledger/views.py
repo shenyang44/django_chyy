@@ -33,6 +33,8 @@ def show_off(request):
     }
     return render(request, 'ledger/office.html', context=context)
 
+def show_cli(request):
+    return render(request, 'ledger/client.html', {})
 def create_acc(request):
     if request.method == 'GET':
         return render(request, 'ledger/create-acc.html')
