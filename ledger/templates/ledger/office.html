@@ -2,14 +2,34 @@
 {% block title %}Office Account{% endblock %}
 
 {% block body %}
-incoming:
-{% for trans, total in ins %}
-    <div>
-        {{trans.payee.name}} : {{total}}
+<header class="d-flex align-items-center flex-column">
+    <span class="fs-3">Please Select Office Account to View.</span>
+    <div class="btn-group my-3" role="group" aria-label="Basic radio toggle button group">
+        {% for off_acc in off_accs %}
+        <input type="radio" class="btn-check" name="btnradio" data-id='{{off_acc.id}}' id = "btnRadio{{off_acc.id}}" autocomplete="off">
+        <label class="btn btn-outline-primary" for="btnRadio{{off_acc.id}}">{{off_acc.name}}</label>
+        {% endfor %}
     </div>
+</header>
+{% for off_acc, transactions in office_data %}
+<div id='off-acc-{{off_acc.id}}' class="container d-none">
+    {% for trans in transactions %}
+        <div>
+            {{trans.payee.name}} : {{trans.receiver.name}}
+        </div>
+    {% endfor %}
+</div>
 {% endfor %}
-outgoing:
-{% for trans, total in outs %}
-    {{trans.receiver.name}} : {{total}}
-{% endfor %}
+
+
+<script charset="utf-8">
+    $(()=>{
+        btnInputs = $('input');
+        btnInputs.click((e)=>{
+            id = $(e.target).attr('data-id')
+            $('.container').not(`#off-acc-${id}`).addClass('d-none')
+            $(`#off-acc-${id}`).removeClass('d-none')
+        })
+    })
+</script>
 {% endblock %}

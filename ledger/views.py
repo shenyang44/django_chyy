@@ -16,20 +16,24 @@ def index(request):
     return render(request, 'ledger/index.html', {'zipped':zipped})
 
 def show_off(request):
-    account = get_object_or_404(Account, file_no = 'OFFICE')
+    off_accs = Account.objects.filter(file_no__startswith = 'OFFICE')
+    transactions_list = []
+    for off_acc in off_accs:
+        transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc)).order_by(-created_at)
+        transactions_list.append(transactions)
+    
+    office_data = zip(off_accs, transactions_list)
+    # incoming_trans = account.trans_in.all()
+    # in_totals = [trans.total for trans in incoming_trans]
+    # ins = zip(incoming_trans, in_totals)
 
-    incoming_trans = account.trans_in.all()
-    in_totals = [trans.total for trans in incoming_trans]
-    ins = zip(incoming_trans, in_totals)
-
-    outgoing_trans = account.trans_out.all()
-    totals = [trans.total for trans in outgoing_trans]
-    outs = zip(outgoing_trans, totals)
+    # outgoing_trans = account.trans_out.all()
+    # totals = [trans.total for trans in outgoing_trans]
+    # outs = zip(outgoing_trans, totals)
 
     context = {
-        'account':account,
-        'ins' : ins,
-        'outs' : outs,
+        'off_accs':off_accs,
+        'office_data':office_data,
     }
     return render(request, 'ledger/office.html', context=context)
 

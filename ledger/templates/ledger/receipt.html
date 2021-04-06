@@ -12,7 +12,7 @@
             <div class="d-flex">Your Ref:&nbsp;<div class="border-bottom border-dark w-75"></div></div>
         </div>
         <div class="col-3">
-            <div class="mb-3 d-flex justify-content-evenly"><div>Receipt No. <span class="fw-bold">A</span></div><span class="doc-id">{{transaction.id}}</span></div>
+            <div class="mb-3 d-flex justify-content-evenly"><div>Receipt No. <span class="fw-bold">A</span></div><span class="doc-id">{{transaction.id|stringformat:"05d"}}</span></div>
             <div>Date: <span class="border-bottom border-dark">{{ transaction.created_at|date:'j. n. Y'}}</span></div>
         </div>
     </section>
