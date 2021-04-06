@@ -26,6 +26,7 @@ class Client_Account(models.Model):
         balance = 0
         for acc in accs:
             balance += acc.balance
+        return balance
     
 class Account(models.Model):
     name = models.CharField(max_length=150)

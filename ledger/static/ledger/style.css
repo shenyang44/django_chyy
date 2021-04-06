@@ -47,3 +47,9 @@ tr input{
     cursor: pointer;
     background-color: rgb(245, 245, 245);
 }
+
+.file-links{
+    text-decoration: none;
+    color: rgb(35, 35, 150);
+    font-weight: bold;
+}
