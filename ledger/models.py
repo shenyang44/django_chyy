@@ -26,6 +26,7 @@ class Client_Account(models.Model):
         balance = 0
         for acc in accs:
             balance += acc.balance
+        return balance
     
 class Account(models.Model):
     name = models.CharField(max_length=150)
@@ -48,6 +49,12 @@ class Account(models.Model):
             return True
         else:
             return False 
+    
+    def is_external(self):
+        if self.file_no.startswith('EXTERNAL'):
+            return True
+        else: 
+            return False
 
 class Transaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)

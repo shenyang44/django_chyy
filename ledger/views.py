@@ -34,20 +34,33 @@ def show_off(request):
     return render(request, 'ledger/office.html', context=context)
 
 def show_cli(request):
-    return render(request, 'ledger/client.html', {})
+    client_accs = Client_Account.objects.all()
+    accounts = [cli_acc.account_set.all() for cli_acc in client_accs]
+    totals = [cli_acc.balance() for cli_acc in client_accs]
+    for each in client_accs:
+        print(each.balance())
+    acc_data = zip(client_accs, accounts, totals)
+    context = {
+        'acc_data':acc_data,
+        'client_accs': client_accs,
+    }
+    return render(request, 'ledger/client.html', context=context)
+
 def create_acc(request):
     if request.method == 'GET':
-        return render(request, 'ledger/create-acc.html')
+        return render(request, 'ledger/create-acc.html', {'cli_accs':Client_Account.objects.all()})
     else:
         name = request.POST['name']
         balance = float(request.POST['balance'])
         file_no = request.POST['file_no']
         owing = request.POST['owing']
+        client_acc_id = request.POST['client']
+
         if not owing:
             balance = float(balance)
         # else:
             # new_trans = Transaction(settled=False, receiver='carried over balance', payee='office', descriptions='Owing us from previous ') WIP
-        new_acc = Account(name = name, file_no= file_no, balance = balance)
+        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=client_acc_id)
         try:
             new_acc.save()
         except:
@@ -130,14 +143,7 @@ def create_trans(request, acc_id):
         new_trans = Transaction(payee=payee, receiver=receiver, received=received, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text)
 
         payee.balance -= total
-        if payee.is_client():
-            payee.client_account.balance -= total
-            payee.client_account.save()
-
         receiver.balance += total
-        if receiver.is_client():
-            receiver.client_account.balance += total
-            receiver.client_account.save()
 
         try:
             new_trans.save()
@@ -186,8 +192,8 @@ def receipt(request, trans_id):
 def create_cli_acc(request):
     if request.method == 'POST':
         acc_name = request.POST['acc_name']
-        balance = request.POST['balance']
-        new_cli_acc = Client_Account(account_no=acc_name, balance=balance)
+        # balance = request.POST['balance']
+        new_cli_acc = Client_Account(name=acc_name)
         new_cli_acc.save()
         return redirect(reverse('ledger:index'))
     else:

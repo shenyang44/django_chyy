@@ -11,14 +11,14 @@
             <input type="text" class="form-control" id="nameInput" name='acc_name' aria-describedby="nameHelp">
             <div id="nameHelp" class="form-text">(How you want to refer to/identify this account)</div>
         </div>
-        <div class="mb-3">
+        <!-- <div class="mb-3">
             <label for="balanceInput" class="form-label">Current Balance:</label>
             <div class="d-flex align-items-center">
                 <span>RM&nbsp;</span>
                 <input type="text" name='balance' class="form-control" id="balanceInput">
             </div>
-        </div>
-        <button id='subBtn' type="button" disabled class="btn btn-primary">Confirm</button>
+        </div> -->
+        <button id='subBtn' type="submit" disabled class="btn btn-primary">Confirm</button>
     </form>
 </div>
 
@@ -63,15 +63,14 @@
             }
         })
         // Ensures the balance provided is a float to 2 decimal places.
-        subBtn.click(()=>{
-            let balVal = $('#balanceInput').val()
-            if (/^\d+\.\d{2}$/.test(balVal)){
-                $('#newCliAccForm').submit()
-            } else{
-                alert('The balance value must be a positive number with 2 decimal places.');
-            }
-        })
-
+        // subBtn.click(()=>{
+        //     let balVal = $('#balanceInput').val()
+        //     if (/^\d+\.\d{2}$/.test(balVal)){
+        //         $('#newCliAccForm').submit()
+        //     } else{
+        //         alert('The balance value must be a positive number with 2 decimal places.');
+        //     }
+        // })
 
     })
 </script>
