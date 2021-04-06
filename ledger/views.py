@@ -20,6 +20,7 @@ def show_off(request):
     transactions_list = []
     for off_acc in off_accs:
         transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc)).order_by(-created_at)
+
         transactions_list.append(transactions)
     
     office_data = zip(off_accs, transactions_list)
@@ -126,11 +127,9 @@ def create_trans(request, acc_id):
         if trans_type == 'received':
             payee = other_party
             receiver = curr_account
-            received = True
         else:
             payee = curr_account
             receiver = other_party
-            received = False
 
         amounts=[]
         descriptions=[]
@@ -144,7 +143,7 @@ def create_trans(request, acc_id):
         for desc in table_data['descriptions']:
             descriptions.append(desc)
 
-        new_trans = Transaction(payee=payee, receiver=receiver, received=received, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text)
+        new_trans = Transaction(payee=payee, receiver=receiver, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text)
 
         payee.balance -= total
         receiver.balance += total
