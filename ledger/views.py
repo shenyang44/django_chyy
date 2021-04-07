@@ -109,7 +109,6 @@ def create_trans(request, acc_id):
         cheque_text = request.POST['cheque_text']
         other_name = request.POST['other_name']
         curr_account = get_object_or_404(Account, pk=acc_id)
-        settled = True
 
         if other_party == 'office':
             other_party = get_object_or_404(Account, name=other_name)
@@ -211,34 +210,10 @@ def create_off_acc(request):
 
 def admin_options(request):
     return render(request, 'ledger/admin-options.html')
-# class ResultsView(generic.DetailView):
-#     model= Question
-#     template_name = 'ledger/results.html'
 
-
-# class IndexView(generic.ListView):
-#     template_name = 'ledger/index.html'
-#     context_object_name = 'latest_list'
-
-#     def get_queryset(self):
-#         return Question.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')[:5]
-
-# class DetailView(generic.DetailView):
-#     model = Question
-#     template_name='ledger/detail.html'
-#     def get_queryset(self):
-#         return Question.objects.filter(pub_date__lte=timezone.now())
-
-# def vote(request, question_id):
-#     question = get_object_or_404(Question, pk=question_id)
-#     try:
-#         selected_choice = question.choice_set.get(pk=request.POST['choice'])
-#     except (KeyError, Choice.DoesNotExist):
-#         return render(request, 'ledger/detail.html', {
-#             'question' : question,
-#             'error_message' : "You didn't select a choice.",
-#         })
-
-#     selected_choice.votes += 1
-#     selected_choice.save()
-#     return HttpResponseRedirect(reverse('ledger:results', args=(question_id,)))
+def search(request):
+    if request.method == "POST":
+        search_q = request.POST['search_q']
+        # an OR query to see if either NAME or FILE_NO field contain the searched string (case insensitive)
+        accounts = Account.objects.filter(Q(file_no__icontains = search_q) | Q(name__icontains = search_q))
+        return render(request, 'ledger/search.html', {'accs':accounts, 'search_q':search_q,})

@@ -11,23 +11,46 @@
     <title>{% block title %}Default Title{% endblock %}</title>
 </head>
 <body>
-    <ul class="print-n nav nav-pills">
-        <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="{% url 'ledger:index' %}">Index</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'ledger:create_acc' %}">Create New File</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'ledger:show_off' %}">Office Account</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'ledger:show_cli' %}">Client Account</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'ledger:admin_options' %}">Admin Options</a>
-        </li>
-    </ul>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light print-n">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="{% url 'ledger:index' %}">Index</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'ledger:create_acc' %}">Create New File</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'ledger:show_off' %}">Office Account</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'ledger:show_cli' %}">Client Account</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Admin Options
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="{% url 'ledger:create_cli_acc' %}">New Client Account</a></li>
+                <li><a class="dropdown-item" href="{% url 'ledger:create_off_acc' %}">New Office Account</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'ledger:admin_options' %}">Admin Page</a></li>
+              </ul>
+            </li>
+          </ul>
+          <form action='{% url "ledger:search" %}' method="POST" class="d-flex">
+            {% csrf_token %}
+            <input name='search_q' class="form-control me-2" type="search" placeholder="Search For File No." aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+          </form>
+        </div>
+      </div>
+    </nav>
     <main>
         {% block body %}{% endblock %}
     </main>

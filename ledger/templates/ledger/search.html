@@ -1,0 +1,33 @@
+{% extends 'ledger/layout.html' %}
+{% block title %}Search Results{% endblock %}
+
+{% block body %}
+<div>
+    {% if accs %}
+        <div class="container">
+            <div class="row align-items-center d-flex">
+                {% for acc in accs %}
+                    <div data-id = '{{acc.id}}' class="col-lg-3 col-4 index-cols">
+                        <div class="mb-1"><span class="fw-bold">Name:</span> {{acc.name}}</div>
+                        <div class="mb-1"><span class="fw-bold">File No.:</span> {{acc.file_no}}</div>
+                        <div class="mb-1"><span class="fw-bold">Current balance:</span> {{acc.balance}}</div>
+                    </div>
+                    <div class="col-1"></div>
+                    <a id='a{{acc.id}}' href="{% url 'ledger:show_acc' acc.id %}" style="visibility: hidden; width: 0px; padding: 0px;"></a>
+                {% endfor %}
+            </div>
+        </div>
+            {{acc.name}} {{acc.file_no}}
+    {% else %}
+        <p class="text-center my-3 fs-4">Sorry but no files containing "<span class="fw-bold">{{search_q}}</span>" were found.</p>
+    {% endif %}
+</div>
+<script charset="utf-8">
+    $(()=>{
+        $('.index-cols').click((e)=>{
+            acc_id = $(e.currentTarget).attr('data-id')
+            $(`#a${acc_id}`)[0].click()
+        })
+    })
+</script>
+{% endblock %}
