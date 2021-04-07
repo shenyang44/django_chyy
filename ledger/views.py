@@ -19,8 +19,7 @@ def show_off(request):
     off_accs = Account.objects.filter(file_no__startswith = 'OFFICE')
     transactions_list = []
     for off_acc in off_accs:
-        transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc)).order_by(-created_at)
-
+        transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc)).order_by('-created_at')
         transactions_list.append(transactions)
     
     office_data = zip(off_accs, transactions_list)
@@ -203,7 +202,17 @@ def create_cli_acc(request):
 
 def create_off_acc(request):
     if request.method =='POST':
-
+        name = request.POST['acc_name']
+        balance = float(request.POST['balance'])
+        file_no = 'OFFICE' + name
+    
+        new_acc = Account(name = name, file_no= file_no, balance = balance)
+        try:
+            new_acc.save()
+        except:
+            return render(request, 'ledger/create-off-acc.html', {
+                'error_message' : "Error encountered in saving the account failed.",
+            })
         return redirect(reverse('ledger:index'))
     else:
         return render(request, 'ledger/create-off-acc.html')
