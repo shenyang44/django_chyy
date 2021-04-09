@@ -24,13 +24,6 @@ def show_off(request):
         transactions_list.append(transactions)
     
     office_data = zip(off_accs, transactions_list)
-    # incoming_trans = account.trans_in.all()
-    # in_totals = [trans.total for trans in incoming_trans]
-    # ins = zip(incoming_trans, in_totals)
-
-    # outgoing_trans = account.trans_out.all()
-    # totals = [trans.total for trans in outgoing_trans]
-    # outs = zip(outgoing_trans, totals)
 
     context = {
         'off_accs':off_accs,
@@ -86,16 +79,10 @@ def show_acc(request, acc_id):
         )
     except:
         transactions = ''
-    if not transactions:
-        trans_total_list = ''
-    else:
-        totals = [trans.total for trans in transactions]
-        trans_total_list = zip(transactions, totals)
 
     context={
         'account':account,
-        'trans_total_list': trans_total_list,
-        'balance' : account.balance,
+        'transactions': transactions,
     }
     return render(request, 'ledger/show-acc.html', context=context)
 
