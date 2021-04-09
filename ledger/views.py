@@ -7,6 +7,7 @@ from django.utils import timezone
 import json
 from django.db.models import Q
 import inflect
+from decimal import Decimal
 
 
 def index(request):
@@ -55,13 +56,13 @@ def create_acc(request):
         return render(request, 'ledger/create-acc.html', {'cli_accs':Client_Account.objects.all()})
     else:
         name = request.POST['name']
-        balance = float(request.POST['balance'])
+        balance = Decimal(request.POST['balance'])
         file_no = request.POST['file_no']
         owing = request.POST['owing']
         client_acc_id = request.POST['client']
 
         if not owing:
-            balance = float(balance)
+            balance = Decimal(balance)
         # else:
             # new_trans = Transaction(settled=False, receiver='carried over balance', payee='office', descriptions='Owing us from previous ') WIP
         new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=client_acc_id)
@@ -135,7 +136,7 @@ def create_trans(request, acc_id):
 
         # iterates over all amounts in trans, adding floated vals to total and raw text to to amounts.
         for x in table_data['amounts']:
-            total += float(x)
+            total += Decimal(x)
             amounts.append(x)
 
         for desc in table_data['descriptions']:
@@ -203,7 +204,7 @@ def create_cli_acc(request):
 def create_off_acc(request):
     if request.method =='POST':
         name = request.POST['acc_name']
-        balance = float(request.POST['balance'])
+        balance = Decimal(request.POST['balance'])
         file_no = 'OFFICE' + name
     
         new_acc = Account(name = name, file_no= file_no, balance = balance)
@@ -224,5 +225,5 @@ def search(request):
     if request.method == "POST":
         search_q = request.POST['search_q']
         # an OR query to see if either NAME or FILE_NO field contain the searched string (case insensitive)
-        accounts = Account.objects.filter(Q(file_no__icontains = search_q) | Q(name__icontains = search_q))
+        accounts = Account.objects.filter(Q(file_no__icontains = search_q) | Q(name__icontains = search_q)).exclude(file_no__startswith = 'EXTERNAL')
         return render(request, 'ledger/search.html', {'accs':accounts, 'search_q':search_q,})

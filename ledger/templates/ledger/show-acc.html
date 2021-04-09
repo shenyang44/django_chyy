@@ -41,7 +41,8 @@
                     </div>
                 </div>
             </td>
-            <td class="text-center">{{total}}</td>
+            <td class="text-center">{% if trans.payee.file_no == account.file_no %}{{total}} {% endif %}</td>
+            <td class="text-center">{% if trans.receiver.file_no == account.file_no %}{{total}}{% endif %}</td>
         </tr>
     {% endfor %}
     </tbody>
