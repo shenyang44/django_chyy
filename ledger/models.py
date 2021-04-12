@@ -65,3 +65,8 @@ class Transaction(models.Model):
     total = models.DecimalField(max_digits=11, decimal_places=2)
     cheque_text = models.TextField(null=True)
     settled = models.BooleanField(default=True)
+
+class Running_Balance(models.Model):
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
+    value = models.DecimalField(max_digits=11, decimal_places=2)

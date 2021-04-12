@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404, HttpResponseRedirect
-from .models import Question, Choice, Account, Transaction, Client_Account
+from .models import Account, Transaction, Client_Account, Running_Balance
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
@@ -21,7 +21,12 @@ def show_off(request):
     transactions_list = []
     for off_acc in off_accs:
         transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc)).order_by('-created_at')
-        transactions_list.append(transactions)
+        entries_list =[]
+        for i, trans in enumerate(transactions):
+            descriptions = json.loads(trans.descriptions)
+            amounts = json.loads(trans.amounts)
+            entries_list.append(zip(descriptions, amounts))
+        transactions_list.append(zip(transactions, entries_list))
     
     office_data = zip(off_accs, transactions_list)
 
@@ -139,7 +144,6 @@ def create_trans(request, acc_id):
             descriptions.append(desc)
 
         new_trans = Transaction(payee=payee, receiver=receiver, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text)
-
         payee.balance -= total
         receiver.balance += total
 
@@ -150,6 +154,13 @@ def create_trans(request, acc_id):
         except:
             return render(request, 'ledger/transaction.html', {'account':payee, 'error_message':f'Saving the new transaction failed for: {curr_account.name}'})
 
+        payee_rb = Running_Balance(account = payee, transaction = new_trans, value = payee.balance)
+        receiver_rb = Running_Balance(account=receiver, transaction=new_trans, value=receiver.balance)
+        try:
+            payee_rb.save()
+            receiver_rb.save()
+        except:
+            return render(request, 'ledger/transaction.html', {'account':payee, 'error_message':f'Saving the new transaction failed for: {curr_account.name}'})
         return redirect(reverse('ledger:voucher', args=(new_trans.id,)))
         
     else:

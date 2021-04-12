@@ -1,0 +1,1 @@
+Check if new transaction amounts exceed acc balance before approving.

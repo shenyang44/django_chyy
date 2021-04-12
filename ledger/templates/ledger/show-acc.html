@@ -11,8 +11,9 @@
     <colgroup>
         <col style="width:10%;">
         <col style="width: 60%;">
-        <col style="width:15%">
-        <col style="width: 15%;">
+        <col style="width:10%">
+        <col style="width: 10%;">
+        <col style="width: 10%;">
     </colgroup>
     <thead>
         <tr>
@@ -20,11 +21,11 @@
             <th scope="col">Item</th>
             <th class="text-center" scope="col">Debit</th>
             <th class="text-center" scope="col">Credit</th>
+            <th class="text-center" scope="col">Balance</th>
         </tr>
     </thead>
     <tbody>
     {% for trans, entries in trans_zipped %}
-        {{entries}}
         {% for desc, amt in entries %}
             <tr class="transRow">
                 <td>{{trans.created_at|date:"j. n. Y"}}</td>
