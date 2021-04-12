@@ -80,9 +80,18 @@ def show_acc(request, acc_id):
     except:
         transactions = ''
 
+    entries_list=[]
+    for trans in transactions:
+        descriptions = json.loads(trans.descriptions)
+        amounts = json.loads(trans.amounts)
+        entries = []
+        for i in range(len(descriptions)):
+            entries.append((descriptions[i],amounts[i]))
+        entries_list.append(entries)
+
     context={
         'account':account,
-        'transactions': transactions,
+        'trans_zipped': zip(transactions, entries_list)
     }
     return render(request, 'ledger/show-acc.html', context=context)
 
