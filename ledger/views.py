@@ -27,8 +27,11 @@ def show_off(request):
             descriptions = json.loads(trans.descriptions)
             amounts = json.loads(trans.amounts)
             entries_list.append(zip(descriptions, amounts))
-            rb = get_object_or_404(Running_Balance, account = off_acc, transaction = trans)
-            rb_list.append(rb.value)
+            try:
+                rb = Running_Balance.objects.get(account = account, transaction=trans)
+                rb_list.append(rb.value)
+            except:
+                rb_list.append('fail')
         transactions_list.append(zip(transactions, entries_list, rb_list))
     
     office_data = zip(off_accs, transactions_list)
@@ -97,12 +100,16 @@ def show_acc(request, acc_id):
         for i in range(len(descriptions)):
             entries.append((descriptions[i],amounts[i]))
         entries_list.append(entries)
-        rb = get_object_or_404(Running_Balance, account=account, transaction=trans)
-        rb_list.append(rb.value)
+        try:
+            rb = Running_Balance.objects.get(account = account, transaction=trans)
+            rb_list.append(rb.value)
+        except:
+            rb_list.append('fail')
+        
 
     context={
         'account':account,
-        'trans_zipped': zip(transactions, entries_list)
+        'trans_zipped': zip(transactions, entries_list, rb_list)
     }
     return render(request, 'ledger/show-acc.html', context=context)
 
