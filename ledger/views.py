@@ -22,11 +22,14 @@ def show_off(request):
     for off_acc in off_accs:
         transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc)).order_by('-created_at')
         entries_list =[]
-        for i, trans in enumerate(transactions):
+        rb_list = []
+        for trans in transactions:
             descriptions = json.loads(trans.descriptions)
             amounts = json.loads(trans.amounts)
             entries_list.append(zip(descriptions, amounts))
-        transactions_list.append(zip(transactions, entries_list))
+            rb = get_object_or_404(Running_Balance, account = off_acc, transaction = trans)
+            rb_list.append(rb.value)
+        transactions_list.append(zip(transactions, entries_list, rb_list))
     
     office_data = zip(off_accs, transactions_list)
 
@@ -86,6 +89,7 @@ def show_acc(request, acc_id):
         transactions = ''
 
     entries_list=[]
+    rb_list=[]
     for trans in transactions:
         descriptions = json.loads(trans.descriptions)
         amounts = json.loads(trans.amounts)
@@ -93,6 +97,8 @@ def show_acc(request, acc_id):
         for i in range(len(descriptions)):
             entries.append((descriptions[i],amounts[i]))
         entries_list.append(entries)
+        rb = get_object_or_404(Running_Balance, account=account, transaction=trans)
+        rb_list.append(rb.value)
 
     context={
         'account':account,
@@ -161,7 +167,10 @@ def create_trans(request, acc_id):
             receiver_rb.save()
         except:
             return render(request, 'ledger/transaction.html', {'account':payee, 'error_message':f'Saving the new transaction failed for: {curr_account.name}'})
-        return redirect(reverse('ledger:voucher', args=(new_trans.id,)))
+        if curr_account == payee:
+            return redirect(reverse('ledger:voucher', args=(new_trans.id,)))
+        else:
+            return redirect(reverse('ledger:receipt', args=(new_trans.id,)))
         
     else:
         account = get_object_or_404(Account, pk=acc_id)
