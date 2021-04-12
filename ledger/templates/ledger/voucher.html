@@ -18,7 +18,7 @@
         <div class="row align-items-center">
             <div class="col"></div>
             <div class="fw-bold col d-flex justify-content-center">BAUCER</div>
-            <div class="col d-flex justify-content-evenly fs-4"><span class="fw-bold">A</span><span class='doc-id'>{{transaction.id}}</span></div>
+            <div class="col d-flex justify-content-evenly fs-4"><span class="fw-bold">A</span><span class='doc-id'>{{transaction.id|stringformat:"05d"}}</span></div>
         </div>
         <div class="row justify-content-center">FILLTHIS</div>
         {% if transaction.payee.file_no == "OFFICE" %}

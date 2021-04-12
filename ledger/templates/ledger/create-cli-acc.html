@@ -8,7 +8,7 @@
         {% csrf_token %}
         <div class="mb-3">
             <label for="nameInput" class="form-label">Account Number/Name </label>
-            <input type="text" class="form-control" id="nameInput" name='acc_name' aria-describedby="nameHelp">
+            <input type="text" class="form-control mand-inp" id="nameInput" name='acc_name' aria-describedby="nameHelp">
             <div id="nameHelp" class="form-text">(How you want to refer to/identify this account)</div>
         </div>
         <!-- <div class="mb-3">
@@ -46,7 +46,7 @@
         // launches modal on page load.
         $('#newCliModal').modal('toggle');
         subBtn = $('#subBtn')
-        formInputs = $('.form-control')
+        formInputs = $('.mand-inp')
 
         // disabled button if either input field is blank.
         formInputs.keyup(()=>{
