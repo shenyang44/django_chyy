@@ -113,7 +113,15 @@ def show_acc(request, acc_id):
     }
     return render(request, 'ledger/show-acc.html', context=context)
 
+def off_trans(request, acc_id):
+    if request.method == 'GET':
+        return render(request, 'ledger/off-trans.html')
+    else:
 
+        if curr_account == payee:
+            return redirect(reverse('ledger:voucher', args=(new_trans.id,)))
+        else:
+            return redirect(reverse('ledger:receipt', args=(new_trans.id,)))
 def create_trans(request, acc_id):
     if request.method == 'POST':
         # retrieving form data
@@ -181,10 +189,20 @@ def create_trans(request, acc_id):
         
     else:
         account = get_object_or_404(Account, pk=acc_id)
+        other_cli_accs = Account.objects.filter(client_account__isnull=False).exclude(id = account.id)
+            
+        file_no_list = [acc.file_no for acc in other_cli_accs]
+
         off_accs = Account.objects.filter(file_no__startswith='OFFICE')
-        if account.file_no.startswith('EXTERNAL') or account.file_no.startswith('OFFICE'):
+        if account.is_external():
             return redirect(reverse('ledger:index'))
-        return render(request, 'ledger/transaction.html', {'account':account, 'off_accs':off_accs})
+        
+        context = {
+            'account':account,
+            'off_accs':off_accs,
+            'file_no_list': json.dumps(file_no_list) 
+        }
+        return render(request, 'ledger/transaction.html', context=context)
 
 def receipt_voucher_retriever(trans_id):
     transaction = get_object_or_404(Transaction, pk = trans_id)

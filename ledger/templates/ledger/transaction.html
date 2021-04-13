@@ -16,7 +16,9 @@
             <form id='transForm' action="{% url 'ledger:create_trans' account.id %}" method="post">
                 {% csrf_token %}
                 <div class="mb-3 d-flex justify-content-around fs-5">
-                    <label class="form-label">For File : {{account.file_no}}</label>
+                    {% if not account.is_office %}
+                        <label class="form-label">For File : {{account.file_no}}</label>
+                    {% endif %}
                     <label class="form-label">Name : {{account.name}}</label>
                 </div>
                 <label for='transSelect' class="form-label">Transaction Type:</label>
@@ -29,9 +31,13 @@
                 <label for='otherParty' class="form-label">Other Party:</label>
                 <select name='other_party' class="mb-3 form-select w-25" aria-label="trans-select" id='otherParty'>
                     <option value="" selected></option>
-                    <option value="office">Office</option>
+                    {% if not account.is_office %}
+                        <option value="office">Office</option>
+                    {% endif %}
                     <option value="other">3rd Party</option>
-                    <option value="client">Another Client Acc</option>
+                    <option value="client">
+                        Client Account
+                    </option>
                 </select>
                 <table style="width:100%">
                     <colgroup>
@@ -64,7 +70,6 @@
 $(()=>{
     let transBtn = $('#transBtn');
     let otherParty = $('#otherParty');
-
     // if other is selected then input is added for account name.
     otherParty.change((e)=>{
         let currVal = $(e.target).val()
@@ -92,7 +97,7 @@ $(()=>{
             $('#otherParty').after(`
                 <div id='otherInput' class="mb-3">
                     <label for="otherName" class="form-label">Client's File No. :</label>
-                    <input name='other_name' type="text" class="formInput form-control" id="otherName">
+                    <input name='other_name' type="text" class="formInput form-control" id="otherCli">
                 </div>
             `)
         }
@@ -145,16 +150,28 @@ $(()=>{
         return y;
     }
 
+    let fileNoList = JSON.parse('{{ file_no_list|escapejs }}')
+    cli_acc_check = () =>{
+        if (!fileNoList.includes($('#otherCli').val())){
+            return false;
+        } else{
+            return true;
+        }
+    }
     // runs both functions above, and submits form if both are true.
     transBtn.click(()=>{
         if (emptyCheck()){
             if (amountCheck()){
-                let tableData = {
+                if (cli_acc_check()){
+                    let tableData = {
                     descriptions : descriptions,
                     amounts : amounts
-                };
-                $('#tableData').val(JSON.stringify(tableData));
-                $('#transForm').submit();
+                    };
+                    $('#tableData').val(JSON.stringify(tableData));
+                    $('#transForm').submit();
+                } else{
+                    alert('The client file number provided does not exist.')
+                }
             }else{
                 alert('The transaction amount must be a positive number with 2 decimal places.')
             }

@@ -14,5 +14,6 @@ urlpatterns = [
     path('create-off-acc/', views.create_off_acc, name='create_off_acc'),
     path('admin-options/', views.admin_options, name='admin_options'),
     path('show-client-accounts/', views.show_cli, name='show_cli'),
-    path('search-results/', views.search, name='search')
+    path('search-results/', views.search, name='search'),
+    path('<int:off_id>/office-trans/', views.off_trans, name='off_trans')
 ]

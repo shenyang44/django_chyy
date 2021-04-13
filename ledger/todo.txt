@@ -1,3 +1,5 @@
 Check if new transaction amounts exceed acc balance before approving.
 
 On voucher/receipt page there should be links to the current account and the other acc(if applicable) and to view the corresponding vouch/rec.
+
+guard against external or off accs accessing new trans/voucher or receipt view/ etc.
