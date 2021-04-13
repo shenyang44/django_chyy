@@ -22,7 +22,10 @@ tr input{
 .print-y{
     box-sizing: border-box;
 }
-
+.btn-cluster{
+    display: flex;
+    justify-content: space-around;
+}
 @media print {
     .print-n{
         display: none;

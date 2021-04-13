@@ -113,15 +113,6 @@ def show_acc(request, acc_id):
     }
     return render(request, 'ledger/show-acc.html', context=context)
 
-def off_trans(request, acc_id):
-    if request.method == 'GET':
-        return render(request, 'ledger/off-trans.html')
-    else:
-
-        if curr_account == payee:
-            return redirect(reverse('ledger:voucher', args=(new_trans.id,)))
-        else:
-            return redirect(reverse('ledger:receipt', args=(new_trans.id,)))
 def create_trans(request, acc_id):
     if request.method == 'POST':
         # retrieving form data
@@ -222,13 +213,19 @@ def receipt_voucher_retriever(trans_id):
 
 def voucher(request, trans_id):
     context = receipt_voucher_retriever(trans_id)
+    context.update({
+        'account':context['transaction'].payee
+    })
     return render(request, 'ledger/voucher.html', context=context)
 
 def receipt(request, trans_id):
     p = inflect.engine()
     context = receipt_voucher_retriever(trans_id)
-    total_worded = p.number_to_words(context['total'])
-    context.update({'total_worded': total_worded})
+    # total_worded = p.number_to_words(context['total'])
+    # context.update({'total_worded': total_worded})
+    context.update({
+        'account':context['transaction'].receiver
+    })
 
     return render(request, 'ledger/receipt.html', context=context)
 
