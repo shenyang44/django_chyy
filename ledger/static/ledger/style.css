@@ -9,7 +9,7 @@ main {
     font-weight: bold;
 }
 
-table, th, td {
+.bordered{
     border: 1px solid black;
     border-collapse: collapse;
 }
@@ -29,6 +29,9 @@ tr input{
 @media print {
     .print-n{
         display: none;
+    }
+    .print-sm{
+        font-size: 8pt;
     }
 }
 

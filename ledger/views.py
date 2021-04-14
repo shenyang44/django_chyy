@@ -64,12 +64,12 @@ def create_acc(request):
         file_no = request.POST['file_no']
         owing = request.POST['owing']
         client_acc_id = request.POST['client']
-
+        client_acc = get_object_or_404(Client_Account, id = client_acc_id)
         if not owing:
             balance = Decimal(balance)
         # else:
             # new_trans = Transaction(settled=False, receiver='carried over balance', payee='office', descriptions='Owing us from previous ') WIP
-        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=client_acc_id)
+        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=client_acc)
         try:
             new_acc.save()
         except:
@@ -124,7 +124,7 @@ def create_trans(request, acc_id):
         curr_account = get_object_or_404(Account, pk=acc_id)
 
         if other_party == 'office':
-            other_party = get_object_or_404(Account, name=other_name)
+            other_party = get_object_or_404(Account, id=other_name)
         elif other_party == 'client':
             other_party = get_object_or_404(Account, file_no=other_name )
         else:

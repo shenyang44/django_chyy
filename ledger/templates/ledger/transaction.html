@@ -39,18 +39,18 @@
                         Client Account
                     </option>
                 </select>
-                <table style="width:100%">
+                <table style="width:100%" class="bordered">
                     <colgroup>
                         <col style="width:75%">
                         <col style="width:25%">
                     </colgroup>
                     <tr>
-                      <th>&nbsp For</th>
-                      <th>&nbsp RM</th>
+                      <th class="bordered">&nbsp For</th>
+                      <th class="bordered">&nbsp RM</th>
                     </tr>
                     <tr class="trIn">
-                      <td><input type="text" class="descript"></td>
-                      <td><input type="text" class="amount"></td>
+                      <td class="bordered"><input type="text" class="descript"></td>
+                      <td class="bordered"><input type="text" class="amount"></td>
                     </tr>
                 </table>
                 <br>
@@ -152,6 +152,9 @@ $(()=>{
 
     let fileNoList = JSON.parse('{{ file_no_list|escapejs }}')
     cli_acc_check = () =>{
+        if ($("#otherCli").length < 1){
+            return true;
+        }
         if (!fileNoList.includes($('#otherCli').val())){
             return false;
         } else{
@@ -183,8 +186,8 @@ $(()=>{
     $('#addBtn').click(()=>{
         $('table').append(`
             <tr class='trIn'>
-                <td><input type="text" class="descript" id=""></td>
-                <td><input type="text" class="amount" id=""></td>
+                <td class="bordered"><input type="text" class="descript" id=""></td>
+                <td class="bordered"><input type="text" class="amount" id=""></td>
             </tr>
         `)
     })
