@@ -92,9 +92,17 @@
     {% for trans, entries, rb in trans_zipped %}
         {% for desc, amt in entries %}
             <tr class="transRow" data-id="{{trans.id}}">
-                <td>
-                    {% if account == trans.payee %}PV{% else %}RC{% endif %}{{trans.id|stringformat:"05d"}}
-                </td>
+                {% if account == trans.payee %}
+                    <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
+                    <td class="refCell">
+                        PV{{trans.id|stringformat:"05d"}}
+                    </td>
+                {% else %}
+                    <a href="{% url 'ledger:receipt' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
+                    <td class="refCell">
+                        RC{{trans.id|stringformat:"05d"}}
+                    </td>
+                {% endif %}
                 <td>{{trans.created_at|date:"d/m/Y"}}</td>
                 <td>{{trans.type_code}}</td>
                 <td>
@@ -117,8 +125,9 @@
 
 <script charset="utf-8">
     $(()=>{
-        $('.transRow').dblclick(()=>{
-            window.location.href = '{% url "ledger:" %}'
+        $('.transRow').dblclick((e)=>{
+            id = $(e.currentTarget).attr('data-id');
+            $(`#a${id}`)[0].click()
         })
     })
 </script>

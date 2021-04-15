@@ -59,3 +59,9 @@ tr input{
     color: rgb(35, 35, 150);
     font-weight: bold;
 }
+
+.hidden-links{
+    visibility: hidden;
+    width: 0px;
+    padding: 0px;
+}
