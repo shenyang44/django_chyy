@@ -95,15 +95,20 @@
                 {% if account == trans.payee %}
                     <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
                     <td class="refCell">
+                        {% if forloop.first %}
                         PV{{trans.id|stringformat:"05d"}}
+                        {% endif %}
                     </td>
                 {% else %}
                     <a href="{% url 'ledger:receipt' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
                     <td class="refCell">
+                        {% if forloop.first %}
                         RC{{trans.id|stringformat:"05d"}}
+                        {% endif %}
                     </td>
                 {% endif %}
-                <td>{{trans.created_at|date:"d/m/Y"}}</td>
+                <td>
+                    {% if forloop.first %}{{trans.created_at|date:"d/m/Y"}}{% endif %}</td>
                 <td>{{trans.type_code}}</td>
                 <td>
                     <div class="d-flex justify-content-between">
