@@ -8,6 +8,7 @@ import json
 from django.db.models import Q
 import inflect
 from decimal import Decimal
+from django.contrib import messages
 
 
 def index(request):
@@ -78,9 +79,8 @@ def create_acc(request):
         try:
             new_acc.save()
         except:
-            return render(request, 'ledger/create-acc.html', {
-                'error_message' : "Error encountered in saving the account failed.",
-            })
+            messages.error(request, 'Error encountered in saving the account.')
+            return render(request, 'ledger/create-acc.html')
             
         return redirect(reverse('ledger:show_acc', args=(new_acc.id,)))
 
@@ -173,7 +173,8 @@ def create_trans(request, acc_id):
             payee.save()
             receiver.save()
         except:
-            return render(request, 'ledger/transaction.html', {'account':payee, 'error_message':f'Saving the new transaction failed for: {curr_account.name}'})
+            messages.error(request, f'Saving the new transaction failed for: {curr_account.name}')
+            return render(request, 'ledger/transaction.html', {'account':payee})
 
         payee_rb = Running_Balance(account = payee, transaction = new_trans, value = payee.balance)
         receiver_rb = Running_Balance(account=receiver, transaction=new_trans, value=receiver.balance)
@@ -181,7 +182,8 @@ def create_trans(request, acc_id):
             payee_rb.save()
             receiver_rb.save()
         except:
-            return render(request, 'ledger/transaction.html', {'account':payee, 'error_message':f'Saving the new transaction failed for: {curr_account.name}'})
+            messages.error(request, f'Saving the running balance portion of transaction failed for: {curr_account.name}')
+            return render(request, 'ledger/transaction.html', {'account':payee})
         if curr_account == payee:
             return redirect(reverse('ledger:voucher', args=(new_trans.id,)))
         else:
@@ -228,6 +230,10 @@ def voucher(request, trans_id):
     return render(request, 'ledger/voucher.html', context=context)
 
 def receipt(request, trans_id):
+    trans = get_object_or_404(Transaction, pk = trans_id)
+    if trans.receiver.is_external() or trans.receiver.is_office():
+        messages.warning(request, 'Only client files can view receipts, not available for office or external accounts.')
+        return redirect(reverse('ledger:index'))
     p = inflect.engine()
     context = receipt_voucher_retriever(trans_id)
     # total_worded = p.number_to_words(context['total'])
@@ -258,9 +264,8 @@ def create_off_acc(request):
         try:
             new_acc.save()
         except:
-            return render(request, 'ledger/create-off-acc.html', {
-                'error_message' : "Error encountered in saving the account failed.",
-            })
+            messages.error(request, 'Error encountered in saving the account.')
+            return render(request, 'ledger/create-off-acc.html')
         return redirect(reverse('ledger:index'))
     else:
         return render(request, 'ledger/create-off-acc.html')
