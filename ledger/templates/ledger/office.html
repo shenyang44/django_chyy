@@ -13,7 +13,7 @@
 </header>
 {% for off_acc, trans_zipped in office_data %}
 <div class='d-none offEach' id='off-acc-{{off_acc.id}}' >
-    <div class="text-center mb-3"><button class="btn btn-success">New Transaction</button></div>
+    <div class="text-center mb-3"><a href='{% url "ledger:create_trans" off_acc.id %}' class="btn btn-success">New Transaction</a></div>
     <table  class="table">
         <colgroup>
             <col style="width: 10%;">

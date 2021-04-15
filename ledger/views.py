@@ -64,12 +64,12 @@ def create_acc(request):
         file_no = request.POST['file_no']
         owing = request.POST['owing']
         client_acc_id = request.POST['client']
-
+        client_acc = get_object_or_404(Client_Account, id = client_acc_id)
         if not owing:
             balance = Decimal(balance)
         # else:
             # new_trans = Transaction(settled=False, receiver='carried over balance', payee='office', descriptions='Owing us from previous ') WIP
-        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=client_acc_id)
+        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=client_acc)
         try:
             new_acc.save()
         except:
@@ -113,7 +113,6 @@ def show_acc(request, acc_id):
     }
     return render(request, 'ledger/show-acc.html', context=context)
 
-
 def create_trans(request, acc_id):
     if request.method == 'POST':
         # retrieving form data
@@ -125,7 +124,7 @@ def create_trans(request, acc_id):
         curr_account = get_object_or_404(Account, pk=acc_id)
 
         if other_party == 'office':
-            other_party = get_object_or_404(Account, name=other_name)
+            other_party = get_object_or_404(Account, id=other_name)
         elif other_party == 'client':
             other_party = get_object_or_404(Account, file_no=other_name )
         else:
@@ -181,10 +180,20 @@ def create_trans(request, acc_id):
         
     else:
         account = get_object_or_404(Account, pk=acc_id)
+        other_cli_accs = Account.objects.filter(client_account__isnull=False).exclude(id = account.id)
+            
+        file_no_list = [acc.file_no for acc in other_cli_accs]
+
         off_accs = Account.objects.filter(file_no__startswith='OFFICE')
-        if account.file_no.startswith('EXTERNAL') or account.file_no.startswith('OFFICE'):
+        if account.is_external():
             return redirect(reverse('ledger:index'))
-        return render(request, 'ledger/transaction.html', {'account':account, 'off_accs':off_accs})
+        
+        context = {
+            'account':account,
+            'off_accs':off_accs,
+            'file_no_list': json.dumps(file_no_list) 
+        }
+        return render(request, 'ledger/transaction.html', context=context)
 
 def receipt_voucher_retriever(trans_id):
     transaction = get_object_or_404(Transaction, pk = trans_id)
@@ -204,13 +213,19 @@ def receipt_voucher_retriever(trans_id):
 
 def voucher(request, trans_id):
     context = receipt_voucher_retriever(trans_id)
+    context.update({
+        'account':context['transaction'].payee
+    })
     return render(request, 'ledger/voucher.html', context=context)
 
 def receipt(request, trans_id):
     p = inflect.engine()
     context = receipt_voucher_retriever(trans_id)
-    total_worded = p.number_to_words(context['total'])
-    context.update({'total_worded': total_worded})
+    # total_worded = p.number_to_words(context['total'])
+    # context.update({'total_worded': total_worded})
+    context.update({
+        'account':context['transaction'].receiver
+    })
 
     return render(request, 'ledger/receipt.html', context=context)
 
