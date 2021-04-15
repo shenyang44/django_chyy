@@ -9,7 +9,7 @@ main {
     font-weight: bold;
 }
 
-table, th, td {
+.bordered{
     border: 1px solid black;
     border-collapse: collapse;
 }
@@ -22,10 +22,16 @@ tr input{
 .print-y{
     box-sizing: border-box;
 }
-
+.btn-cluster{
+    display: flex;
+    justify-content: space-around;
+}
 @media print {
     .print-n{
         display: none;
+    }
+    .print-sm{
+        font-size: 8pt;
     }
 }
 
@@ -52,4 +58,10 @@ tr input{
     text-decoration: none;
     color: rgb(35, 35, 150);
     font-weight: bold;
+}
+
+.hidden-links{
+    visibility: hidden;
+    width: 0px;
+    padding: 0px;
 }

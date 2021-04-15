@@ -13,7 +13,7 @@
                         <div class="mb-1"><span class="fw-bold">Current balance:</span> {{acc.balance}}</div>
                     </div>
                     <div class="col-1"></div>
-                    <a id='a{{acc.id}}' href="{% url 'ledger:show_acc' acc.id %}" style="visibility: hidden; width: 0px; padding: 0px;"></a>
+                    <a id='a{{acc.id}}' href="{% url 'ledger:show_acc' acc.id %}" class="hidden-links"></a>
                 {% endfor %}
             </div>
         </div>
