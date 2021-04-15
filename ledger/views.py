@@ -64,12 +64,17 @@ def create_acc(request):
         file_no = request.POST['file_no']
         owing = request.POST['owing']
         client_acc_id = request.POST['client']
+        subject_matter = request.POST['subject_matter']
         client_acc = get_object_or_404(Client_Account, id = client_acc_id)
+        # getting client code from file_no.
+        file_no_split = file_no.split('/')
+        client_code = file_no_split[-2] + file_no_split[-1]
+
         if not owing:
             balance = Decimal(balance)
         # else:
             # new_trans = Transaction(settled=False, receiver='carried over balance', payee='office', descriptions='Owing us from previous ') WIP
-        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=client_acc)
+        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=client_acc, client_code=client_code, subject_matter=subject_matter)
         try:
             new_acc.save()
         except:
@@ -77,7 +82,7 @@ def create_acc(request):
                 'error_message' : "Error encountered in saving the account failed.",
             })
             
-        return redirect(reverse('ledger:index', args=()))
+        return redirect(reverse('ledger:show_acc', args=(new_acc.id,)))
 
 
 def show_acc(request, acc_id):
@@ -263,5 +268,5 @@ def search(request):
     if request.method == "POST":
         search_q = request.POST['search_q']
         # an OR query to see if either NAME or FILE_NO field contain the searched string (case insensitive)
-        accounts = Account.objects.filter(Q(file_no__icontains = search_q) | Q(name__icontains = search_q)).exclude(file_no__startswith = 'EXTERNAL')
+        accounts = Account.objects.filter(Q(file_no__icontains = search_q) | Q(name__icontains = search_q) | Q(client_code__icontains = search_q)).exclude(file_no__startswith = 'EXTERNAL')
         return render(request, 'ledger/search.html', {'accs':accounts, 'search_q':search_q,})

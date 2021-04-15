@@ -15,36 +15,42 @@
         <div class="col-lg-6">
             <form id='newAccForm' action="{% url 'ledger:create_acc' %}" method="post">
                 {% csrf_token %}
-                <div class="mb-3">
+                <div class="mb-3 w-75">
                     <label for="nameInput" class="form-label">File Owner's Name</label>
-                    <input data-id='0' name='name' type="text" class="formInput form-control" id="nameInput">
+                    <input name='name' type="text" class="formInput form-control" id="nameInput">
                 </div>
-                <div class="mb-3">
-                    <label for="balanceInput" class="form-label">Current Balance</label>
-                    <div class="d-flex align-items-center">
-                        <span>RM&nbsp;</span>
-                        <input data-id="1" name='balance' type="text" class="formInput form-control" id="balanceInput">
-                    </div>
-                    
-                </div>
-                <div class="mb-3">
+                <div class="mb-3 w-75">
                     <label for="fileNoInput" class="form-label">File Number</label>
-                    <input data-id='2' type="text" name='file_no' class="formInput form-control" id="fileNoInput">
+                    <input type="text" name='file_no' class="formInput form-control" id="fileNoInput">
                 </div>
-                <label for='balanceSelect' class="form-label">Owing us?</label>
-                <select data-id='3' name='owing' class="form-select formInput w-25 mb-3" aria-label="balance-select" id='balanceSelect'>
-                    <option value="" selected></option>
-                    <option value="1">Yes</option>
-                    <option value="0">No</option>
-                </select>
+                <div class="mb-3">
+                    <label for="subjMatInput" class="form-label">Subject Matter:</label>
+                    <input type="text" name='subject_matter' class="formInput form-control" id="subjMatInput">
+                </div>
+                <div class="mb-3 d-flex justify-content-between">
+                    <div style='width: 40%;'>
+                        <label for="balanceInput" class="form-label">Current Balance:</label>
+                        <div class="d-flex align-items-center">
+                            <span>RM&nbsp;</span>
+                            <input data-id="1" name='balance' type="text" class="formInput form-control" id="balanceInput">
+                        </div>
+                    </div>
+                    <div style="width: 40%;">
+                        <label for='balanceSelect' class="form-label">Owing us?</label>
+                        <select data-id='3' name='owing' class="form-select formInput w-75" aria-label="balance-select" id='balanceSelect'>
+                            <option value="" selected></option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>         
+                </div>
                 <label for='clientSelect' class="form-label">Under which client account:</label>
-                <select data-id='3' name='client' class="formInput form-select w-75" aria-label="client-select" id='clientSelect'>
+                <select name='client' class="formInput form-select w-75" aria-label="client-select" id='clientSelect'>
                     <option value="" selected></option>
                     {% for cli_acc in cli_accs %}
                         <option value="{{cli_acc.id}}">{{cli_acc.name}}</option>
                     {% endfor %}
                 </select>
-                
                 <br>
                 <button id='accBtn' type='button' disabled class="btn btn-primary">Submit</button>
             </form>

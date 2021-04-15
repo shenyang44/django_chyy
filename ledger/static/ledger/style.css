@@ -65,3 +65,9 @@ tr input{
     width: 0px;
     padding: 0px;
 }
+
+/* within show-acc / office acc view */
+.transRow:hover{
+    background-color: lightgray;
+    cursor: pointer;
+}
