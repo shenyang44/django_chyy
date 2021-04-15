@@ -18,7 +18,7 @@
         <div class="row align-items-center">
             <div class="col"></div>
             <div class="fw-bold col d-flex justify-content-center">BAUCER</div>
-            <div class="col d-flex justify-content-evenly fs-4"><span class="fw-bold">A</span><span class='doc-id'>{{transaction.id}}</span></div>
+            <div class="col d-flex justify-content-evenly fs-4"><span class="fw-bold">A</span><span class='doc-id'>{{transaction.id|stringformat:"05d"}}</span></div>
         </div>
         <div class="row justify-content-center">FILLTHIS</div>
         {% if transaction.payee.file_no == "OFFICE" %}
@@ -64,7 +64,17 @@
         </div>
     </div>
 </div>
-<div class='print-n'><button class="btn btn-secondary" type="button" onclick="window.print()">Print</button></div>
+<div class='mt-3 print-n btn-cluster'>
+    <button class="btn btn-secondary" type="button" onclick="window.print()">Print</button>
+    {% if account.is_office %}
+    <a class='btn btn-outline-primary' href="{% url 'ledger:show_off' %}">View Account</a>
+    {% else %}
+    <a class="btn btn-outline-primary" href="{% url 'ledger:show_acc' account.id %}">View Account</a>
+    {% endif %}
+    {% if not transaction.receiver.is_external %}
+    <a class="btn btn-outline-primary" href="{% url 'ledger:receipt'  transaction.id %}">View corresponding receipt.</a>
+    {% endif %}
+</div>
 
 {% endblock %}
 

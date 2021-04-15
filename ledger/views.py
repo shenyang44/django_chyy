@@ -1,12 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404, HttpResponseRedirect
-from .models import Question, Choice, Account, Transaction, Client_Account
+from .models import Account, Transaction, Client_Account, Running_Balance
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
 import json
 from django.db.models import Q
 import inflect
+from decimal import Decimal
 
 
 def index(request):
@@ -16,20 +17,28 @@ def index(request):
     return render(request, 'ledger/index.html', {'zipped':zipped})
 
 def show_off(request):
-    account = get_object_or_404(Account, file_no = 'OFFICE')
-
-    incoming_trans = account.trans_in.all()
-    in_totals = [trans.total for trans in incoming_trans]
-    ins = zip(incoming_trans, in_totals)
-
-    outgoing_trans = account.trans_out.all()
-    totals = [trans.total for trans in outgoing_trans]
-    outs = zip(outgoing_trans, totals)
+    off_accs = Account.objects.filter(file_no__startswith = 'OFFICE')
+    transactions_list = []
+    for off_acc in off_accs:
+        transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc)).order_by('-created_at')
+        entries_list =[]
+        rb_list = []
+        for trans in transactions:
+            descriptions = json.loads(trans.descriptions)
+            amounts = json.loads(trans.amounts)
+            entries_list.append(zip(descriptions, amounts))
+            try:
+                rb = Running_Balance.objects.get(account = account, transaction=trans)
+                rb_list.append(rb.value)
+            except:
+                rb_list.append('fail')
+        transactions_list.append(zip(transactions, entries_list, rb_list))
+    
+    office_data = zip(off_accs, transactions_list)
 
     context = {
-        'account':account,
-        'ins' : ins,
-        'outs' : outs,
+        'off_accs':off_accs,
+        'office_data':office_data,
     }
     return render(request, 'ledger/office.html', context=context)
 
@@ -51,16 +60,16 @@ def create_acc(request):
         return render(request, 'ledger/create-acc.html', {'cli_accs':Client_Account.objects.all()})
     else:
         name = request.POST['name']
-        balance = float(request.POST['balance'])
+        balance = Decimal(request.POST['balance'])
         file_no = request.POST['file_no']
         owing = request.POST['owing']
         client_acc_id = request.POST['client']
-
+        client_acc = get_object_or_404(Client_Account, id = client_acc_id)
         if not owing:
-            balance = float(balance)
+            balance = Decimal(balance)
         # else:
             # new_trans = Transaction(settled=False, receiver='carried over balance', payee='office', descriptions='Owing us from previous ') WIP
-        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=client_acc_id)
+        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=client_acc)
         try:
             new_acc.save()
         except:
@@ -81,19 +90,28 @@ def show_acc(request, acc_id):
         )
     except:
         transactions = ''
-    if not transactions:
-        trans_total_list = ''
-    else:
-        totals = [trans.total for trans in transactions]
-        trans_total_list = zip(transactions, totals)
+
+    entries_list=[]
+    rb_list=[]
+    for trans in transactions:
+        descriptions = json.loads(trans.descriptions)
+        amounts = json.loads(trans.amounts)
+        entries = []
+        for i in range(len(descriptions)):
+            entries.append((descriptions[i],amounts[i]))
+        entries_list.append(entries)
+        try:
+            rb = Running_Balance.objects.get(account = account, transaction=trans)
+            rb_list.append(rb.value)
+        except:
+            rb_list.append('fail')
+        
 
     context={
         'account':account,
-        'trans_total_list': trans_total_list,
-        'balance' : account.balance,
+        'trans_zipped': zip(transactions, entries_list, rb_list)
     }
     return render(request, 'ledger/show-acc.html', context=context)
-
 
 def create_trans(request, acc_id):
     if request.method == 'POST':
@@ -104,10 +122,9 @@ def create_trans(request, acc_id):
         cheque_text = request.POST['cheque_text']
         other_name = request.POST['other_name']
         curr_account = get_object_or_404(Account, pk=acc_id)
-        settled = True
 
         if other_party == 'office':
-            other_party = get_object_or_404(Account, name=other_name)
+            other_party = get_object_or_404(Account, id=other_name)
         elif other_party == 'client':
             other_party = get_object_or_404(Account, file_no=other_name )
         else:
@@ -122,11 +139,9 @@ def create_trans(request, acc_id):
         if trans_type == 'received':
             payee = other_party
             receiver = curr_account
-            received = True
         else:
             payee = curr_account
             receiver = other_party
-            received = False
 
         amounts=[]
         descriptions=[]
@@ -134,14 +149,13 @@ def create_trans(request, acc_id):
 
         # iterates over all amounts in trans, adding floated vals to total and raw text to to amounts.
         for x in table_data['amounts']:
-            total += float(x)
+            total += Decimal(x)
             amounts.append(x)
 
         for desc in table_data['descriptions']:
             descriptions.append(desc)
 
-        new_trans = Transaction(payee=payee, receiver=receiver, received=received, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text)
-
+        new_trans = Transaction(payee=payee, receiver=receiver, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text)
         payee.balance -= total
         receiver.balance += total
 
@@ -152,14 +166,34 @@ def create_trans(request, acc_id):
         except:
             return render(request, 'ledger/transaction.html', {'account':payee, 'error_message':f'Saving the new transaction failed for: {curr_account.name}'})
 
-        return redirect(reverse('ledger:voucher', args=(new_trans.id,)))
+        payee_rb = Running_Balance(account = payee, transaction = new_trans, value = payee.balance)
+        receiver_rb = Running_Balance(account=receiver, transaction=new_trans, value=receiver.balance)
+        try:
+            payee_rb.save()
+            receiver_rb.save()
+        except:
+            return render(request, 'ledger/transaction.html', {'account':payee, 'error_message':f'Saving the new transaction failed for: {curr_account.name}'})
+        if curr_account == payee:
+            return redirect(reverse('ledger:voucher', args=(new_trans.id,)))
+        else:
+            return redirect(reverse('ledger:receipt', args=(new_trans.id,)))
         
     else:
         account = get_object_or_404(Account, pk=acc_id)
+        other_cli_accs = Account.objects.filter(client_account__isnull=False).exclude(id = account.id)
+            
+        file_no_list = [acc.file_no for acc in other_cli_accs]
+
         off_accs = Account.objects.filter(file_no__startswith='OFFICE')
-        if account.file_no.startswith('EXTERNAL') or account.file_no.startswith('OFFICE'):
+        if account.is_external():
             return redirect(reverse('ledger:index'))
-        return render(request, 'ledger/transaction.html', {'account':account, 'off_accs':off_accs})
+        
+        context = {
+            'account':account,
+            'off_accs':off_accs,
+            'file_no_list': json.dumps(file_no_list) 
+        }
+        return render(request, 'ledger/transaction.html', context=context)
 
 def receipt_voucher_retriever(trans_id):
     transaction = get_object_or_404(Transaction, pk = trans_id)
@@ -179,13 +213,19 @@ def receipt_voucher_retriever(trans_id):
 
 def voucher(request, trans_id):
     context = receipt_voucher_retriever(trans_id)
+    context.update({
+        'account':context['transaction'].payee
+    })
     return render(request, 'ledger/voucher.html', context=context)
 
 def receipt(request, trans_id):
     p = inflect.engine()
     context = receipt_voucher_retriever(trans_id)
-    total_worded = p.number_to_words(context['total'])
-    context.update({'total_worded': total_worded})
+    # total_worded = p.number_to_words(context['total'])
+    # context.update({'total_worded': total_worded})
+    context.update({
+        'account':context['transaction'].receiver
+    })
 
     return render(request, 'ledger/receipt.html', context=context)
 
@@ -201,41 +241,27 @@ def create_cli_acc(request):
 
 def create_off_acc(request):
     if request.method =='POST':
-
+        name = request.POST['acc_name']
+        balance = Decimal(request.POST['balance'])
+        file_no = 'OFFICE' + name
+    
+        new_acc = Account(name = name, file_no= file_no, balance = balance)
+        try:
+            new_acc.save()
+        except:
+            return render(request, 'ledger/create-off-acc.html', {
+                'error_message' : "Error encountered in saving the account failed.",
+            })
         return redirect(reverse('ledger:index'))
     else:
         return render(request, 'ledger/create-off-acc.html')
 
 def admin_options(request):
     return render(request, 'ledger/admin-options.html')
-# class ResultsView(generic.DetailView):
-#     model= Question
-#     template_name = 'ledger/results.html'
 
-
-# class IndexView(generic.ListView):
-#     template_name = 'ledger/index.html'
-#     context_object_name = 'latest_list'
-
-#     def get_queryset(self):
-#         return Question.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')[:5]
-
-# class DetailView(generic.DetailView):
-#     model = Question
-#     template_name='ledger/detail.html'
-#     def get_queryset(self):
-#         return Question.objects.filter(pub_date__lte=timezone.now())
-
-# def vote(request, question_id):
-#     question = get_object_or_404(Question, pk=question_id)
-#     try:
-#         selected_choice = question.choice_set.get(pk=request.POST['choice'])
-#     except (KeyError, Choice.DoesNotExist):
-#         return render(request, 'ledger/detail.html', {
-#             'question' : question,
-#             'error_message' : "You didn't select a choice.",
-#         })
-
-#     selected_choice.votes += 1
-#     selected_choice.save()
-#     return HttpResponseRedirect(reverse('ledger:results', args=(question_id,)))
+def search(request):
+    if request.method == "POST":
+        search_q = request.POST['search_q']
+        # an OR query to see if either NAME or FILE_NO field contain the searched string (case insensitive)
+        accounts = Account.objects.filter(Q(file_no__icontains = search_q) | Q(name__icontains = search_q)).exclude(file_no__startswith = 'EXTERNAL')
+        return render(request, 'ledger/search.html', {'accs':accounts, 'search_q':search_q,})
