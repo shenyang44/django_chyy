@@ -2,71 +2,81 @@
 {% block title %}{{account.file_no}}{% endblock %}
 
 {% block body %}
-<header class="fs-5 fw-bold text-center mb-3">
-    <div>MESSRS C.H.YEOH & YIEW</div>
-    <div>Transaction History</div>
-</header>
-<div class="container d-flex flex-wrap">
-    <div class="d-flex flex-column fw-bold print-sm">
-        <div>
-            Client Code:
-        </div>
-        <div>
-            Name:
-        </div>
-        <div >
-            File Ref:
-        </div>
-        <div>
-            Sub. Matter:
-        </div>
-    </div>
-    <div style="width: 30%;"class="ms-3 d-flex flex-column print-sm">
-        <div>
-            {{account.client_code}}
-        </div>
-        <div>
-            {{account.name}}
-        </div>
-        <div>
-            {{account.file_no}}
-        </div>
-        <div>
-            {{account.subject_matter}}
-        </div>
-    </div>
-    <div style="width: 30%;" class="fw-bold d-flex align-items-center print-sm">
-        Your Ref:
-    </div>
-    <div class="d-flex flex-column fw-bold print-sm">
-        <div>
-            Client Ledger
-        </div>
-        <div>
-            Report Date:
-        </div>
-        <div>
-            Page:
-        </div>
-    </div>
-    <div class="d-flex flex-column print-sm">
-        <br>
-        <div>
-            {% now "d/m/Y" %}
-        </div>
-        <div>
-            todo
-        </div>
-    </div>
-    <div style="width: 100%;" class="d-flex print-sm">
-        <div class="w-25">
-            <span class="fw-bold">Date From: &nbsp;</span>todo 
-        </div>
-        <div class="w-25">
-            <span class="fw-bold">Date To: &nbsp;</span>todo
-        </div>
-    </div>
-</div>
+
+<table class="w-100">
+    <thead>
+        <tr>
+            <td>
+                <header class="fs-5 fw-bold text-center mb-3">
+                    <div>MESSRS C.H.YEOH & YIEW</div>
+                    <div>Transaction History</div>
+                </header>
+                <div class="container d-flex flex-wrap">
+                <div class="d-flex flex-column fw-bold print-sm">
+                    <div>
+                        Client Code:
+                    </div>
+                    <div>
+                        Name:
+                    </div>
+                    <div >
+                        File Ref:
+                    </div>
+                    <div>
+                        Sub. Matter:
+                    </div>
+                </div>
+                <div style="width: 30%;"class="ms-3 d-flex flex-column print-sm">
+                    <div>
+                        {{account.client_code}}
+                    </div>
+                    <div>
+                        {{account.name}}
+                    </div>
+                    <div>
+                        {{account.file_no}}
+                    </div>
+                    <div>
+                        {{account.subject_matter}}
+                    </div>
+                </div>
+                <div style="width: 30%;" class="fw-bold d-flex align-items-center print-sm">
+                    Your Ref:
+                </div>
+                <div class="d-flex flex-column fw-bold print-sm">
+                    <div>
+                        Client Ledger
+                    </div>
+                    <div>
+                        Report Date:
+                    </div>
+                    <div>
+                        Page:
+                    </div>
+                </div>
+                <div class="d-flex flex-column print-sm">
+                    <br>
+                    <div>
+                        {% now "d/m/Y" %}
+                    </div>
+                    <div>
+                        todo
+                    </div>
+                </div>
+                <div style="width: 100%;" class="d-flex print-sm">
+                    <div class="w-25">
+                        <span class="fw-bold">Date From: &nbsp;</span>todo 
+                    </div>
+                    <div class="w-25">
+                        <span class="fw-bold">Date To: &nbsp;</span>todo
+                    </div>
+                </div>
+                </div>
+            </td>
+        </tr>
+    </thead>
+</table>
+
 <table class="table print-sm">
     <colgroup>
         <col style="width: 10%;">

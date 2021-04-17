@@ -45,7 +45,7 @@
 <div class='mt-3 print-n btn-cluster'>
     <button class="btn btn-secondary" type="button" onclick="window.print()">Print</button>
     <a class="btn btn-outline-primary" href="{% url 'ledger:show_acc' account.id %}">View Account</a>
-    {% if not transaction.receiver.is_external %}
+    {% if not transaction.payee.is_external %}
     <a class="btn btn-outline-primary" href="{% url 'ledger:voucher' transaction.id %}">View corresponding voucher</a>
     {% endif %}
 </div>

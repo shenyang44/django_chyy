@@ -4,6 +4,7 @@ guard against external or off accs accessing new trans/voucher or receipt view/ 
 
 delete off_trans stuff if not used.
 
+limit number of input rows in transaction.
 
 holder below.
  
