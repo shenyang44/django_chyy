@@ -8,6 +8,7 @@ import json
 from django.db.models import Q
 import inflect
 from decimal import Decimal
+from django.contrib import messages
 
 
 def index(request):
@@ -64,20 +65,24 @@ def create_acc(request):
         file_no = request.POST['file_no']
         owing = request.POST['owing']
         client_acc_id = request.POST['client']
+        subject_matter = request.POST['subject_matter']
         client_acc = get_object_or_404(Client_Account, id = client_acc_id)
+        # getting client code from file_no.
+        file_no_split = file_no.split('/')
+        client_code = file_no_split[-2] + file_no_split[-1]
+
         if not owing:
             balance = Decimal(balance)
         # else:
             # new_trans = Transaction(settled=False, receiver='carried over balance', payee='office', descriptions='Owing us from previous ') WIP
-        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=client_acc)
+        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=client_acc, client_code=client_code, subject_matter=subject_matter)
         try:
             new_acc.save()
         except:
-            return render(request, 'ledger/create-acc.html', {
-                'error_message' : "Error encountered in saving the account failed.",
-            })
+            messages.error(request, 'Error encountered in saving the account.')
+            return render(request, 'ledger/create-acc.html')
             
-        return redirect(reverse('ledger:index', args=()))
+        return redirect(reverse('ledger:show_acc', args=(new_acc.id,)))
 
 
 def show_acc(request, acc_id):
@@ -121,8 +126,12 @@ def create_trans(request, acc_id):
         other_party = request.POST['other_party']
         cheque_text = request.POST['cheque_text']
         other_name = request.POST['other_name']
+        
         curr_account = get_object_or_404(Account, pk=acc_id)
-
+        type_code = ''
+        if not curr_account.is_office():
+            type_code = request.POST['type_code']
+    
         if other_party == 'office':
             other_party = get_object_or_404(Account, id=other_name)
         elif other_party == 'client':
@@ -155,7 +164,7 @@ def create_trans(request, acc_id):
         for desc in table_data['descriptions']:
             descriptions.append(desc)
 
-        new_trans = Transaction(payee=payee, receiver=receiver, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text)
+        new_trans = Transaction(payee=payee, receiver=receiver, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text, type_code=type_code)
         payee.balance -= total
         receiver.balance += total
 
@@ -164,7 +173,8 @@ def create_trans(request, acc_id):
             payee.save()
             receiver.save()
         except:
-            return render(request, 'ledger/transaction.html', {'account':payee, 'error_message':f'Saving the new transaction failed for: {curr_account.name}'})
+            messages.error(request, f'Saving the new transaction failed for: {curr_account.name}')
+            return render(request, 'ledger/transaction.html', {'account':payee})
 
         payee_rb = Running_Balance(account = payee, transaction = new_trans, value = payee.balance)
         receiver_rb = Running_Balance(account=receiver, transaction=new_trans, value=receiver.balance)
@@ -172,7 +182,8 @@ def create_trans(request, acc_id):
             payee_rb.save()
             receiver_rb.save()
         except:
-            return render(request, 'ledger/transaction.html', {'account':payee, 'error_message':f'Saving the new transaction failed for: {curr_account.name}'})
+            messages.error(request, f'Saving the running balance portion of transaction failed for: {curr_account.name}')
+            return render(request, 'ledger/transaction.html', {'account':payee})
         if curr_account == payee:
             return redirect(reverse('ledger:voucher', args=(new_trans.id,)))
         else:
@@ -219,6 +230,10 @@ def voucher(request, trans_id):
     return render(request, 'ledger/voucher.html', context=context)
 
 def receipt(request, trans_id):
+    trans = get_object_or_404(Transaction, pk = trans_id)
+    if trans.receiver.is_external() or trans.receiver.is_office():
+        messages.warning(request, 'Only client files can view receipts, not available for office or external accounts.')
+        return redirect(reverse('ledger:index'))
     p = inflect.engine()
     context = receipt_voucher_retriever(trans_id)
     # total_worded = p.number_to_words(context['total'])
@@ -249,9 +264,8 @@ def create_off_acc(request):
         try:
             new_acc.save()
         except:
-            return render(request, 'ledger/create-off-acc.html', {
-                'error_message' : "Error encountered in saving the account failed.",
-            })
+            messages.error(request, 'Error encountered in saving the account.')
+            return render(request, 'ledger/create-off-acc.html')
         return redirect(reverse('ledger:index'))
     else:
         return render(request, 'ledger/create-off-acc.html')
@@ -263,5 +277,5 @@ def search(request):
     if request.method == "POST":
         search_q = request.POST['search_q']
         # an OR query to see if either NAME or FILE_NO field contain the searched string (case insensitive)
-        accounts = Account.objects.filter(Q(file_no__icontains = search_q) | Q(name__icontains = search_q)).exclude(file_no__startswith = 'EXTERNAL')
+        accounts = Account.objects.filter(Q(file_no__icontains = search_q) | Q(name__icontains = search_q) | Q(client_code__icontains = search_q)).exclude(file_no__startswith = 'EXTERNAL')
         return render(request, 'ledger/search.html', {'accs':accounts, 'search_q':search_q,})

@@ -2,11 +2,6 @@
 {% block title %}View Voucher{% endblock %}
 
 {% block body %}
-{% if error_message %} 
-<div class="alert alert-danger" role="alert">
-    {{error_message}} {{transaction.payee.file_no}}
-</div>
-{% endif %}
 <div class='print-y p-2 m-2'>
     <header class='d-flex flex-column align-items-center'>
         <div class='fs-2 fw-bold'>C. H. YEOH & YIEW</div>

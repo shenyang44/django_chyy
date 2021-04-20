@@ -36,6 +36,7 @@ class Account(models.Model):
     balance = models.DecimalField(max_digits=11, decimal_places=2)
     client_account = models.ForeignKey(Client_Account, on_delete=models.CASCADE, null=True)
     client_code = models.CharField(max_length=20, null=True)
+    subject_matter = models.TextField(null=True)
     def __str__(self):
         return self.name
 
