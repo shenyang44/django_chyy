@@ -2,52 +2,99 @@
 {% block title %}View Client Accounts{% endblock %}
 
 {% block body %}
-    <header class="d-flex align-items-center flex-column">
-        <span class="fs-3">Please Select Client Account to View.</span>
-        <div class="btn-group my-3" role="group" aria-label="Basic radio toggle button group">
-            {% for cli_acc in client_accs %}
-            <input type="radio" class="btn-check" name="btnradio" data-id='{{cli_acc.id}}' id="btnRadio{{cli_acc.id}}" autocomplete="off">
-            <label class="btn btn-outline-primary" for="btnRadio{{cli_acc.id}}">{{cli_acc.name}}</label>
-            {% endfor %}
-        </div>
-    </header>
-    {% for cli_acc, accounts, total in acc_data %}
-        <div id="cli-acc-{{cli_acc.id}}" class="d-none container">
-            {% for acc in accounts %}
-            <div class="row mb-3 justify-content-evenly border-bottom border-dark">
-                <div class="col-9">
-                    <a class='file-links' href="{% url 'ledger:show_acc' acc.id %}">{{acc.name}} | {{acc.file_no}}</a>
+<div class="print-n">
+    <div class='d-flex justify-content-around w-75'>
+        <form action="{% url 'ledger:show_cli' %}" method="POST">
+            {% csrf_token %}
+            Final View Date: <input name='date_to' type="text" id="datepicker">
+            <button>Update</button>
+        </form>
+        <button id='printBtn' class="btn btn-secondary" type="button" onclick="window.print()">Print</button>
+        <a class="btn btn-outline-primary" href="{% url 'ledger:create_acc' %}">New File</a>
+    </div>
+    <hr>
+</div>
+<table class="table print-sm">
+    <colgroup>
+        <col style="width: 30%;">
+        <col style="width: 20%;">
+        <col style="width: 20%;">
+        <col style="width: 30%;">
+    </colgroup>
+    <thead>
+        <tr style="border-bottom: 2px solid black;">
+            <th colspan="4">
+                <header class="fs-5 text-center mb-3">
+                    MESSRS C.H.YEOH & YIEW
+                </header>
+                <div class="container d-flex flex-wrap">
+                    <div style="width: 100%;" class="d-flex print-sm">
+                        <div class="w-25">
+                            Date From: &nbsp;<span class="fw-normal">01/01/2000</span> 
+                        </div>
+                        <div class="w-25"> 
+                            Date To: &nbsp;<span class="fw-normal">{{ date_to|date:'d/m/Y' }}</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-1 text-end border-start border-dark">
-                    RM
-                </div>
-                <div class="col-2 text-end">
-                    {{acc.balance}}
-                </div>
-            </div>
-            {% endfor %}
-            <div class="row text-end">
-                <div class="col">
-                    Total:
-                </div>
-                <div class="col-1 text-end">
-                    RM
-                </div>
-                <div class="col-2">
-                    {{total}}
-                </div>
-            </div>
-        </div>
-    {% endfor %}
-    
-    <script charset="utf-8">
-        $(()=>{
-            btnInputs = $('input');
-            btnInputs.click((e)=>{
-                id = $(e.target).attr('data-id')
-                $('.container').not(`#cli-acc-${id}`).addClass('d-none')
-                $(`#cli-acc-${id}`).removeClass('d-none')
-            })
+            </td>
+        </tr>
+        <tr>
+            <th scope="col">Client/Name</th>
+            <th scope="col">File Ref</th>
+            <th class="text-center" scope="col">Date Range Balance</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for acc, rb in accounts_data %}
+            <tr class="transRow {% if forloop.last %}border-bottom border-dark{% endif %}" data-id="{{acc.id}}">
+                <a href="{% url 'ledger:show_acc' acc.id %}" id = a{{acc.id}} class="hidden-links"></a>
+                <td class="refCell">
+                    <div>
+                        {{acc.client_code}}
+                    </div>
+                    <div>
+                        {{acc.name|upper}}
+                    </div>
+                </td>
+                <td>{{acc.file_no}}</td>
+                <td class="text-end">
+                    <br>
+                    {{rb}}
+                </td>
+                {% if forloop.last %}
+                    <td></td>
+                {% endif %}
+            </tr>
+          
+        {% endfor %}
+        <tr class="border-bottom border-dark">
+            <td>
+                Total Clients: todo
+            </td>
+            <td class="text-end">
+                Grand Total:
+            </td>
+            <td class="text-end">
+                {{total}} 
+            </td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
+<script charset="utf-8">
+    $(()=>{
+        $('.transRow').dblclick((e)=>{
+            id = $(e.currentTarget).attr('data-id');
+            $(`#a${id}`)[0].click()
         })
-    </script>
+        $( "#datepicker" ).datepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: 'dd/mm/yy'
+        });
+    })
+</script>
 {% endblock %}

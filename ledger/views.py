@@ -9,6 +9,7 @@ from django.db.models import Q
 import inflect
 from decimal import Decimal
 from django.contrib import messages
+from datetime import datetime, timedelta
 
 
 def index(request):
@@ -44,15 +45,27 @@ def show_off(request):
     return render(request, 'ledger/office.html', context=context)
 
 def show_cli(request):
-    client_accs = Client_Account.objects.all()
-    accounts = [cli_acc.account_set.all() for cli_acc in client_accs]
-    totals = [cli_acc.balance() for cli_acc in client_accs]
-    for each in client_accs:
-        print(each.balance())
-    acc_data = zip(client_accs, accounts, totals)
+    if request.method == 'POST':
+        date_input = request.POST['date_to']
+        date_to = datetime.strptime(date_input, "%d/%m/%Y")
+    else:
+        date_to=timezone.localdate()
+    
+    accounts = Account.objects.filter(client_account__isnull=False)
+    rbs = []
+    total = Decimal(0.00)
+    for acc in accounts:
+        try:
+            last_rb = Running_Balance.objects.filter(account_id=acc.id, created_at__lte=date_to+timedelta(days=1)).order_by('-created_at')[0].value
+        except:
+            last_rb = Decimal(0.00)
+            # messages.error(request, f'File with client code: {acc.client_code} does not have any running balance prior to date selected')
+        total += last_rb
+        rbs.append(last_rb)
     context = {
-        'acc_data':acc_data,
-        'client_accs': client_accs,
+        'accounts_data': zip(accounts,rbs),
+        'total': total,
+        'date_to' : date_to
     }
     return render(request, 'ledger/client.html', context=context)
 
@@ -66,10 +79,8 @@ def create_acc(request):
         owing = request.POST['owing']
         client_acc_id = request.POST['client']
         subject_matter = request.POST['subject_matter']
+        client_code = request.POST['client_code']
         client_acc = get_object_or_404(Client_Account, id = client_acc_id)
-        # getting client code from file_no.
-        file_no_split = file_no.split('/')
-        client_code = file_no_split[-2] + file_no_split[-1]
 
         if not owing:
             balance = Decimal(balance)

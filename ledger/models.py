@@ -76,6 +76,7 @@ class Transaction(models.Model):
     type_code = models.CharField(max_length=5)
 
 class Running_Balance(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
     value = models.DecimalField(max_digits=11, decimal_places=2)
