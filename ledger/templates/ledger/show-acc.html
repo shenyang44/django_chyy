@@ -5,14 +5,29 @@
 
 <table class="w-100">
     <thead>
-        <tr>
-            <td>
-                <header class="fs-5 fw-bold text-center mb-3">
+        
+    </thead>
+</table>
+
+<table class="table print-sm">
+    <colgroup>
+        <col style="width: 10%;">
+        <col style="width:10%;">
+        <col style="width: 5%;">
+        <col style="width: 40%;">
+        <col style="width:10%">
+        <col style="width: 10%;">
+        <col style="width: 15%;">
+    </colgroup>
+    <thead>
+        <tr style="border:none">
+            <th colspan="7">
+                <header class="fs-5 text-center mb-3">
                     <div>MESSRS C.H.YEOH & YIEW</div>
                     <div>Transaction History</div>
                 </header>
                 <div class="container d-flex flex-wrap">
-                <div class="d-flex flex-column fw-bold print-sm">
+                <div class="d-flex flex-column">
                     <div>
                         Client Code:
                     </div>
@@ -26,7 +41,7 @@
                         Sub. Matter:
                     </div>
                 </div>
-                <div style="width: 30%;"class="ms-3 d-flex flex-column print-sm">
+                <div style="width: 30%;"class="ms-3 d-flex flex-column fw-normal">
                     <div>
                         {{account.client_code}}
                     </div>
@@ -43,7 +58,7 @@
                 <div style="width: 30%;" class="fw-bold d-flex align-items-center print-sm">
                     Your Ref:
                 </div>
-                <div class="d-flex flex-column fw-bold print-sm">
+                <div class="d-flex flex-column">
                     <div>
                         Client Ledger
                     </div>
@@ -54,7 +69,7 @@
                         Page:
                     </div>
                 </div>
-                <div class="d-flex flex-column print-sm">
+                <div class="d-flex flex-column ms-2">
                     <br>
                     <div>
                         {% now "d/m/Y" %}
@@ -65,29 +80,15 @@
                 </div>
                 <div style="width: 100%;" class="d-flex print-sm">
                     <div class="w-25">
-                        <span class="fw-bold">Date From: &nbsp;</span>todo 
+                        Date From: &nbsp;<span class="fw-normal">01/01/2000</span> 
                     </div>
                     <div class="w-25">
-                        <span class="fw-bold">Date To: &nbsp;</span>todo
+                        Date To: &nbsp;<span class="fw-normal">todo</span>
                     </div>
                 </div>
                 </div>
             </td>
         </tr>
-    </thead>
-</table>
-
-<table class="table print-sm">
-    <colgroup>
-        <col style="width: 10%;">
-        <col style="width:10%;">
-        <col style="width: 5%;">
-        <col style="width: 40%;">
-        <col style="width:10%">
-        <col style="width: 10%;">
-        <col style="width: 15%;">
-    </colgroup>
-    <thead>
         <tr>
             <th scope="col">Ref No</th>
             <th scope="col">Date</th>
