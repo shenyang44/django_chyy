@@ -2,13 +2,13 @@
 {% block title %}{{account.file_no}}{% endblock %}
 
 {% block body %}
-
-<table class="w-100">
-    <thead>
-        
-    </thead>
-</table>
-
+<div class="print-n">
+    <div class='btn-cluster'>
+        <button id='printBtn' class="btn btn-secondary" type="button" onclick="window.print()">Print</button>
+        <a class="btn btn-outline-primary" href="{% url 'ledger:create_trans' account.id %}">New Transaction</a>
+    </div>
+    <hr>
+</div>
 <table class="table print-sm">
     <colgroup>
         <col style="width: 10%;">
@@ -82,7 +82,7 @@
                     <div class="w-25">
                         Date From: &nbsp;<span class="fw-normal">01/01/2000</span> 
                     </div>
-                    <div class="w-25">
+                    <div class="w-25"> 
                         Date To: &nbsp;<span class="fw-normal">todo</span>
                     </div>
                 </div>
@@ -134,10 +134,6 @@
     {% endfor %}
     </tbody>
 </table>
-<div class='mt-3 print-n btn-cluster'>
-    <button id='printBtn' class="btn btn-secondary" type="button" onclick="window.print()">Print</button>
-    <a class="btn btn-outline-primary" href="{% url 'ledger:create_trans' account.id %}">New Transaction</a>
-</div>
 
 <script charset="utf-8">
     $(()=>{
