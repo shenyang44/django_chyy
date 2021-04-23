@@ -21,6 +21,9 @@ class Choice(models.Model):
 class Client_Account(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.TextField(unique=True)
+    bank_name = models.CharField(max_length=120)
+    acc_number = models.CharField(max_length=60)
+    bank_code = models.CharField(max_length=30)
     def balance(self):
         accs = self.account_set.all()
         balance = 0
