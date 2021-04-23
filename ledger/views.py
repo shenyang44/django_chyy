@@ -112,9 +112,10 @@ def show_acc(request, acc_id):
     for trans in transactions:
         descriptions = json.loads(trans.descriptions)
         amounts = json.loads(trans.amounts)
+        type_codes = json.loads(trans.type_codes)
         entries = []
         for i in range(len(descriptions)):
-            entries.append((descriptions[i],amounts[i]))
+            entries.append((type_codes[i],descriptions[i],amounts[i]))
         entries_list.append(entries)
         try:
             rb = Running_Balance.objects.get(account = account, transaction=trans)
@@ -139,9 +140,6 @@ def create_trans(request, acc_id):
         other_name = request.POST['other_name']
         
         curr_account = get_object_or_404(Account, pk=acc_id)
-        type_code = ''
-        if not curr_account.is_office():
-            type_code = request.POST['type_code']
     
         if other_party == 'office':
             other_party = get_object_or_404(Account, id=other_name)
@@ -165,6 +163,7 @@ def create_trans(request, acc_id):
 
         amounts=[]
         descriptions=[]
+        type_codes = []
         total = 0
 
         # iterates over all amounts in trans, adding floated vals to total and raw text to to amounts.
@@ -174,8 +173,11 @@ def create_trans(request, acc_id):
 
         for desc in table_data['descriptions']:
             descriptions.append(desc)
+        
+        for code in table_data['type_codes']:
+            type_codes.append(code)
 
-        new_trans = Transaction(payee=payee, receiver=receiver, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text, type_code=type_code)
+        new_trans = Transaction(payee=payee, receiver=receiver, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text, type_codes=json.dumps(type_codes))
         payee.balance -= total
         receiver.balance += total
 

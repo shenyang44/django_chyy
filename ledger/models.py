@@ -70,10 +70,10 @@ class Transaction(models.Model):
     payee = models.ForeignKey(Account, related_name='trans_out', on_delete=models.CASCADE)
     descriptions = models.TextField()
     amounts = models.TextField()
+    type_codes = models.TextField()
     total = models.DecimalField(max_digits=11, decimal_places=2)
     cheque_text = models.TextField(null=True)
     settled = models.BooleanField(default=True)
-    type_code = models.CharField(max_length=5)
 
 class Running_Balance(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
