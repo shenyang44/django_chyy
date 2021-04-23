@@ -4,21 +4,60 @@ guard against external or off accs accessing new trans/voucher or receipt view/ 
 
 delete off_trans stuff if not used.
 
+limit number of input rows in transaction.
 
-IMPORTANT
+when creating account, create one transaction to initialise acc balance. then add try except statement in show_cli when accessing rb
 
 
 holder below.
-<div class=" d-flex w-50 justify-content-end">
-    <div style="width: 40%; text-align: center;" >
-        {% if not trans.payee.is_external %} 
-            <a href="{% url 'ledger:voucher' trans.id %}"><button type="button" class="btn btn-secondary">View voucher</button></a>
-        {% endif %}
-    </div>
+ 
+Client acc selector
+<header class="d-flex align-items-center flex-column">
+        <span class="fs-3">Please Select Client Account to View.</span>
+        <div class="btn-group my-3" role="group" aria-label="Basic radio toggle button group">
+            {% for cli_acc in client_accs %}
+            <input type="radio" class="btn-check" name="btnradio" data-id='{{cli_acc.id}}' id="btnRadio{{cli_acc.id}}" autocomplete="off">
+            <label class="btn btn-outline-primary" for="btnRadio{{cli_acc.id}}">{{cli_acc.name}}</label>
+            {% endfor %}
+        </div>
+    </header>
+
+ {% for cli_acc, accounts, total in acc_data %}
+        <div id="cli-acc-{{cli_acc.id}}" class="d-none container">
+            {% for acc in accounts %}
+            <div class="row mb-3 justify-content-evenly border-bottom border-dark">
+                <div class="col-9">
+                    <a class='file-links' href="{% url 'ledger:show_acc' acc.id %}">{{acc.name}} | {{acc.file_no}}</a>
+                </div>
+                <div class="col-1 text-end border-start border-dark">
+                    RM
+                </div>
+                <div class="col-2 text-end">
+                    {{acc.balance}}
+                </div>
+            </div>
+            {% endfor %}
+            <div class="row text-end">
+                <div class="col">
+                    Total:
+                </div>
+                <div class="col-1 text-end">
+                    RM
+                </div>
+                <div class="col-2">
+                    {{total}}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
     
-    <div style="width: 40%; text-align: center;">
-        {% if not trans.receiver.is_external %}
-            <a href="{% url 'ledger:receipt' trans.id %}"><button type="button" class="btn btn-secondary">View receipt</button></a>
-        {% endif %}
-    </div>
-</div>
+    <script charset="utf-8">
+        $(()=>{
+            btnInputs = $('input');
+            btnInputs.click((e)=>{
+                id = $(e.target).attr('data-id')
+                $('.container').not(`#cli-acc-${id}`).addClass('d-none')
+                $(`#cli-acc-${id}`).removeClass('d-none')
+            })
+        })
+    </script>

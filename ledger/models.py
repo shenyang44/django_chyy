@@ -36,6 +36,7 @@ class Account(models.Model):
     balance = models.DecimalField(max_digits=11, decimal_places=2)
     client_account = models.ForeignKey(Client_Account, on_delete=models.CASCADE, null=True)
     client_code = models.CharField(max_length=20, null=True)
+    subject_matter = models.TextField(null=True)
     def __str__(self):
         return self.name
 
@@ -69,12 +70,13 @@ class Transaction(models.Model):
     payee = models.ForeignKey(Account, related_name='trans_out', on_delete=models.CASCADE)
     descriptions = models.TextField()
     amounts = models.TextField()
+    type_codes = models.TextField()
     total = models.DecimalField(max_digits=11, decimal_places=2)
     cheque_text = models.TextField(null=True)
     settled = models.BooleanField(default=True)
-    type_code = models.CharField(max_length=5)
 
 class Running_Balance(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
     value = models.DecimalField(max_digits=11, decimal_places=2)
