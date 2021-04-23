@@ -4,7 +4,7 @@
 {% block body %}
 <div class="container">
     <header class="row justify-content-center fs-3 fw-bold">C. H. YEOH & YIEW</header>
-    <aside class="row justify-content-end fw-bold mb-4">{% if transaction.receiver.file_no == 'OFFICE' %}OFFICE'S{% else %}CLIENT'S{% endif %} ACCOUNT</aside>
+    <aside class="row justify-content-end fw-bold mb-4">{% if "OFFICE" in transaction.receiver.file_no %}OFFICE'S{% else %}CLIENT'S{% endif %} ACCOUNT</aside>
     <section class="row mb-4">
         <div class="col-2"></div>
         <div class="col-7">

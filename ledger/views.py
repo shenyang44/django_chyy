@@ -22,7 +22,7 @@ def show_off(request):
     off_accs = Account.objects.filter(file_no__startswith = 'OFFICE')
     transactions_list = []
     for off_acc in off_accs:
-        transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc)).order_by('-created_at')
+        transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc))
         entries_list =[]
         rb_list = []
         for trans in transactions:
@@ -30,7 +30,7 @@ def show_off(request):
             amounts = json.loads(trans.amounts)
             entries_list.append(zip(descriptions, amounts))
             try:
-                rb = Running_Balance.objects.get(account = account, transaction=trans)
+                rb = Running_Balance.objects.get(account = off_acc, transaction=trans)
                 rb_list.append(rb.value)
             except:
                 rb_list.append('fail')
