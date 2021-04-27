@@ -24,12 +24,6 @@ class Client_Account(models.Model):
     bank_name = models.CharField(max_length=120)
     acc_number = models.CharField(max_length=60)
     bank_code = models.CharField(max_length=30)
-    def balance(self):
-        accs = self.account_set.all()
-        balance = 0
-        for acc in accs:
-            balance += acc.balance
-        return balance
     
 class Account(models.Model):
     name = models.CharField(max_length=150)
@@ -37,8 +31,8 @@ class Account(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     balance = models.DecimalField(max_digits=11, decimal_places=2)
-    client_account = models.ForeignKey(Client_Account, on_delete=models.CASCADE, null=True)
     client_code = models.CharField(max_length=20, null=True)
+    client_account = models.BooleanField(default=False)
     subject_matter = models.TextField(null=True)
     def __str__(self):
         return self.name
@@ -48,12 +42,6 @@ class Account(models.Model):
             return self.trans_out.all().filter(settled=False)
         else: 
             return "Sorry but you do not have access to this."
-    
-    def is_client(self):
-        if self.client_account:
-            return True
-        else:
-            return False 
     
     def is_external(self):
         if self.file_no.startswith('EXTERNAL'):
@@ -81,5 +69,5 @@ class Transaction(models.Model):
 class Running_Balance(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
-    transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
+    transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, null=True)
     value = models.DecimalField(max_digits=11, decimal_places=2)
