@@ -58,8 +58,9 @@ def show_cli(request):
         try:
             last_rb = Running_Balance.objects.filter(account_id=acc.id, created_at__lte=date_to+timedelta(days=1)).order_by('-created_at')[0].value
         except:
+            # last_rb = Running_Balance.objects.get(account_id=acc.id, transaction__isnull=True)
             last_rb = Decimal(0.00)
-            # messages.error(request, f'File with client code: {acc.client_code} does not have any running balance prior to date selected')
+            messages.error(request, f'File with client code: {acc.client_code} does not have any running balance prior to date selected')
         total += last_rb
         rbs.append(last_rb)
     context = {
@@ -92,7 +93,14 @@ def create_acc(request):
         except:
             messages.error(request, 'Error encountered in saving the account.')
             return render(request, 'ledger/create-acc.html')
-            
+        
+        new_rb = Running_Balance(account=new_acc, value=balance)
+        try:
+            new_rb.save()
+        except:
+            messages.error(request, 'Error encountered in recording initial balance.')
+            return redirect(reverse('ledger:show_acc', args=(new_acc.id,)))
+
         return redirect(reverse('ledger:show_acc', args=(new_acc.id,)))
 
 
@@ -260,8 +268,10 @@ def receipt(request, trans_id):
 def create_cli_acc(request):
     if request.method == 'POST':
         acc_name = request.POST['acc_name']
-        # balance = request.POST['balance']
-        new_cli_acc = Client_Account(name=acc_name)
+        acc_number = request.POST['acc_number']
+        bank_name = request.POST['bank_name']
+        bank_code = request.POST['bank_code']
+        new_cli_acc = Client_Account(name=acc_name, bank_code=bank_code, acc_number=acc_number, bank_name=bank_name)
         new_cli_acc.save()
         return redirect(reverse('ledger:index'))
     else:

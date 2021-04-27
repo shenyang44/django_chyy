@@ -15,10 +15,17 @@
             <label for="accNumInp" class="form-label">Account Number </label>
             <input type="text" class="form-control mand-inp" id="accNumInp" name='acc_number'>
         </div>
-        <div class="mb-3">
-            <label for="bankName" class="form-label">Bank Name</label>
-            <input type="text" class="form-control mand-inp" id="bankName" name='bank_name'>
+        <div class="mb-3 d-flex justify-content-between">
+            <div class="w-50">
+                 <label for="bankName" class="form-label">Bank Name</label>
+                <input type="text" class="form-control mand-inp w-75" id="bankName" name='bank_name'>
+            </div>
+            <div class="w-50">
+                <label for="bankCode" class="form-label">Bank Code</label>
+                <input type="text" class="form-control mand-inp w-75" id="bankCode" name='bank_code'>
+            </div>
         </div>
+        
         <button id='subBtn' type="submit" disabled class="btn btn-primary">Confirm</button>
     </form>
 </div>
