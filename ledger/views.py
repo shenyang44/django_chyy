@@ -51,7 +51,7 @@ def show_cli(request):
     else:
         date_to=timezone.localdate()
     
-    accounts = Account.objects.filter(client_account__isnull=False)
+    accounts = Account.objects.filter(client_account=True)
     rbs = []
     total = Decimal(0.00)
     for acc in accounts:
@@ -86,7 +86,7 @@ def create_acc(request):
             balance = Decimal(balance)
         # else:
             # new_trans = Transaction(settled=False, receiver='carried over balance', payee='office', descriptions='Owing us from previous ') WIP
-        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=client_acc, client_code=client_code, subject_matter=subject_matter)
+        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=True, client_code=client_code, subject_matter=subject_matter)
         try:
             new_acc.save()
         except:

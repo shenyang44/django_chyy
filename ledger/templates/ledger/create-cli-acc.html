@@ -7,17 +7,18 @@
     <form action="{% url 'ledger:create_cli_acc' %}" method="POST" id='newCliAccForm' class="w-50">
         {% csrf_token %}
         <div class="mb-3">
-            <label for="nameInput" class="form-label">Account Number/Name </label>
+            <label for="nameInput" class="form-label">Account Name </label>
             <input type="text" class="form-control mand-inp" id="nameInput" name='acc_name' aria-describedby="nameHelp">
             <div id="nameHelp" class="form-text">(How you want to refer to/identify this account)</div>
         </div>
-        <!-- <div class="mb-3">
-            <label for="balanceInput" class="form-label">Current Balance:</label>
-            <div class="d-flex align-items-center">
-                <span>RM&nbsp;</span>
-                <input type="text" name='balance' class="form-control" id="balanceInput">
-            </div>
-        </div> -->
+        <div class="mb-3">
+            <label for="accNumInp" class="form-label">Account Number </label>
+            <input type="text" class="form-control mand-inp" id="accNumInp" name='acc_number'>
+        </div>
+        <div class="mb-3">
+            <label for="bankName" class="form-label">Bank Name</label>
+            <input type="text" class="form-control mand-inp" id="bankName" name='bank_name'>
+        </div>
         <button id='subBtn' type="submit" disabled class="btn btn-primary">Confirm</button>
     </form>
 </div>
