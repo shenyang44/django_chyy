@@ -14,8 +14,11 @@ from datetime import datetime, timedelta
 
 def index(request):
     accounts =  Account.objects.filter(created_at__lte=timezone.now()).exclude(file_no__startswith='EXTERNAL').exclude(file_no__startswith='OFFICE')
-    balance = [acc.balance for acc in accounts]
-    zipped = zip(accounts, balance)
+    if len(accounts) > 0:
+        balance = [acc.balance for acc in accounts]
+        zipped = zip(accounts, balance)
+    else:
+        zipped = None
     return render(request, 'ledger/index.html', {'zipped':zipped})
 
 def show_off(request):
@@ -85,8 +88,8 @@ def create_acc(request):
 
         if not owing:
             balance = Decimal(balance)
-        # else:
-            # new_trans = Transaction(settled=False, receiver='carried over balance', payee='office', descriptions='Owing us from previous ') WIP
+        else:
+            balance = -(Decimal(balance))
         new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=True, client_code=client_code, subject_matter=subject_matter)
         try:
             new_acc.save()
