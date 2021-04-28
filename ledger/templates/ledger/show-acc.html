@@ -134,7 +134,9 @@
     {% endfor %}
     </tbody>
 </table>
-
+<footer class="print-n text-center">
+    Current balance : RM {{account.balance}}
+</footer>
 <script charset="utf-8">
     $(()=>{
         $('.transRow').dblclick((e)=>{

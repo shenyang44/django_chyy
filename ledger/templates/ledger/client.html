@@ -4,7 +4,7 @@
 {% block body %}
 <div class="print-n">
     <div class='d-flex justify-content-around w-75'>
-        <form action="{% url 'ledger:show_cli' %}" method="POST">
+        <form action="{% url 'ledger:show_cli' %}" method="POST" autocomplete="off">
             {% csrf_token %}
             Final View Date: <input name='date_to' type="text" id="datepicker">
             <button>Update</button>
@@ -69,15 +69,15 @@
             </tr>
           
         {% endfor %}
-        <tr class="border-bottom border-dark">
+        <tr class="border-bottom border-dark fw-bold">
             <td>
-                Total Clients: todo
+                Total Clients: {{file_count}}
             </td>
             <td class="text-end">
                 Grand Total:
             </td>
             <td class="text-end">
-                {{total}} 
+                {{total}}
             </td>
             <td></td>
         </tr>

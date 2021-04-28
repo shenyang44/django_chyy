@@ -14,8 +14,11 @@ from datetime import datetime, timedelta
 
 def index(request):
     accounts =  Account.objects.filter(created_at__lte=timezone.now()).exclude(file_no__startswith='EXTERNAL').exclude(file_no__startswith='OFFICE')
-    balance = [acc.balance for acc in accounts]
-    zipped = zip(accounts, balance)
+    if len(accounts) > 0:
+        balance = [acc.balance for acc in accounts]
+        zipped = zip(accounts, balance)
+    else:
+        zipped = None
     return render(request, 'ledger/index.html', {'zipped':zipped})
 
 def show_off(request):
@@ -51,7 +54,7 @@ def show_cli(request):
     else:
         date_to=timezone.localdate()
     
-    accounts = Account.objects.filter(client_account=True)
+    accounts = Account.objects.filter(client_account=True, created_at__lte=date_to+timedelta(days=1))
     rbs = []
     total = Decimal(0.00)
     for acc in accounts:
@@ -63,10 +66,14 @@ def show_cli(request):
             messages.error(request, f'File with client code: {acc.client_code} does not have any running balance prior to date selected')
         total += last_rb
         rbs.append(last_rb)
+
+    if total < 0:
+        total = f'({str(abs(total))})'
     context = {
         'accounts_data': zip(accounts,rbs),
         'total': total,
-        'date_to' : date_to
+        'date_to' : date_to,
+        'file_count' : len(accounts)
     }
     return render(request, 'ledger/client.html', context=context)
 
@@ -85,8 +92,8 @@ def create_acc(request):
 
         if not owing:
             balance = Decimal(balance)
-        # else:
-            # new_trans = Transaction(settled=False, receiver='carried over balance', payee='office', descriptions='Owing us from previous ') WIP
+        else:
+            balance = -(Decimal(balance))
         new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=True, client_code=client_code, subject_matter=subject_matter)
         try:
             new_acc.save()

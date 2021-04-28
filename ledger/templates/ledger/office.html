@@ -3,6 +3,7 @@
 
 {% block body %}
 <header class="d-flex align-items-center flex-column">
+    {% if off_acc %}
     <span class="fs-3">Please Select Office Account to View.</span>
     <div class="btn-group my-3" role="group" aria-label="Basic radio toggle button group">
         {% for off_acc in off_accs %}
@@ -10,6 +11,9 @@
         <label class="btn btn-outline-primary" for="btnRadio{{off_acc.id}}">{{off_acc.name}}</label>
         {% endfor %}
     </div>
+    {% else %}
+    <p class="fs-4 text-center">No Office Accounts are available for viewing.</p>
+    {% endif %}
 </header>
 {% for off_acc, trans_zipped in office_data %}
 <div class='d-none offEach' id='off-acc-{{off_acc.id}}' >

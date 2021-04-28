@@ -16,26 +16,46 @@
                     {% endif %}
                     <label class="form-label">Name : {{account.name}}</label>
                 </div>
-                <div class="d-flex mb-3" id='firstRow'>
+                <div class="mb-3 otherDiv">
+                    <label for='otherParty' class="form-label">Other Party:</label>
+                    <select name='other_party' class="form-select w-50" aria-label="trans-select" id='otherParty'>
+                        <option value="" selected></option>
+                        {% if not account.is_office %}
+                            <option value="office">Office</option>
+                        {% endif %}
+                        <option value="other">3rd Party</option>
+                        <option value="client">
+                            Client Account
+                        </option>
+                    </select>
+                </div>
+                <div class="d-flex mb-3">
+                    <div class="w-50">
+                        <label for='catSelect' class="form-label">Category</label>
+                        <select name='category' class="form-select w-50" aria-label="cat-select" id='catSelect'>
+                            <option value="" selected></option>
+                            <option value="AD">AD</option>
+                            <option value="AT">AT</option>
+                            <option value="PD">PD</option>
+                            <option value="PF">PF</option>
+                            <option value="PI">PI</option>
+                            <option value="PO">PO</option>
+                            <option value="PS">PS</option>
+                            <option value="PT">PT</option>
+                            <option value="RD">RD</option>
+                            <option value="RF">RF</option>
+                            <option value="RI">RI</option>
+                            <option value="RO">RO</option>
+                            <option value="RS">RS</option>
+                            <option value="RT">RT</option>
+                        </select>
+                    </div>                    
                     <div class="w-50">
                         <label for='transSelect' class="form-label">Debit or Credit:</label>
                         <select name='trans_type' class="form-select w-50" aria-label="trans-select" id='transSelect'>
                             <option value="" selected></option>
                             <option value="debited">Debit</option>
                             <option value="received">Credit</option>
-                        </select>
-                    </div>
-                    <div class="w-50">
-                        <label for='otherParty' class="form-label">Other Party:</label>
-                        <select name='other_party' class="mb-3 form-select w-50" aria-label="trans-select" id='otherParty'>
-                            <option value="" selected></option>
-                            {% if not account.is_office %}
-                                <option value="office">Office</option>
-                            {% endif %}
-                            <option value="other">3rd Party</option>
-                            <option value="client">
-                                Client Account
-                            </option>
                         </select>
                     </div>
                 </div>
@@ -54,77 +74,6 @@
                     <tr class="trIn">
                         <td class="bordered"><select class="typeCode" style="width: 100%;">
                             <option value=""></option>
-                            <option value="AD">AD</option>
-                            <option value="AT">AT</option>
-                            <option value="PD">PD</option>
-                            <option value="PD1">PD1</option>
-                            <option value="PD2">PD2</option>
-                            <option value="PD3">PD3</option>
-                            <option value="PD4">PD4</option>
-                            <option value="PD5">PD5</option>
-                            <option value="PD6">PD6</option>
-                            <option value="PD7">PD7</option>
-                            <option value="PD8">PD8</option>
-                            <option value="PD9">PD9</option>
-                            <option value="PD10">PD10</option>
-                            <option value="PD11">PD11</option>
-                            <option value="PD12">PD12</option>
-                            <option value="PD13">PD13</option>
-                            <option value="PD14">PD14</option>
-                            <option value="PD15">PD15</option>
-                            <option value="PD16">PD16</option>
-                            <option value="PD17">PD17</option>
-                            <option value="PD18">PD18</option>
-                            <option value="PF">PF</option>
-                            <option value="PI">PI</option>
-                            <option value="PO">PO</option>
-                            <option value="PS">PS</option>
-                            <option value="PT">PT</option>
-                            <option value="PT1">PT1</option>
-                            <option value="PT2">PT2</option>
-                            <option value="PT3">PT3</option>
-                            <option value="PT4">PT4</option>
-                            <option value="PT5">PT5</option>
-                            <option value="PT6">PT6</option>
-                            <option value="PT7">PT7</option>
-                            <option value="PT8">PT8</option>
-                            <option value="PT9">PT9</option>
-                            <option value="PT10">PT10</option>
-                            <option value="PT11">PT11</option>
-                            <option value="PT12">PT12</option>
-                            <option value="PT13">PT13</option>
-                            <option value="RD">RD</option>
-                            <option value="RD1">RD1</option>
-                            <option value="RD2">RD2</option>
-                            <option value="RD3">RD3</option>
-                            <option value="RD4">RD4</option>
-                            <option value="RD5">RD5</option>
-                            <option value="RD6">RD6</option>
-                            <option value="RD7">RD7</option>
-                            <option value="RD8">RD8</option>
-                            <option value="RD11">RD11</option>
-                            <option value="RD14">RD14</option>
-                            <option value="RD15">RD15</option>
-                            <option value="RD17">RD17</option>
-                            <option value="RF">RF</option>
-                            <option value="RI">RI</option>
-                            <option value="RFDG">RFDG</option>
-                            <option value="RO">RO</option>
-                            <option value="RS">RS</option>
-                            <option value="RT">RT</option>
-                            <option value="RT1">RT1</option>
-                            <option value="RT2">RT2</option>
-                            <option value="RT3">RT3</option>
-                            <option value="RT4">RT4</option>
-                            <option value="RT5">RT5</option>
-                            <option value="RT6">RT6</option>
-                            <option value="RT7">RT7</option>
-                            <option value="RT8">RT8</option>
-                            <option value="RT9">RT9</option>
-                            <option value="RT10">RT10</option>
-                            <option value="RT11">RT11</option>
-                            <option value="RT12">RT12</option>
-                            <option value="RT13">RT13</option>
                         </select></td>
                         <td class="bordered"><input type="text" class="descript"></td>
                         <td class="bordered"><input type="text" class="amount"></td>
@@ -151,15 +100,16 @@ $(()=>{
     otherParty.change((e)=>{
         let currVal = $(e.target).val()
         $('#otherInput').remove()
+        let otherDiv = $('#otherDiv')
         if (currVal == 'other'){
-                $('#firstRow').after(`
+                otherDiv.after(`
                     <div id='otherInput' class="mb-3">
                         <label for="otherName" class="form-label">Other Party's Name:</label>
                         <input name='other_name' type="text" class="formInput form-control w-75" id="otherName">
                     </div>
                 `)
         } else if (currVal == 'office'){
-            $('#firstRow').after(`
+            otherDiv.after(`
                 <div id='otherInput' class="mb-3">
                     <label for="officeNo" class="form-label">Office Account Number:</label>
                     <select name='other_name' class="mb-3 form-select w-50" aria-label="trans-select" id='officeNo'>
@@ -171,7 +121,7 @@ $(()=>{
                 </div>
             `)
         } else if (currVal == 'client'){
-            $('#firstRow').after(`
+            otherDiv.after(`
                 <div id='otherInput' class="mb-3">
                     <label for="otherName" class="form-label">Client's File No. :</label>
                     <input name='other_name' type="text" class="formInput form-control w-75" id="otherCli">
@@ -179,6 +129,36 @@ $(()=>{
             `)
         }
     })
+    optionsArray = () => {
+        let cat = $('#catSelect').val();
+        let options;
+        if (cat == 'PD'){
+            options = ['PD', 'PD1', 'PD2', 'PD3', 'PD4', 'PD5', 'PD6', 'PD7', 'PD8', 'PD9', 'PD10', 'PD11', 'PD12', 'PD13', 'PD14', 'PD15', 'PD16', 'PD17', 'PD18']
+        } else if (cat == 'PT'){
+            options = ['PT', 'PT1', 'PT2', 'PT3', 'PT4', 'PT5', 'PT6', 'PT7', 'PT8', 'PT9', 'PT10', 'PT11', 'PT12', 'PT13']
+        } else if (cat == 'RD'){
+            options = ['RD', 'RD1', 'RD2', 'RD3', 'RD4', 'RD5', 'RD6', 'RD7', 'RD8', 'RD11', 'RD14', 'RD15', 'RD17']
+        } else if (cat == 'RO'){
+            options = ['RFDG', 'RO']
+        } else if (cat == 'RT'){
+            options = ['RT', 'RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT13']
+        } else{
+            options = [cat]
+        }
+        return options;
+    }
+    $('#catSelect').change((e)=>{
+        let cat = $(e.target).val()
+        let options = (cat ? optionsArray() : [])
+        typeCode = $('.typeCode')
+        typeCode.each((i, e)=>{
+            e.innerHTML = ''
+            for (i = 0; i < options.length; i++){
+                e.innerHTML += `<option value="${options[i]}">${options[i]}</option>`
+            }
+        })
+    })
+    
     // Button is disabled if select input val is empty on either element.
     $('form').on('click', 'select', (e)=>{
         let selectValid = true;
@@ -271,82 +251,16 @@ $(()=>{
     })
     // 2 buttons to add or remove input rows.
     $('#addBtn').click(()=>{
+        options = optionsArray()
+        let optTxt = '';
+        for (i = 0; i < options.length; i++){
+            optTxt += `<option value="${options[i]}">${options[i]}</option>`
+        }
         $('table').append(`
             <tr class='trIn'>
                 <td class="bordered">
                     <select class='typeCode' style="width: 100%;">
-                        <option></option>
-                        <option value="AD">AD</option>
-                        <option value="AT">AT</option>
-                        <option value="PD">PD</option>
-                        <option value="PD1">PD1</option>
-                        <option value="PD2">PD2</option>
-                        <option value="PD3">PD3</option>
-                        <option value="PD4">PD4</option>
-                        <option value="PD5">PD5</option>
-                        <option value="PD6">PD6</option>
-                        <option value="PD7">PD7</option>
-                        <option value="PD8">PD8</option>
-                        <option value="PD9">PD9</option>
-                        <option value="PD10">PD10</option>
-                        <option value="PD11">PD11</option>
-                        <option value="PD12">PD12</option>
-                        <option value="PD13">PD13</option>
-                        <option value="PD14">PD14</option>
-                        <option value="PD15">PD15</option>
-                        <option value="PD16">PD16</option>
-                        <option value="PD17">PD17</option>
-                        <option value="PD18">PD18</option>
-                        <option value="PF">PF</option>
-                        <option value="PI">PI</option>
-                        <option value="PO">PO</option>
-                        <option value="PS">PS</option>
-                        <option value="PT">PT</option>
-                        <option value="PT1">PT1</option>
-                        <option value="PT2">PT2</option>
-                        <option value="PT3">PT3</option>
-                        <option value="PT4">PT4</option>
-                        <option value="PT5">PT5</option>
-                        <option value="PT6">PT6</option>
-                        <option value="PT7">PT7</option>
-                        <option value="PT8">PT8</option>
-                        <option value="PT9">PT9</option>
-                        <option value="PT10">PT10</option>
-                        <option value="PT11">PT11</option>
-                        <option value="PT12">PT12</option>
-                        <option value="PT13">PT13</option>
-                        <option value="RD">RD</option>
-                        <option value="RD1">RD1</option>
-                        <option value="RD2">RD2</option>
-                        <option value="RD3">RD3</option>
-                        <option value="RD4">RD4</option>
-                        <option value="RD5">RD5</option>
-                        <option value="RD6">RD6</option>
-                        <option value="RD7">RD7</option>
-                        <option value="RD8">RD8</option>
-                        <option value="RD11">RD11</option>
-                        <option value="RD14">RD14</option>
-                        <option value="RD15">RD15</option>
-                        <option value="RD17">RD17</option>
-                        <option value="RF">RF</option>
-                        <option value="RI">RI</option>
-                        <option value="RFDG">RFDG</option>
-                        <option value="RO">RO</option>
-                        <option value="RS">RS</option>
-                        <option value="RT">RT</option>
-                        <option value="RT1">RT1</option>
-                        <option value="RT2">RT2</option>
-                        <option value="RT3">RT3</option>
-                        <option value="RT4">RT4</option>
-                        <option value="RT5">RT5</option>
-                        <option value="RT6">RT6</option>
-                        <option value="RT7">RT7</option>
-                        <option value="RT8">RT8</option>
-                        <option value="RT9">RT9</option>
-                        <option value="RT10">RT10</option>
-                        <option value="RT11">RT11</option>
-                        <option value="RT12">RT12</option>
-                        <option value="RT13">RT13</option>
+                        ${optTxt}
                     </select></td>
                 <td class="bordered"><input type="text" class="descript" id=""></td>
                 <td class="bordered"><input type="text" class="amount" id=""></td>

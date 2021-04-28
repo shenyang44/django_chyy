@@ -34,6 +34,7 @@ class Account(models.Model):
     client_code = models.CharField(max_length=20, null=True)
     client_account = models.BooleanField(default=False)
     subject_matter = models.TextField(null=True)
+
     def __str__(self):
         return self.name
 
@@ -65,6 +66,7 @@ class Transaction(models.Model):
     total = models.DecimalField(max_digits=11, decimal_places=2)
     cheque_text = models.TextField(null=True)
     settled = models.BooleanField(default=True)
+    category = models.CharField(max_length=2)
 
 class Running_Balance(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
