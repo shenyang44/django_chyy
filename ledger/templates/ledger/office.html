@@ -3,7 +3,7 @@
 
 {% block body %}
 <header class="d-flex align-items-center flex-column">
-    {% if off_acc %}
+    {% if off_accs %}
     <span class="fs-3">Please Select Office Account to View.</span>
     <div class="btn-group my-3" role="group" aria-label="Basic radio toggle button group">
         {% for off_acc in off_accs %}
@@ -17,7 +17,7 @@
 </header>
 {% for off_acc, trans_zipped in office_data %}
 <div class='d-none offEach' id='off-acc-{{off_acc.id}}' >
-    <div class="text-center mb-3"><a href='{% url "ledger:create_trans" off_acc.id %}' class="btn btn-success">New Transaction</a></div>
+    <div class="text-center mb-3"><a href='{% url "ledger:create_trans" off_acc.id %}' class="btn btn-outline-secondary">New Transaction</a></div>
     <table  class="table">
         <colgroup>
             <col style="width: 10%;">

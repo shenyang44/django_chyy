@@ -92,12 +92,11 @@ def create_acc(request):
         client_acc_id = request.POST['client']
         subject_matter = request.POST['subject_matter']
         client_code = request.POST['client_code']
-        client_acc = get_object_or_404(Client_Account, id = client_acc_id)
 
         if not owing:
-            balance = Decimal(balance)
-        else:
             balance = -(Decimal(balance))
+        else:
+            balance = Decimal(balance)
         new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=True, client_code=client_code, subject_matter=subject_matter)
         try:
             new_acc.save()
@@ -197,8 +196,8 @@ def create_trans(request, acc_id):
             type_codes.append(code)
 
         new_trans = Transaction(payee=payee, receiver=receiver, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text, type_codes=json.dumps(type_codes))
-        payee.balance -= total
-        receiver.balance += total
+        payee.balance += total
+        receiver.balance -= total
 
         try:
             new_trans.save()
