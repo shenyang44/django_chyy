@@ -11,6 +11,11 @@ from decimal import Decimal
 from django.contrib import messages
 from datetime import datetime, timedelta
 
+def brace_num(x):
+    if x < 0:
+        return f'({str(abs(x))})'
+    else:
+        return x
 
 def index(request):
     accounts =  Account.objects.filter(created_at__lte=timezone.now()).exclude(file_no__startswith='EXTERNAL').exclude(file_no__startswith='OFFICE')
@@ -61,14 +66,13 @@ def show_cli(request):
         try:
             last_rb = Running_Balance.objects.filter(account_id=acc.id, created_at__lte=date_to+timedelta(days=1)).order_by('-created_at')[0].value
         except:
-            # last_rb = Running_Balance.objects.get(account_id=acc.id, transaction__isnull=True)
             last_rb = Decimal(0.00)
             messages.error(request, f'File with client code: {acc.client_code} does not have any running balance prior to date selected')
         total += last_rb
-        rbs.append(last_rb)
+        
+        rbs.append(brace_num(last_rb))
 
-    if total < 0:
-        total = f'({str(abs(total))})'
+    total = brace_num(total)
     context = {
         'accounts_data': zip(accounts,rbs),
         'total': total,
