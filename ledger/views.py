@@ -54,7 +54,7 @@ def show_cli(request):
     else:
         date_to=timezone.localdate()
     
-    accounts = Account.objects.filter(client_account=True)
+    accounts = Account.objects.filter(client_account=True, created_at__lte=date_to+timedelta(days=1))
     rbs = []
     total = Decimal(0.00)
     for acc in accounts:
@@ -66,10 +66,14 @@ def show_cli(request):
             messages.error(request, f'File with client code: {acc.client_code} does not have any running balance prior to date selected')
         total += last_rb
         rbs.append(last_rb)
+
+    if total < 0:
+        total = f'({str(abs(total))})'
     context = {
         'accounts_data': zip(accounts,rbs),
         'total': total,
-        'date_to' : date_to
+        'date_to' : date_to,
+        'file_count' : len(accounts)
     }
     return render(request, 'ledger/client.html', context=context)
 
