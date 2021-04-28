@@ -16,46 +16,26 @@
                     {% endif %}
                     <label class="form-label">Name : {{account.name}}</label>
                 </div>
-                <div class="mb-3 otherDiv">
-                    <label for='otherParty' class="form-label">Other Party:</label>
-                    <select name='other_party' class="form-select w-50" aria-label="trans-select" id='otherParty'>
-                        <option value="" selected></option>
-                        {% if not account.is_office %}
-                            <option value="office">Office</option>
-                        {% endif %}
-                        <option value="other">3rd Party</option>
-                        <option value="client">
-                            Client Account
-                        </option>
-                    </select>
-                </div>
-                <div class="d-flex mb-3">
+                <div id = 'otherDiv' class="d-flex mb-3">
                     <div class="w-50">
-                        <label for='catSelect' class="form-label">Category</label>
-                        <select name='category' class="form-select w-50" aria-label="cat-select" id='catSelect'>
+                        <label for='otherParty' class="form-label">Other Party:</label>
+                        <select name='other_party' class="form-select w-75" aria-label="trans-select" id='otherParty'>
                             <option value="" selected></option>
-                            <option value="AD">AD</option>
-                            <option value="AT">AT</option>
-                            <option value="PD">PD</option>
-                            <option value="PF">PF</option>
-                            <option value="PI">PI</option>
-                            <option value="PO">PO</option>
-                            <option value="PS">PS</option>
-                            <option value="PT">PT</option>
-                            <option value="RD">RD</option>
-                            <option value="RF">RF</option>
-                            <option value="RI">RI</option>
-                            <option value="RO">RO</option>
-                            <option value="RS">RS</option>
-                            <option value="RT">RT</option>
+                            {% if not account.is_office %}
+                                <option value="office">Office</option>
+                            {% endif %}
+                            <option value="other">3rd Party</option>
+                            <option value="client">
+                                Client Account
+                            </option>
                         </select>
                     </div>                    
                     <div class="w-50">
                         <label for='transSelect' class="form-label">Debit or Credit:</label>
                         <select name='trans_type' class="form-select w-50" aria-label="trans-select" id='transSelect'>
                             <option value="" selected></option>
-                            <option value="debited">Debit</option>
-                            <option value="received">Credit</option>
+                            <option value="debit">Debit</option>
+                            <option value="credit">Credit</option>
                         </select>
                     </div>
                 </div>
@@ -63,11 +43,13 @@
                 <table style="width:100%" class="bordered">
                     <colgroup>
                         <col style="width: 10%;">
+                        <col style="width: 5%;">
                         <col style="width:65%">
-                        <col style="width:25%">
+                        <col style="width:20%">
                     </colgroup>
                     <tr>
                         <th class="bordered">&nbsp; Trans. Type</th>
+                        <th class="bordered">&nbsp; Cat.</th>
                         <th class="bordered">&nbsp; For</th>
                         <th class="bordered">&nbsp; RM</th>
                     </tr>
@@ -75,6 +57,7 @@
                         <td class="bordered"><select class="typeCode" style="width: 100%;">
                             <option value=""></option>
                         </select></td>
+                        <td></td>
                         <td class="bordered"><input type="text" class="descript"></td>
                         <td class="bordered"><input type="text" class="amount"></td>
                     </tr>
@@ -130,35 +113,38 @@ $(()=>{
         }
     })
     optionsArray = () => {
-        let cat = $('#catSelect').val();
+        let trans = $('#transSelect').val();
         let options;
-        if (cat == 'PD'){
-            options = ['PD', 'PD1', 'PD2', 'PD3', 'PD4', 'PD5', 'PD6', 'PD7', 'PD8', 'PD9', 'PD10', 'PD11', 'PD12', 'PD13', 'PD14', 'PD15', 'PD16', 'PD17', 'PD18']
-        } else if (cat == 'PT'){
-            options = ['PT', 'PT1', 'PT2', 'PT3', 'PT4', 'PT5', 'PT6', 'PT7', 'PT8', 'PT9', 'PT10', 'PT11', 'PT12', 'PT13']
-        } else if (cat == 'RD'){
-            options = ['RD', 'RD1', 'RD2', 'RD3', 'RD4', 'RD5', 'RD6', 'RD7', 'RD8', 'RD11', 'RD14', 'RD15', 'RD17']
-        } else if (cat == 'RO'){
-            options = ['RFDG', 'RO']
-        } else if (cat == 'RT'){
-            options = ['RT', 'RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT13']
+        if (trans == 'debit'){
+            options = ['AD', 'AT', 'PD', 'PD1', 'PD2', 'PD3', 'PD4', 'PD5', 'PD6', 'PD7', 'PD8', 'PD9', 'PD10', 'PD11', 'PD12', 'PD13', 'PD14', 'PD15', 'PD16', 'PD17', 'PD18', 'PF', 'PI', 'PO', 'PS', 'PT', 'PT1', 'PT2', 'PT3', 'PT4', 'PT5', 'PT6', 'PT7', 'PT8', 'PT9', 'PT10', 'PT11', 'PT12', 'PT13']
         } else{
-            options = [cat]
+            options = ['RD', 'RD1', 'RD2', 'RD3', 'RD4', 'RD5', 'RD6', 'RD7', 'RD8', 'RD11', 'RD14', 'RD15', 'RD17', 'RF', 'RI', 'RO', 'RFDG', 'RS', 'RT', 'RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT13']
         }
         return options;
     }
-    $('#catSelect').change((e)=>{
-        let cat = $(e.target).val()
-        let options = (cat ? optionsArray() : [])
+    $('#transSelect').change((e)=>{
+        let debCred = $(e.target).val()
+        let options = (debCred ? optionsArray() : [])
         typeCode = $('.typeCode')
         typeCode.each((i, e)=>{
-            e.innerHTML = ''
+            e.innerHTML = '<option value = ""></option>'
             for (i = 0; i < options.length; i++){
                 e.innerHTML += `<option value="${options[i]}">${options[i]}</option>`
             }
+            $(e).parent().next().text(cat)
         })
     })
     
+    $('table').on('click', '.typeCode', (e)=>{
+        let typeCode = $(e.target).val()
+        let cat;
+        if (typeCode == 'RFDG'){
+            cat = 'RO'
+        } else{
+            cat = typeCode.slice(0, 2)
+        }
+        $(e.target).parent().next().text(cat)
+    })
     // Button is disabled if select input val is empty on either element.
     $('form').on('click', 'select', (e)=>{
         let selectValid = true;
