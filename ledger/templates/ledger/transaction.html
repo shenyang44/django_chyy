@@ -167,7 +167,7 @@ $(()=>{
     let descriptions = [];
     let amounts = [];
     let typeCodes = [];
-
+    let total;
     // checks if all descript class inputs are filled.
     emptyCheck = () =>{
         let x = true;
@@ -192,6 +192,7 @@ $(()=>{
 
     // checks if all .amount inputs are positive numbs with 2 decimal places.
     amountCheck = () =>{
+        total=0;
         let y = true;
         $('.amount').each((i,e)=>{
             let amt = $(e).val();
@@ -199,8 +200,10 @@ $(()=>{
                 y = false;
             } else{
                 amounts[i] = amt;
+                total +=  Number(amt*100);
             }
         })
+        console.log(total)
         return y;
     }
 
@@ -217,24 +220,31 @@ $(()=>{
     }
     // runs the 3 functions above, and submits form if all are true.
     transBtn.click(()=>{
-        if (emptyCheck()){
-            if (amountCheck()){
-                if (cli_acc_check()){
-                    let tableData = {
-                    descriptions : descriptions,
-                    amounts : amounts,
-                    type_codes: typeCodes
-                    };
-                    $('#tableData').val(JSON.stringify(tableData));
-                    $('#transForm').submit();
-                } else{
-                    alert('The client file number provided does not exist.')
+        if (!emptyCheck()){
+            alert('No table cells can be left empty.');
+            return;
+        }
+        if (!amountCheck()){
+            alert('The transaction amount must be a positive number with 2 decimal places.');
+            return;
+        }
+        if (cli_acc_check()){
+            let trans = $('#transSelect').val();
+            let acc_bal = -(Number('{{account.balance}}')*100)
+            if (total>acc_bal && trans == 'debit'){
+                if(!confirm("The amount being deducted exceeds the account's current balance, please ensure AD or AT type is selected. Click cancel to check.")){
+                    return;
                 }
-            }else{
-                alert('The transaction amount must be a positive number with 2 decimal places.')
             }
-        }else{
-            alert('No table cells can be left empty.')
+            let tableData = {
+            descriptions : descriptions,
+            amounts : amounts,
+            type_codes: typeCodes
+            };
+            $('#tableData').val(JSON.stringify(tableData));
+            $('#transForm').submit();
+        } else{
+            alert('The client file number provided does not exist.')
         }
     })
     // 2 buttons to add or remove input rows.
