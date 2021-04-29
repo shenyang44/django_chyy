@@ -10,12 +10,14 @@
         <div class="col-lg-8 col-sm-10">
             <form id='transForm' action="{% url 'ledger:create_trans' account.id %}" method="post">
                 {% csrf_token %}
-                <div class="mb-3 d-flex justify-content-around fs-5">
+                <div class="mb-4 d-flex justify-content-around fs-5">
                     {% if not account.is_office %}
-                        <label class="form-label">For File : {{account.file_no}}</label>
+                        <div>For File : {{account.file_no}}</div>
                     {% endif %}
-                    <label class="form-label">Name : {{account.name}}</label>
+                    <div>Name : {{account.name}}</div>
+                    <div>Balance : {{balance}}</div>
                 </div>
+                <hr>
                 <div id = 'otherDiv' class="d-flex mb-3">
                     <div class="w-50">
                         <label for='otherParty' class="form-label">Other Party:</label>
