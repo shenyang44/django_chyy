@@ -141,10 +141,11 @@ def show_acc(request, acc_id):
         except:
             rb_list.append('fail')
         
-
+    balance = brace_num(account.balance)
     context={
         'account':account,
-        'trans_zipped': zip(transactions, entries_list, rb_list)
+        'trans_zipped': zip(transactions, entries_list, rb_list),
+        'balance' : balance
     }
     return render(request, 'ledger/show-acc.html', context=context)
 
@@ -172,7 +173,7 @@ def create_trans(request, acc_id):
                 other_party = Account(name=other_name, file_no=f"EXTERNAL{count}", balance=0)
                 other_party.save()
     
-        if trans_type == 'received':
+        if trans_type == 'credit':
             payee = other_party
             receiver = curr_account
         else:
@@ -230,10 +231,12 @@ def create_trans(request, acc_id):
         if account.is_external():
             return redirect(reverse('ledger:index'))
         
+        balance = brace_num(account.balance)
         context = {
             'account':account,
             'off_accs':off_accs,
-            'file_no_list': json.dumps(file_no_list) 
+            'file_no_list': json.dumps(file_no_list) ,
+            'balance' : balance
         }
         return render(request, 'ledger/transaction.html', context=context)
 
