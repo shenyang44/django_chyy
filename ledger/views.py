@@ -21,7 +21,7 @@ def brace_num(x):
 def index(request):
     accounts =  Account.objects.filter(created_at__lte=timezone.now()).exclude(file_no__startswith='EXTERNAL').exclude(file_no__startswith='OFFICE')
     if len(accounts) > 0:
-        balance = [acc.balance for acc in accounts]
+        balance = [brace_num(acc.balance) for acc in accounts]
         zipped = zip(accounts, balance)
     else:
         zipped = None
@@ -144,7 +144,7 @@ def show_acc(request, acc_id):
             entries_list.append(entries)
             try:
                 rb = Running_Balance.objects.get(account = account, transaction=trans)
-                rb_list.append(rb.value)
+                rb_list.append(brace_num(rb.value))
             except:
                 rb_list.append('fail')
             
@@ -157,6 +157,26 @@ def show_acc(request, acc_id):
         return render(request, 'ledger/show-acc.html', context=context)
     else:
         return redirect(reverse('ledger:show_acc', acc_id))
+
+def trans_cont(acc_id):
+    account = get_object_or_404(Account, pk=acc_id)
+    other_cli_accs = Account.objects.filter(client_account__isnull=False).exclude(id = account.id)
+        
+    file_no_list = [acc.file_no for acc in other_cli_accs]
+
+    off_accs = Account.objects.filter(file_no__startswith='OFFICE')
+    if account.is_external():
+        return redirect(reverse('ledger:index'))
+    
+    balance = brace_num(account.balance)
+    context = {
+        'account':account,
+        'off_accs':off_accs,
+        'file_no_list': json.dumps(file_no_list),
+        'balance' : balance
+    }
+    return context
+
 
 def create_trans(request, acc_id):
     if request.method == 'POST':
@@ -237,23 +257,17 @@ def create_trans(request, acc_id):
             return redirect(reverse('ledger:receipt', args=(new_trans.id,)))
         
     else:
-        account = get_object_or_404(Account, pk=acc_id)
-        other_cli_accs = Account.objects.filter(client_account__isnull=False).exclude(id = account.id)
-            
-        file_no_list = [acc.file_no for acc in other_cli_accs]
-
-        off_accs = Account.objects.filter(file_no__startswith='OFFICE')
-        if account.is_external():
-            return redirect(reverse('ledger:index'))
-        
-        balance = brace_num(account.balance)
-        context = {
-            'account':account,
-            'off_accs':off_accs,
-            'file_no_list': json.dumps(file_no_list) ,
-            'balance' : balance
-        }
+        context = trans_cont(acc_id)
         return render(request, 'ledger/transaction.html', context=context)
+
+
+def create_ad(request, acc_id):
+    curr_acc = get_object_or_404(Account, pk = acc_id)
+    if curr_acc.is_office() or curr_acc.is_external():
+        messages.warning(request, 'Only client files can make AD/AT transactions.')
+        return redirect(reverse('ledger:index'))
+    context = trans_cont(acc_id)
+    return render(request, 'ledger/adat.html', context=context )
 
 def receipt_voucher_retriever(trans_id):
     transaction = get_object_or_404(Transaction, pk = trans_id)

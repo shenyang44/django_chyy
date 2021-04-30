@@ -65,7 +65,7 @@ class Transaction(models.Model):
     type_codes = models.TextField()
     total = models.DecimalField(max_digits=11, decimal_places=2)
     cheque_text = models.TextField(null=True)
-    settled = models.BooleanField(default=True)
+    resolved = models.BooleanField(default=True)
     category = models.CharField(max_length=2)
 
 class Running_Balance(models.Model):
