@@ -21,7 +21,7 @@ def brace_num(x):
 def index(request):
     accounts =  Account.objects.filter(created_at__lte=timezone.now()).exclude(file_no__startswith='EXTERNAL').exclude(file_no__startswith='OFFICE')
     if len(accounts) > 0:
-        balance = [acc.balance for acc in accounts]
+        balance = [brace_num(acc.balance) for acc in accounts]
         zipped = zip(accounts, balance)
     else:
         zipped = None
@@ -116,39 +116,67 @@ def create_acc(request):
 
 
 def show_acc(request, acc_id):
-    account = get_object_or_404(Account, pk=acc_id)
-    if account.file_no.startswith('EXTERNAL'):
-        return redirect(reverse('ledger:index'))
-    try:
-        transactions = Transaction.objects.filter(
-            Q(payee=account) | Q(receiver=account)
-        )
-    except:
-        transactions = ''
-
-    entries_list=[]
-    rb_list=[]
-    for trans in transactions:
-        descriptions = json.loads(trans.descriptions)
-        amounts = json.loads(trans.amounts)
-        type_codes = json.loads(trans.type_codes)
-        entries = []
-        for i in range(len(descriptions)):
-            entries.append((type_codes[i],descriptions[i],amounts[i]))
-        entries_list.append(entries)
+    if request.method == 'GET':
         try:
-            rb = Running_Balance.objects.get(account = account, transaction=trans)
-            rb_list.append(rb.value)
+            account = get_object_or_404(Account, pk=acc_id)
         except:
-            rb_list.append('fail')
+            messages.error(request, 'That account does not exist. If you believe this to be a mistake, click on help button.')
+            return redirect(reverse('ledger:index'))
+        if account.file_no.startswith('EXTERNAL'):
+            messages.warning(request, 'Sorry but that account is not viewable. If you believe this is an error, please click on help button.')
+            return redirect(reverse('ledger:index'))
+        try:
+            transactions = Transaction.objects.filter(
+                Q(payee=account) | Q(receiver=account)
+            )
+        except:
+            transactions = ''
+
+        entries_list=[]
+        rb_list=[]
+        for trans in transactions:
+            descriptions = json.loads(trans.descriptions)
+            amounts = json.loads(trans.amounts)
+            type_codes = json.loads(trans.type_codes)
+            entries = []
+            for i in range(len(descriptions)):
+                entries.append((type_codes[i],descriptions[i],amounts[i]))
+            entries_list.append(entries)
+            try:
+                rb = Running_Balance.objects.get(account = account, transaction=trans)
+                rb_list.append(brace_num(rb.value))
+            except:
+                rb_list.append('fail')
+            
+        balance = brace_num(account.balance)
+        context={
+            'account':account,
+            'trans_zipped': zip(transactions, entries_list, rb_list),
+            'balance' : balance
+        }
+        return render(request, 'ledger/show-acc.html', context=context)
+    else:
+        return redirect(reverse('ledger:show_acc', acc_id))
+
+def trans_cont(acc_id):
+    account = get_object_or_404(Account, pk=acc_id)
+    other_cli_accs = Account.objects.filter(client_account__isnull=False).exclude(id = account.id)
         
+    file_no_list = [acc.file_no for acc in other_cli_accs]
+
+    off_accs = Account.objects.filter(file_no__startswith='OFFICE')
+    if account.is_external():
+        return redirect(reverse('ledger:index'))
+    
     balance = brace_num(account.balance)
-    context={
+    context = {
         'account':account,
-        'trans_zipped': zip(transactions, entries_list, rb_list),
+        'off_accs':off_accs,
+        'file_no_list': json.dumps(file_no_list),
         'balance' : balance
     }
-    return render(request, 'ledger/show-acc.html', context=context)
+    return context
+
 
 def create_trans(request, acc_id):
     if request.method == 'POST':
@@ -160,7 +188,7 @@ def create_trans(request, acc_id):
         other_name = request.POST['other_name']
         
         curr_account = get_object_or_404(Account, pk=acc_id)
-    
+
         if other_party == 'office':
             other_party = get_object_or_404(Account, id=other_name)
         elif other_party == 'client':
@@ -185,8 +213,8 @@ def create_trans(request, acc_id):
         descriptions=[]
         type_codes = []
         total = 0
-
-        # iterates over all amounts in trans, adding floated vals to total and raw text to to amounts.
+        advance_total = 0
+        # iterates over all amounts in trans, adding decimal vals to total and raw text to to amounts.
         for x in table_data['amounts']:
             total += Decimal(x)
             amounts.append(x)
@@ -194,8 +222,14 @@ def create_trans(request, acc_id):
         for desc in table_data['descriptions']:
             descriptions.append(desc)
         
-        for code in table_data['type_codes']:
+        for i, code in enumerate(table_data['type_codes']):
             type_codes.append(code)
+            if code == 'AD' or code == 'AT':
+                advance_total += Decimal(table_data['amounts'][i])
+        
+        # ON HOLD TILL THEY CONFIRM WHAT THEY WANT TO DO WITH AD AT
+        # if advance_total > 0:
+        #     ad_trans = Transaction(payee=off_acc, receiver=re)
 
         new_trans = Transaction(payee=payee, receiver=receiver, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text, type_codes=json.dumps(type_codes))
         payee.balance += total
@@ -223,23 +257,17 @@ def create_trans(request, acc_id):
             return redirect(reverse('ledger:receipt', args=(new_trans.id,)))
         
     else:
-        account = get_object_or_404(Account, pk=acc_id)
-        other_cli_accs = Account.objects.filter(client_account__isnull=False).exclude(id = account.id)
-            
-        file_no_list = [acc.file_no for acc in other_cli_accs]
-
-        off_accs = Account.objects.filter(file_no__startswith='OFFICE')
-        if account.is_external():
-            return redirect(reverse('ledger:index'))
-        
-        balance = brace_num(account.balance)
-        context = {
-            'account':account,
-            'off_accs':off_accs,
-            'file_no_list': json.dumps(file_no_list) ,
-            'balance' : balance
-        }
+        context = trans_cont(acc_id)
         return render(request, 'ledger/transaction.html', context=context)
+
+
+def create_ad(request, acc_id):
+    curr_acc = get_object_or_404(Account, pk = acc_id)
+    if curr_acc.is_office() or curr_acc.is_external():
+        messages.warning(request, 'Only client files can make AD/AT transactions.')
+        return redirect(reverse('ledger:index'))
+    context = trans_cont(acc_id)
+    return render(request, 'ledger/adat.html', context=context )
 
 def receipt_voucher_retriever(trans_id):
     transaction = get_object_or_404(Transaction, pk = trans_id)

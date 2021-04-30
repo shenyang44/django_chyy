@@ -3,7 +3,7 @@
 
 {% block body %}
 <div class="container">
-    <div class="row justify-content-center fs-4 m-4">New Transaction</div>
+    <div class="row justify-content-center fs-4 m-4">New Advance Disbursement/Transfer</div>
     <div class="row">
         <div class="col-sm">
         </div>
@@ -23,28 +23,20 @@
                         <label for='otherParty' class="form-label">Other Party:</label>
                         <select name='other_party' class="form-select w-75" aria-label="trans-select" id='otherParty'>
                             <option value="" selected></option>
-                            {% if not account.is_office %}
-                                <option value="office">Office</option>
-                            {% endif %}
                             <option value="other">3rd Party</option>
                             <option value="client">
                                 Client Account
                             </option>
                         </select>
                     </div>                    
-                    <div style="width: 33%;">
-                        <label for='transSelect' class="form-label">Debit or Credit:</label>
-                        <select name='trans_type' class="form-select w-50" aria-label="trans-select" id='transSelect'>
+                    <div class="mb-3 w-50">
+                        <label for="officeNo" class="form-label">From Office Account:</label>
+                        <select name='off_id' class="mb-3 form-select w-75" aria-label="trans-select" id='officeNo'>
                             <option value="" selected></option>
-                            <option value="debit">Debit</option>
-                            <option value="credit">Credit</option>
+                            {% for off_acc in off_accs %}
+                                <option value="{{off_acc.id}}">{{off_acc.name}}</option>
+                            {% endfor %}
                         </select>
-                    </div>
-                    <div>
-                        {% if not account.is_office %}
-                        <div>AD / AT</div>
-                        <a href='{% url "ledger:create_ad" account.id %}' class="btn btn-outline-primary">Click Here</a>
-                        {% endif %}
                     </div>
                 </div>
                 <br>
@@ -64,6 +56,8 @@
                     <tr class="trIn">
                         <td class="bordered"><select class="typeCode" style="width: 100%;">
                             <option value=""></option>
+                            <option value="AD">AD</option>
+                            <option value="AT">AT</option>
                         </select></td>
                         <td class="bordered"></td>
                         <td class="bordered"><input type="text" class="descript"></td>
@@ -99,19 +93,7 @@ $(()=>{
                         <input name='other_name' type="text" class="formInput form-control w-75" id="otherName">
                     </div>
                 `)
-        } else if (currVal == 'office'){
-            otherDiv.after(`
-                <div id='otherInput' class="mb-3">
-                    <label for="officeNo" class="form-label">Office Account Number:</label>
-                    <select name='other_name' class="mb-3 form-select w-50" aria-label="trans-select" id='officeNo'>
-                        <option value="" selected></option>
-                        {% for off_acc in off_accs %}
-                            <option value="{{off_acc.id}}">{{off_acc.name}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            `)
-        } else if (currVal == 'client'){
+        } else{
             otherDiv.after(`
                 <div id='otherInput' class="mb-3">
                     <label for="otherName" class="form-label">Client's File No. :</label>
@@ -120,40 +102,13 @@ $(()=>{
             `)
         }
     })
-    optionsArray = () => {
-        let trans = $('#transSelect').val();
-        let options;
-        if (trans == 'debit'){
-            options = ['PD', 'PD1', 'PD2', 'PD3', 'PD4', 'PD5', 'PD6', 'PD7', 'PD8', 'PD9', 'PD10', 'PD11', 'PD12', 'PD13', 'PD14', 'PD15', 'PD16', 'PD17', 'PD18', 'PF', 'PI', 'PO', 'PS', 'PT', 'PT1', 'PT2', 'PT3', 'PT4', 'PT5', 'PT6', 'PT7', 'PT8', 'PT9', 'PT10', 'PT11', 'PT12', 'PT13']
-        } else{
-            options = ['RD', 'RD1', 'RD2', 'RD3', 'RD4', 'RD5', 'RD6', 'RD7', 'RD8', 'RD11', 'RD14', 'RD15', 'RD17', 'RF', 'RI', 'RO', 'RFDG', 'RS', 'RT', 'RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT13']
-        }
-        return options;
-    }
-    $('#transSelect').change((e)=>{
-        let debCred = $(e.target).val()
-        let options = (debCred ? optionsArray() : [])
-        typeCode = $('.typeCode')
-        typeCode.each((i, e)=>{
-            e.innerHTML = '<option value = ""></option>';
-            for (i = 0; i < options.length; i++){
-                e.innerHTML += `<option value="${options[i]}">${options[i]}</option>`
-            }
-            $(e).parent().next().text('')
-        })
-    })
     
     $('table').on('click', '.typeCode', (e)=>{
-        let typeCode = $(e.target).val()
-        let cat;
-        if (typeCode == 'RFDG'){
-            cat = 'RO'
-        } else{
-            cat = typeCode.slice(0, 2)
-        }
-        $(e.target).parent().next().text(cat)
+        let typeCode = $(e.target).val();
+        $(e.target).parent().next().text(typeCode);
     })
-    // Button is disabled if select input val is empty on either element.
+
+    // Button is disabled if input val is empty on any select element.
     $('form').on('click', 'select', (e)=>{
         let selectValid = true;
         $('select').each((i, e)=>{
@@ -209,7 +164,6 @@ $(()=>{
                 total +=  Number(amt*100);
             }
         })
-        console.log(total)
         return y;
     }
 
@@ -255,16 +209,13 @@ $(()=>{
     })
     // 2 buttons to add or remove input rows.
     $('#addBtn').click(()=>{
-        options = optionsArray()
-        let optTxt = '<option value = ""></option>';
-        for (i = 0; i < options.length; i++){
-            optTxt += `<option value="${options[i]}">${options[i]}</option>`
-        }
         $('table').append(`
             <tr class='trIn'>
                 <td class="bordered">
                     <select class='typeCode' style="width: 100%;">
-                        ${optTxt}
+                        <option value=""></option>
+                        <option value="AD">AD</option>
+                        <option value="AT">AT</option>
                     </select>
                 </td>
                 <td class='bordered'></td>
