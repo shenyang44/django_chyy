@@ -238,9 +238,8 @@ $(()=>{
             let trans = $('#transSelect').val();
             let acc_bal = -(Number('{{account.balance}}')*100)
             if (total>acc_bal && trans == 'debit'){
-                if(!confirm("The amount being deducted exceeds the account's current balance, please ensure AD or AT type is selected. Click cancel to check.")){
-                    return;
-                }
+                alert("The amount being deducted exceeds the account's current balance, please click on AD/AT instead.")
+                return;
             }
             let tableData = {
             descriptions : descriptions,

@@ -18,20 +18,19 @@
                     <div>Balance : {{balance}}</div>
                 </div>
                 <hr>
+                <input type="hidden" name="trans_type" value="debit">
                 <div id = 'otherDiv' class="d-flex justify-content-between mb-3">
                     <div class="w-50">
                         <label for='otherParty' class="form-label">Other Party:</label>
                         <select name='other_party' class="form-select w-75" aria-label="trans-select" id='otherParty'>
                             <option value="" selected></option>
                             <option value="other">3rd Party</option>
-                            <option value="client">
-                                Client Account
-                            </option>
+                            <option value="client">Client Account</option>
                         </select>
                     </div>                    
-                    <div class="mb-3 w-50">
+                    <div class="w-50">
                         <label for="officeNo" class="form-label">From Office Account:</label>
-                        <select name='off_id' class="mb-3 form-select w-75" aria-label="trans-select" id='officeNo'>
+                        <select name='off_id' class="form-select w-75" aria-label="trans-select" id='officeNo'>
                             <option value="" selected></option>
                             {% for off_acc in off_accs %}
                                 <option value="{{off_acc.id}}">{{off_acc.name}}</option>
@@ -189,13 +188,6 @@ $(()=>{
             return;
         }
         if (cli_acc_check()){
-            let trans = $('#transSelect').val();
-            let acc_bal = -(Number('{{account.balance}}')*100)
-            if (total>acc_bal && trans == 'debit'){
-                if(!confirm("The amount being deducted exceeds the account's current balance, please ensure AD or AT type is selected. Click cancel to check.")){
-                    return;
-                }
-            }
             let tableData = {
             descriptions : descriptions,
             amounts : amounts,

@@ -177,6 +177,10 @@ def trans_cont(acc_id):
     }
     return context
 
+def trans_save_err(request, acc_id):
+    account = get_object_or_404(Account, pk = acc_id)
+    messages.error(request, f'Saving the new transaction failed for: {account.name}')
+    return render(request, 'ledger/transaction.html', {'account':account})
 
 def create_trans(request, acc_id):
     if request.method == 'POST':
@@ -213,7 +217,7 @@ def create_trans(request, acc_id):
         descriptions=[]
         type_codes = []
         total = 0
-        advance_total = 0
+        
         # iterates over all amounts in trans, adding decimal vals to total and raw text to to amounts.
         for x in table_data['amounts']:
             total += Decimal(x)
@@ -222,14 +226,25 @@ def create_trans(request, acc_id):
         for desc in table_data['descriptions']:
             descriptions.append(desc)
         
-        for i, code in enumerate(table_data['type_codes']):
+        for code in table_data['type_codes']:
             type_codes.append(code)
-            if code == 'AD' or code == 'AT':
-                advance_total += Decimal(table_data['amounts'][i])
         
-        # ON HOLD TILL THEY CONFIRM WHAT THEY WANT TO DO WITH AD AT
-        # if advance_total > 0:
-        #     ad_trans = Transaction(payee=off_acc, receiver=re)
+        if 'AD' in type_codes or 'AT' in type_codes:
+            off_id = request.POST['off_id']
+            off_acc = Account.objects.get(id = off_id)
+            off_trans = Transaction(payee=off_acc, receiver=receiver, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text, type_codes=json.dumps(type_codes), resolved=False)
+            off_acc.balance -= total
+            try:
+                off_acc.save()
+                off_trans.save()
+            except:
+                return trans_save_err(request, curr_account.id)
+                
+            off_rb = Running_Balance(account=off_acc, transaction=off_trans, value=off_acc.balance)
+            try:
+                off_rb.save()
+            except:
+                return trans_save_err(request, curr_account.id)
 
         new_trans = Transaction(payee=payee, receiver=receiver, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text, type_codes=json.dumps(type_codes))
         payee.balance += total
@@ -240,8 +255,7 @@ def create_trans(request, acc_id):
             payee.save()
             receiver.save()
         except:
-            messages.error(request, f'Saving the new transaction failed for: {curr_account.name}')
-            return render(request, 'ledger/transaction.html', {'account':payee})
+            return trans_save_err(request, curr_account.id)
 
         payee_rb = Running_Balance(account = payee, transaction = new_trans, value = payee.balance)
         receiver_rb = Running_Balance(account=receiver, transaction=new_trans, value=receiver.balance)
@@ -249,8 +263,8 @@ def create_trans(request, acc_id):
             payee_rb.save()
             receiver_rb.save()
         except:
-            messages.error(request, f'Saving the running balance portion of transaction failed for: {curr_account.name}')
-            return render(request, 'ledger/transaction.html', {'account':payee})
+            return trans_save_err(request, curr_account.id)
+
         if curr_account == payee:
             return redirect(reverse('ledger:voucher', args=(new_trans.id,)))
         else:
