@@ -23,8 +23,15 @@
         <div class="col-auto">Received from:</div>
         <div class="col border-bottom border-dark">{{transaction.payee}}</div>
     </div>
-    <!-- <div class="row">Ringgit Malaysia&nbsp; <div>{{total_worded}}</div></div> -->
-    <div class="row">Being:</div>
+    <div class="row d-flex mb-3">
+        <div class="col-auto">
+            Ringgit Malaysia&nbsp;
+        </div>
+        <div class="col border-bottom border-dark">{{total_worded}}</div>
+    </div>
+    <div class="row">
+        <div class="col">Being:</div>
+    </div>
     {% for desc, amt in entries %}
     <div class="row border-bottom border-dark">
         <div class="col-10">{{desc}}</div>
@@ -42,6 +49,7 @@
         <div class="col border-top border-dark">Received By / FILLTHIS</div>
     </div>
 </div>
+<hr>
 <div class='mt-3 print-n btn-cluster'>
     <button class="btn btn-secondary" type="button" onclick="window.print()">Print</button>
     <a class="btn btn-outline-primary" href="{% url 'ledger:show_acc' account.id %}">View Account</a>

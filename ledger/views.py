@@ -10,6 +10,7 @@ import inflect
 from decimal import Decimal
 from django.contrib import messages
 from datetime import datetime, timedelta
+import math
 
 def brace_num(x):
     if x < 0:
@@ -270,10 +271,16 @@ def receipt(request, trans_id):
         return redirect(reverse('ledger:index'))
     p = inflect.engine()
     context = receipt_voucher_retriever(trans_id)
-    # total_worded = p.number_to_words(context['total'])
-    # context.update({'total_worded': total_worded})
+    total = context['total']
+    before_pt = math.floor(total)
+    before_pt_worded = p.number_to_words(before_pt)
+    after_pt = int((total - before_pt) * 100)
+    after_pt_worded = p.number_to_words(after_pt)
+    total_worded = before_pt_worded + ' and ' + after_pt_worded + ' cents'
+    
     context.update({
-        'account':context['transaction'].receiver
+        'account':context['transaction'].receiver,
+        'total_worded': total_worded.title()
     })
 
     return render(request, 'ledger/receipt.html', context=context)
