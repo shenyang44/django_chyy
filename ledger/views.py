@@ -36,9 +36,7 @@ def show_off(request):
         entries_list =[]
         rb_list = []
         for trans in transactions:
-            descriptions = json.loads(trans.descriptions)
-            amounts = json.loads(trans.amounts)
-            entries_list.append(zip(descriptions, amounts))
+            entries_list.append(json.loads(trans.table_list))
             try:
                 rb = Running_Balance.objects.get(account = off_acc, transaction=trans)
                 rb_list.append(rb.value)
@@ -136,13 +134,7 @@ def show_acc(request, acc_id):
         entries_list=[]
         rb_list=[]
         for trans in transactions:
-            descriptions = json.loads(trans.descriptions)
-            amounts = json.loads(trans.amounts)
-            type_codes = json.loads(trans.type_codes)
-            entries = []
-            for i in range(len(descriptions)):
-                entries.append((type_codes[i],descriptions[i],amounts[i]))
-            entries_list.append(entries)
+            entries_list.append(json.loads(trans.table_list))
             try:
                 rb = Running_Balance.objects.get(account = account, transaction=trans)
                 rb_list.append(brace_num(rb.value))
@@ -217,7 +209,7 @@ def create_trans(request, acc_id):
         total = 0
         adv_trans = False
 
-        # iterates over all amounts in trans, adding decimal vals to total and raw text to to amounts.
+        # iterates over each dict adding decimal vals to total and checking if trans is service tax/fees or advanced transfer.
         for each in table_list:
             total += Decimal(each['amount'])
             if each['type_code'] in ['RF', 'RS']:
@@ -281,17 +273,12 @@ def create_ad(request, acc_id):
 
 def receipt_voucher_retriever(trans_id):
     transaction = get_object_or_404(Transaction, pk = trans_id)
-    descriptions = json.loads(transaction.descriptions)
-    amounts = json.loads(transaction.amounts)
-    total = transaction.total
-    entries=[]
-    for i in range(len(descriptions)):
-        entries.append((descriptions[i],amounts[i]))
+    table_list = json.loads(transaction.table_list)
 
     con_dict = {
         'transaction':transaction,
-        'entries':entries,
-        'total':total,
+        'entries':table_list,
+        'total': transaction.total,
     }
     return con_dict
 

@@ -209,7 +209,6 @@ $(()=>{
                 total +=  Number(amt*100);
             }
         })
-        console.log(total)
         return y;
     }
 
@@ -241,9 +240,9 @@ $(()=>{
                 alert("The amount being deducted exceeds the account's current balance, please click on AD/AT instead.")
                 return;
             }
-            let tableData = [] 
+            let tableData = []; 
             for (let i = 0; i < amounts.length; i++){
-                tableData.append({
+                tableData.push({
                     description:descriptions[i],
                     amount:amounts[i],
                     type_code:typeCodes[i]

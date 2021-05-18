@@ -32,10 +32,10 @@
     <div class="row">
         <div class="col">Being:</div>
     </div>
-    {% for desc, amt in entries %}
+    {% for entry in entries %}
     <div class="row border-bottom border-dark">
-        <div class="col-10">{{desc}}</div>
-        <div class="col-2 border-start border-dark text-end">{{amt}}</div>
+        <div class="col-10">{{entry.description}}</div>
+        <div class="col-2 border-start border-dark text-end">{{entry.amount}}</div>
     </div>
     {% endfor %}
     <div class="row justify-content-end p-3" >Jumlah / Total / FILLTHIS <span class="fw-bold w-auto">RM</span>{{ total }}</div>

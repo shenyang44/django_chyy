@@ -37,7 +37,7 @@
         </thead>
         <tbody>
         {% for trans, entries, rb in trans_zipped %}
-            {% for desc, amt in entries %}
+            {% for entry in entries %}
             <tr class="transRow" data-id="{{trans.id}}">
                 <td>{{trans.created_at|date:"j. n. Y"}}</td>
                 <td>
@@ -48,10 +48,10 @@
                         {{trans.receiver.name}}
                     {% endif %}
                     &nbsp;-&nbsp;
-                    {{desc}}
+                    {{entry.description}}
                 </td>
-                <td class="text-center">{% if trans.payee.file_no == off_acc.file_no %}{{amt}} {% endif %}</td>
-                <td class="text-center">{% if trans.receiver.file_no == off_acc.file_no %}{{amt}}{% endif %}</td>
+                <td class="text-center">{% if trans.payee.file_no == off_acc.file_no %}{{entry.amount}} {% endif %}</td>
+                <td class="text-center">{% if trans.receiver.file_no == off_acc.file_no %}{{entry.amount}}{% endif %}</td>
                 <td>{% if forloop.last %}{{rb}}{% endif %}</td>
             </tr>
             {% endfor %}

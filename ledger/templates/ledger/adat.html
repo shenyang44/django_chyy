@@ -188,11 +188,14 @@ $(()=>{
             return;
         }
         if (cli_acc_check()){
-            let tableData = {
-            descriptions : descriptions,
-            amounts : amounts,
-            type_codes: typeCodes
-            };
+            let tableData = [];
+            for (let i = 0; i < amounts.length; i++){
+                tableData.push({
+                    description:descriptions[i],
+                    amount:amounts[i],
+                    type_code:typeCodes[i]
+                })
+            }
             $('#tableData').val(JSON.stringify(tableData));
             $('#transForm').submit();
         } else{
