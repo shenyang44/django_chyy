@@ -241,11 +241,14 @@ $(()=>{
                 alert("The amount being deducted exceeds the account's current balance, please click on AD/AT instead.")
                 return;
             }
-            let tableData = {
-            descriptions : descriptions,
-            amounts : amounts,
-            type_codes: typeCodes
-            };
+            let tableData = [] 
+            for (let i = 0; i < amounts.length; i++){
+                tableData.append({
+                    description:descriptions[i],
+                    amount:amounts[i],
+                    type_code:typeCodes[i]
+                })
+            }
             $('#tableData').val(JSON.stringify(tableData));
             $('#transForm').submit();
         } else{

@@ -1,3 +1,4 @@
+from abc import get_cache_token
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404, HttpResponseRedirect
 from .models import Account, Transaction, Client_Account, Running_Balance
@@ -185,12 +186,11 @@ def trans_save_err(request, acc_id):
 def create_trans(request, acc_id):
     if request.method == 'POST':
         # retrieving form data
-        table_data = json.loads(request.POST['table_data'])
+        table_list = json.loads(request.POST['table_data'])
         trans_type = request.POST['trans_type']
         other_party = request.POST['other_party']
         cheque_text = request.POST['cheque_text']
         other_name = request.POST['other_name']
-        
         curr_account = get_object_or_404(Account, pk=acc_id)
 
         if other_party == 'office':
@@ -213,26 +213,22 @@ def create_trans(request, acc_id):
             payee = curr_account
             receiver = other_party
 
-        amounts=[]
-        descriptions=[]
-        type_codes = []
+        auto_outgoing_list = []
         total = 0
-        
-        # iterates over all amounts in trans, adding decimal vals to total and raw text to to amounts.
-        for x in table_data['amounts']:
-            total += Decimal(x)
-            amounts.append(x)
+        adv_trans = False
 
-        for desc in table_data['descriptions']:
-            descriptions.append(desc)
+        # iterates over all amounts in trans, adding decimal vals to total and raw text to to amounts.
+        for each in table_list:
+            total += Decimal(each['amount'])
+            if each['type_code'] in ['RF', 'RS']:
+                return
+            elif each['type_code'] in ['AD', 'AT']:
+                adv_trans = True
         
-        for code in table_data['type_codes']:
-            type_codes.append(code)
-        
-        if 'AD' in type_codes or 'AT' in type_codes:
+        if adv_trans:
             off_id = request.POST['off_id']
             off_acc = Account.objects.get(id = off_id)
-            off_trans = Transaction(payee=off_acc, receiver=receiver, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text, type_codes=json.dumps(type_codes), resolved=False)
+            off_trans = Transaction(payee=off_acc, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=False)
             off_acc.balance -= total
             try:
                 off_acc.save()
@@ -246,7 +242,7 @@ def create_trans(request, acc_id):
             except:
                 return trans_save_err(request, curr_account.id)
 
-        new_trans = Transaction(payee=payee, receiver=receiver, amounts=json.dumps(amounts), descriptions=json.dumps(descriptions), total=total, cheque_text=cheque_text, type_codes=json.dumps(type_codes))
+        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text)
         payee.balance += total
         receiver.balance -= total
 
