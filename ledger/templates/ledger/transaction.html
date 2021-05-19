@@ -235,7 +235,7 @@ $(()=>{
         }
         if (cli_acc_check()){
             let trans = $('#transSelect').val();
-            let acc_bal = -(Number('{{account.balance}}')*100)
+            let acc_bal = Math.abs(Number('{{account.balance}}')*100)
             if (total>acc_bal && trans == 'debit'){
                 alert("The amount being deducted exceeds the account's current balance, please click on AD/AT instead.")
                 return;
