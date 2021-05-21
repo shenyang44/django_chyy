@@ -15,5 +15,6 @@ urlpatterns = [
     path('admin-options/', views.admin_options, name='admin_options'),
     path('show-client-accounts/', views.show_cli, name='show_cli'),
     path('search-results/', views.search, name='search'),
-    path('<int:acc_id>/create_ad/', views.create_ad, name='create_ad')
+    path('<int:acc_id>/create_ad/', views.create_ad, name='create_ad'),
+    path('<int:acc_id>/tax/', views.tax, name='tax')
 ]

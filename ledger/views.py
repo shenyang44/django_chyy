@@ -151,6 +151,32 @@ def show_acc(request, acc_id):
     else:
         return redirect(reverse('ledger:show_acc', acc_id))
 
+def tax(request, acc_id):
+    if request.method == 'POST':
+        date_input = request.POST['date_to']
+        date_to = datetime.strptime(date_input, "%d/%m/%Y")
+    else:
+        date_to=timezone.localdate()
+    curr_acc = Account.objects.get(pk = acc_id)
+    trans = Transaction.objects.filter(payee=curr_acc, created_at__lte=date_to+timedelta(days=1))
+    total = 0
+    ps_trans = []
+
+    for each in trans:
+        entries = json.loads(each.table_list)
+        for entry in entries:
+            if entry['type_code'] == 'PS':
+                total += Decimal(entry['amount'])
+                entry.update({"id" : each.id, "created_at": each.created_at})
+                ps_trans.append(entry)
+
+    context = {
+        'account':curr_acc,
+        'total': total,
+        'trans': ps_trans
+    }
+    return render(request, 'ledger/tax.html', context=context)
+
 def trans_cont(acc_id):
     account = get_object_or_404(Account, pk=acc_id)
     other_cli_accs = Account.objects.filter(client_account__isnull=False).exclude(id = account.id)
