@@ -4,10 +4,10 @@
 {% block body %}
 <div class="print-n">
     <div class='btn-cluster'>
-        <form action="{% url 'ledger:tax' account.id%}" method="POST" autocomplete="off">
-            {% csrf_token %}
-            Final View Date: <input name='date_to' type="text" id="datepicker">
-            <button>Update</button>
+        <form id='dateForm' autocomplete="off">
+            Date from: <input name='date_from' class="datepicker" type="text" id="datepickerFrom" placeholder="{{date_from}}">
+            Date to: <input name='date_to' class='datepicker' type="text" id="datepickerTo" placeholder="{{date_to}}">
+            <button id='upBtn' type="button">Update</button>
         </form>
         <a class="btn btn-outline-primary" href="{% url 'ledger:create_trans' account.id %}">New Transaction</a>
         <a class="btn btn-outline-secondary" href="{% url 'ledger:show_acc' account.id %}">View Full Ledger</a>
@@ -31,65 +31,57 @@
                     <div>Service Tax Paid</div>
                 </header>
                 <div class="container d-flex flex-wrap">
-                <div class="d-flex flex-column">
-                    <div>
-                        Client Code:
+                    <div class="d-flex flex-column">
+                        <div>
+                            Client Code:
+                        </div>
+                        <div>
+                            Name:
+                        </div>
+                        <div >
+                            File Ref:
+                        </div>
+                        <div>
+                            Sub. Matter:
+                        </div>
                     </div>
-                    <div>
-                        Name:
+                    <div style="width: 30%;"class="ms-3 d-flex flex-column fw-normal">
+                        <div>
+                            {{account.client_code}}
+                        </div>
+                        <div>
+                            {{account.name}}
+                        </div>
+                        <div>
+                            {{account.file_no}}
+                        </div>
+                        <div>
+                            {{account.subject_matter}}
+                        </div>
                     </div>
-                    <div >
-                        File Ref:
+                    <div style="width: 30%;" class="fw-bold d-flex align-items-center print-sm">
+                        Your Ref:
                     </div>
-                    <div>
-                        Sub. Matter:
+                    <div class="d-flex flex-column">
+                        <div>
+                            Client Ledger
+                        </div>
+                        <div>
+                            Report Date:
+                        </div>
+                        <div>
+                            Page:
+                        </div>
                     </div>
-                </div>
-                <div style="width: 30%;"class="ms-3 d-flex flex-column fw-normal">
-                    <div>
-                        {{account.client_code}}
+                    <div class="d-flex flex-column ms-2">
+                        <br>
+                        <div>
+                            {% now "d/m/Y" %}
+                        </div>
+                        <div>
+                            todo
+                        </div>
                     </div>
-                    <div>
-                        {{account.name}}
-                    </div>
-                    <div>
-                        {{account.file_no}}
-                    </div>
-                    <div>
-                        {{account.subject_matter}}
-                    </div>
-                </div>
-                <div style="width: 30%;" class="fw-bold d-flex align-items-center print-sm">
-                    Your Ref:
-                </div>
-                <div class="d-flex flex-column">
-                    <div>
-                        Client Ledger
-                    </div>
-                    <div>
-                        Report Date:
-                    </div>
-                    <div>
-                        Page:
-                    </div>
-                </div>
-                <div class="d-flex flex-column ms-2">
-                    <br>
-                    <div>
-                        {% now "d/m/Y" %}
-                    </div>
-                    <div>
-                        todo
-                    </div>
-                </div>
-                <div style="width: 100%;" class="d-flex print-sm">
-                    <div class="w-25">
-                        Date From: &nbsp;<span class="fw-normal">01/01/2000</span> 
-                    </div>
-                    <div class="w-25"> 
-                        Date To: &nbsp;<span class="fw-normal">todo</span>
-                    </div>
-                </div>
                 </div>
             </td>
         </tr>
@@ -109,7 +101,7 @@
             <td class="refCell">
                 PV{{each.id|stringformat:"05d"}}
             </td>
-            <td>
+            <td class="dateCell">
                 {{each.created_at|date:"d/m/Y"}}
             </td>
             <td>{{each.type_code}}</td>
@@ -136,11 +128,20 @@
             id = $(e.currentTarget).attr('data-id');
             $(`#a${id}`)[0].click()
         })
-        $( "#datepicker" ).datepicker({
-        changeMonth: true,
-        changeYear: true,
-        dateFormat: 'dd/mm/yy'
+        $(".datepicker").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: 'yy/mm/dd'
         });
+        $('#upBtn').click((e)=>{
+            dateFrom = Date.parse($('#datepickerFrom').val());
+            dateTo = Date.parse($('#datepickerTo').val());
+            if (dateFrom <= dateTo){
+                $.post('{% url "ledger:tax" account.id %}', {csrfmiddlewaretoken: "{{ csrf_token }}", date_from:dateFrom, date_to:dateTo})
+            } else{
+                alert('The "Date To" selected is prior to the "Date From"');
+            }
+        })
     })
 </script>
 {% endblock %}

@@ -1,4 +1,5 @@
 from abc import get_cache_token
+from django.http.response import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404, HttpResponseRedirect
 from .models import Account, Transaction, Client_Account, Running_Balance
@@ -10,7 +11,7 @@ from django.db.models import Q
 import inflect
 from decimal import Decimal
 from django.contrib import messages
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import math
 
 def brace_num(x):
@@ -153,12 +154,17 @@ def show_acc(request, acc_id):
 
 def tax(request, acc_id):
     if request.method == 'POST':
-        date_input = request.POST['date_to']
-        date_to = datetime.strptime(date_input, "%d/%m/%Y")
+        date_from_inp = request.POST['date_from']
+        date_to_inp = request.POST['date_to']
+        date_from = datetime.strptime(date_from_inp, "%Y%m%d")
+        date_to = datetime.strptime(date_to_inp, "%Y/%m/%d")
     else:
+        date_from = datetime.strptime('1900/01/01', "%Y/%m/%d")
         date_to=timezone.localdate()
+    
+    date_to += timedelta(days=1)
     curr_acc = Account.objects.get(pk = acc_id)
-    trans = Transaction.objects.filter(payee=curr_acc, created_at__lte=date_to+timedelta(days=1))
+    trans = Transaction.objects.filter(payee=curr_acc, created_at__lte=date_to, created_at__gte=date_from)
     total = 0
     ps_trans = []
 
@@ -171,9 +177,11 @@ def tax(request, acc_id):
                 ps_trans.append(entry)
 
     context = {
-        'account':curr_acc,
+        'account': curr_acc,
         'total': total,
-        'trans': ps_trans
+        'trans': ps_trans,
+        'date_from':date_from.strftime("%Y/%m/%d"),
+        'date_to':date_to.strftime("%Y/%m/%d"),
     }
     return render(request, 'ledger/tax.html', context=context)
 
