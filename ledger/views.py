@@ -11,7 +11,7 @@ from django.db.models import Q
 import inflect
 from decimal import Decimal
 from django.contrib import messages
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 import math
 
 def brace_num(x):
@@ -156,7 +156,7 @@ def tax(request, acc_id):
     if request.method == 'POST':
         date_from_inp = request.POST['date_from']
         date_to_inp = request.POST['date_to']
-        date_from = datetime.strptime(date_from_inp, "%Y%m%d")
+        date_from = datetime.strptime(date_from_inp, "%Y/%m/%d")
         date_to = datetime.strptime(date_to_inp, "%Y/%m/%d")
     else:
         date_from = datetime.strptime('1900/01/01', "%Y/%m/%d")
@@ -164,7 +164,7 @@ def tax(request, acc_id):
     
     date_to += timedelta(days=1)
     curr_acc = Account.objects.get(pk = acc_id)
-    trans = Transaction.objects.filter(payee=curr_acc, created_at__lte=date_to, created_at__gte=date_from)
+    trans = Transaction.objects.filter(payee=curr_acc,created_at__lte=date_to).filter(created_at__gte=date_from)
     total = 0
     ps_trans = []
 
@@ -175,7 +175,7 @@ def tax(request, acc_id):
                 total += Decimal(entry['amount'])
                 entry.update({"id" : each.id, "created_at": each.created_at})
                 ps_trans.append(entry)
-
+    date_to -= timedelta(days=1)
     context = {
         'account': curr_acc,
         'total': total,
