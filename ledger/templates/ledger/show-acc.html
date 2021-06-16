@@ -6,6 +6,7 @@
     <div class='btn-cluster'>
         <button id='printBtn' class="btn btn-secondary" type="button" onclick="window.print()">Print</button>
         <a class="btn btn-outline-primary" href="{% url 'ledger:create_trans' account.id %}">New Transaction</a>
+        <a class="btn btn-outline-secondary" href="{% url 'ledger:tax' account.id %}">View Service Tax</a>
     </div>
     <hr>
 </div>

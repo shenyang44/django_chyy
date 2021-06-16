@@ -1,0 +1,153 @@
+{% extends 'ledger/layout.html' %}
+{% block title %}Tax for {{account.file_no}}{% endblock %}
+
+{% block body %}
+<div class="print-n">
+    <div class='btn-cluster'>
+        <form id='dateForm' autocomplete="off" method="POST">
+            {% csrf_token %}
+            Date from: <input name='date_from' class="datepicker" type="text" id="datepickerFrom" placeholder="{{date_from}}">
+            Date to: <input name='date_to' class='datepicker' type="text" id="datepickerTo" placeholder="{{date_to}}">
+            <button id='upBtn' type="button">Update</button>
+        </form>
+        <a class="btn btn-outline-primary" href="{% url 'ledger:create_trans' account.id %}">New Transaction</a>
+        <a class="btn btn-outline-secondary" href="{% url 'ledger:show_acc' account.id %}">View Full Ledger</a>
+    </div>
+    <hr>
+</div>
+<table class="table print-sm">
+    <colgroup>
+        <col style="width: 10%;">
+        <col style="width:10%;">
+        <col style="width: 5%;">
+        <col style="width: 40%;">
+        <col style="width:10%">
+        <col style="width: 10%;">
+    </colgroup>
+    <thead>
+        <tr style="border:none">
+            <th colspan="7">
+                <header class="fs-5 text-center mb-3">
+                    <div>MESSRS C.H.YEOH & YIEW</div>
+                    <div>Service Tax Paid</div>
+                </header>
+                <div class="container d-flex flex-wrap">
+                    <div class="d-flex flex-column">
+                        <div>
+                            Client Code:
+                        </div>
+                        <div>
+                            Name:
+                        </div>
+                        <div >
+                            File Ref:
+                        </div>
+                        <div>
+                            Sub. Matter:
+                        </div>
+                    </div>
+                    <div style="width: 30%;"class="ms-3 d-flex flex-column fw-normal">
+                        <div>
+                            {{account.client_code}}
+                        </div>
+                        <div>
+                            {{account.name}}
+                        </div>
+                        <div>
+                            {{account.file_no}}
+                        </div>
+                        <div>
+                            {{account.subject_matter}}
+                        </div>
+                    </div>
+                    <div style="width: 30%;" class="fw-bold d-flex align-items-center print-sm">
+                        Your Ref:
+                    </div>
+                    <div class="d-flex flex-column">
+                        <div>
+                            Client Ledger
+                        </div>
+                        <div>
+                            Report Date:
+                        </div>
+                        <div>
+                            Page:
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column ms-2">
+                        <br>
+                        <div>
+                            {% now "d/m/Y" %}
+                        </div>
+                        <div>
+                            todo
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th scope="col">Ref No</th>
+            <th scope="col">Date</th>
+            <th scope="col">Type</th>
+            <th scope="col">Description</th>
+            <th class="text-center" scope="col">Debit</th>
+            <th class="text-center" scope="col">Credit</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for each in trans %}
+        <tr class="transRow" data-id="{{each.id}}">
+            <a href="{% url 'ledger:voucher' each.id %}" id = a{{each.id}} class="hidden-links"></a>
+            <td class="refCell">
+                PV{{each.id|stringformat:"05d"}}
+            </td>
+            <td class="dateCell">
+                {{each.created_at|date:"d/m/Y"}}
+            </td>
+            <td>{{each.type_code}}</td>
+            <td>
+                {{each.description}}
+            </td>
+            <td class="text-center">{{each.amount}}</td>
+            <td class="text-center"></td>
+        </tr>
+    {% endfor %}
+        <tr class="transRow" data-id="{{each.id}}">
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="text-end fw-bold">Total</td>
+            <td class="text-center fw-bold">{{total}}</td>
+            <td class="text-center"></td>
+        </tr>
+    </tbody>
+</table>
+<script charset="utf-8">
+    $(()=>{
+        $('.transRow').dblclick((e)=>{
+            id = $(e.currentTarget).attr('data-id');
+            $(`#a${id}`)[0].click()
+        })
+        $(".datepicker").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: 'yy/mm/dd'
+        });
+        $('#upBtn').click((e)=>{
+            dateFrom = $('#datepickerFrom').val();
+            dateTo = $('#datepickerTo').val();
+            if (dateFrom && dateTo){
+                if (Date.parse(dateFrom) <= Date.parse(dateTo)){
+                $('#dateForm').submit();
+                } else{
+                    alert('The "Date To" selected is prior to the "Date From"');
+                }
+            } else{
+                alert('Both "Date From" and "Date To" must be selected.')
+            }
+            
+        })
+    })
+</script>
+{% endblock %}
