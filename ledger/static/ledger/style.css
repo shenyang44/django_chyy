@@ -4,6 +4,11 @@ main {
     padding: 15px;
 }
 
+svg:hover{
+    cursor: pointer;
+    fill: darkgray;
+}
+
 .prefix div{
     font: 2em;
     font-weight: bold;
@@ -71,3 +76,4 @@ tr input{
     background-color: lightgray;
     cursor: pointer;
 }
+

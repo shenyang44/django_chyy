@@ -1,13 +1,13 @@
 {% extends 'ledger/layout.html' %}
 {% block title %}Office Account{% endblock %}
-
+{% load static %}
 {% block body %}
 <header class="d-flex align-items-center flex-column">
     {% if off_accs %}
     <span class="fs-3">Please Select Office Account to View.</span>
     <div class="btn-group my-3" role="group" aria-label="Basic radio toggle button group">
         {% for off_acc in off_accs %}
-        <input type="radio" class="btn-check" name="btnradio" data-id='{{off_acc.id}}' id = "btnRadio{{off_acc.id}}" autocomplete="off">
+        <input type="radio" class="btn-check" name="btnradio" data-id='{{off_acc.id}}' id = "btnRadio{{off_acc.id}}" autocomplete="off" {% if selected == off_acc.id %}checked{% endif %}>
         <label class="btn btn-outline-primary" for="btnRadio{{off_acc.id}}">{{off_acc.name}}</label>
         {% endfor %}
     </div>
@@ -16,8 +16,19 @@
     {% endif %}
 </header>
 {% for off_acc, trans_zipped in office_data %}
-<div class='d-none offEach' id='off-acc-{{off_acc.id}}' >
-    <div class="text-center mb-3"><a href='{% url "ledger:create_trans" off_acc.id %}' class="btn btn-outline-secondary">New Transaction</a></div>
+<div class='d-none offEach' id='off-acc-{{off_acc.id}}'>
+    <div class="d-flex justify-content-around fs-4 fw-bold mb-3">
+        <div class="d-flex align-items-center">
+            <div>Name : {{off_acc.name}}</div>&nbsp;&nbsp;
+            <svg data-bs-toggle="modal" data-bs-target="#editNameModal" id='editOffName' xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.994 12.964l3.106 3.105-4.112.931 1.006-4.036zm9.994-3.764l-5.84 5.921-3.202-3.202 5.841-5.919 3.201 3.2z"/></svg>
+        </div>
+        <div>
+            Bank : {{off_acc.client_code}}
+        </div>
+    </div>
+    <div class="text-center mb-3">
+        <a href='{% url "ledger:create_trans" off_acc.id %}' class="btn btn-outline-secondary">New Transaction</a>
+    <a href="{% url 'ledger:update_off' off_acc.id %}"></a></div>
     <table  class="table">
         <colgroup>
             <col style="width: 10%;">
@@ -59,21 +70,54 @@
         </tbody>    
     </table>
 </div>
+<!-- Modal -->
+<div class="modal fade" id="editNameModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalLabel">Name Change:</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div>
+                Existing Name : {{off_acc.name}}
+            </div>
+            <form id='nameForm' action="{% url 'ledger:show_off' %}" method="POST">
+                {%csrf_token%}
+                <input type="text" name='new_name' placeholder="new name">
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" id='subBtn' class="btn btn-primary">Save changes</button>
+        </div>
+        </div>
+    </div>
+</div>
 {% endfor %}
 
 
 <script charset="utf-8">
     $(()=>{
-        btnInputs = $('input');
-        btnInputs.click((e)=>{
-            id = $(e.target).attr('data-id')
-            $('.offEach').not(`#off-acc-${id}`).addClass('d-none')
-            $(`#off-acc-${id}`).removeClass('d-none')
+        radBtns = $('.btn-check');
+        radBtns.each((i,e)=>{
+            if(e.attr('checked') == true){
+                e.removeClass('d-none');
+            }
+        })
+        radBtns.click((e)=>{
+            id = $(e.target).attr('data-id');
+            $('.offEach').not(`#off-acc-${id}`).addClass('d-none');
+            $(`#off-acc-${id}`).removeClass('d-none');
         })
 
         $('.transRow').dblclick((e)=>{
             id = $(e.currentTarget).attr('data-id');
             $(`#vouch${id}`)[0].click()
+        })
+
+        $('#subBtn').click(()=>{
+            $('#nameForm').submit()
         })
     
     })
