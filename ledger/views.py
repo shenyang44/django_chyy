@@ -30,6 +30,10 @@ def index(request):
     return render(request, 'ledger/index.html', {'zipped':zipped})
 
 def show_off(request):
+    if request.method == 'POST':
+        new_name = request.POST['new_name']
+        print(new_name)
+        
     off_accs = Account.objects.filter(file_no__startswith = 'OFFICE')
     transactions_list = []
     for off_acc in off_accs:
@@ -47,11 +51,28 @@ def show_off(request):
     
     office_data = zip(off_accs, transactions_list)
 
+    selected = off_accs[0].id
     context = {
+        'selected': selected,
         'off_accs':off_accs,
         'office_data':office_data,
     }
     return render(request, 'ledger/office.html', context=context)
+
+
+def update_off(request, off_id):
+    if request.method == "POST":
+        try:
+            off_acc = Account.get(pk = off_id)
+        except:
+            messages.error(request, f'File with client code: {acc.client_code} does not have any running balance prior to date selected')
+            return redirect(reverse('ledger:show_off'))
+        context={
+
+        }
+        return render(request, 'ledger/update-off.html', context=context)
+    else:
+        return render(request, 'ledger/update-off.html', context=context)
 
 def show_cli(request):
     if request.method == 'POST':
