@@ -16,93 +16,97 @@
     {% endif %}
 </header>
 {% for off_acc, trans_zipped in office_data %}
-<div class='d-none offEach' id='off-acc-{{off_acc.id}}'>
-    <div class="d-flex justify-content-around fs-4 fw-bold mb-3">
-        <div class="d-flex align-items-center">
-            <div>Name : {{off_acc.name}}</div>&nbsp;&nbsp;
-            <svg data-bs-toggle="modal" data-bs-target="#editNameModal" id='editOffName' xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.994 12.964l3.106 3.105-4.112.931 1.006-4.036zm9.994-3.764l-5.84 5.921-3.202-3.202 5.841-5.919 3.201 3.2z"/></svg>
-        </div>
-        <div>
-            Bank : {{off_acc.client_code}}
-        </div>
-    </div>
-    <div class="text-center mb-3">
-        <a href='{% url "ledger:create_trans" off_acc.id %}' class="btn btn-outline-secondary">New Transaction</a>
-    <a href="{% url 'ledger:update_off' off_acc.id %}"></a></div>
-    <table  class="table">
-        <colgroup>
-            <col style="width: 10%;">
-            <col style="width:60%">
-            <col style="width:10%">
-            <col style="width: 10%;">
-            <col style="width: 10%">
-        </colgroup>
-        <thead>
-            <tr>
-                <th scope="col" class="text-center">Date</th>
-                <th scope="col">Item</th>
-                <th class="text-center" scope="col">Debit</th>
-                <th class="text-center" scope="col">Credit</th>
-                <th scope="col">Balance</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for trans, entries, rb in trans_zipped %}
-            {% for entry in entries %}
-            <tr class="transRow" data-id="{{trans.id}}">
-                <td>{{trans.created_at|date:"j. n. Y"}}</td>
-                <td>
-                    {% if trans.payee.name != off_acc.name %}
-                        {{trans.payee.name}}
-                    {% else %}
-                        <a href="{% url 'ledger:voucher' trans.id %}" class="hidden-links" id='vouch{{trans.id}}'></a>
-                        {{trans.receiver.name}}
-                    {% endif %}
-                    &nbsp;-&nbsp;
-                    {{entry.description}}
-                </td>
-                <td class="text-center">{% if trans.payee.file_no == off_acc.file_no %}{{entry.amount}} {% endif %}</td>
-                <td class="text-center">{% if trans.receiver.file_no == off_acc.file_no %}{{entry.amount}}{% endif %}</td>
-                <td>{% if forloop.last %}{{rb}}{% endif %}</td>
-            </tr>
-            {% endfor %}
-        {% endfor %}
-        </tbody>    
-    </table>
-</div>
-<!-- Modal -->
-<div class="modal fade" id="editNameModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="modalLabel">Name Change:</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <div>
-                Existing Name : {{off_acc.name}}
+    <div class='d-none offEach' id='off-acc-{{off_acc.id}}'>
+        <div class="d-flex justify-content-around fs-4 fw-bold mb-3">
+            <div class="d-flex align-items-center">
+                <div>Name : {{off_acc.name}}</div>&nbsp;&nbsp;
+                <svg data-bs-toggle="modal" data-bs-target="#editNameModal{{off_acc.id}}" id='editOffName' xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.994 12.964l3.106 3.105-4.112.931 1.006-4.036zm9.994-3.764l-5.84 5.921-3.202-3.202 5.841-5.919 3.201 3.2z"/></svg>
             </div>
-            <form id='nameForm' action="{% url 'ledger:show_off' %}" method="POST">
-                {%csrf_token%}
-                <input type="text" name='new_name' placeholder="new name">
-            </form>
+            <div>
+                Bank : {{off_acc.client_code}}
+            </div>
         </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" id='subBtn' class="btn btn-primary">Save changes</button>
+        <div class="text-center mb-3">
+            <a href='{% url "ledger:create_trans" off_acc.id %}' class="btn btn-outline-secondary">New Transaction</a>
         </div>
+        <table  class="table">
+            <colgroup>
+                <col style="width: 10%;">
+                <col style="width:60%">
+                <col style="width:10%">
+                <col style="width: 10%;">
+                <col style="width: 10%">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th scope="col" class="text-center">Date</th>
+                    <th scope="col">Item</th>
+                    <th class="text-center" scope="col">Debit</th>
+                    <th class="text-center" scope="col">Credit</th>
+                    <th scope="col">Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for trans, entries, rb in trans_zipped %}
+                {% for entry in entries %}
+                <tr class="transRow" data-id="{{trans.id}}">
+                    <td>{{trans.created_at|date:"j. n. Y"}}</td>
+                    <td>
+                        {% if trans.payee.name != off_acc.name %}
+                            {{trans.payee.name}}
+                        {% else %}
+                            <a href="{% url 'ledger:voucher' trans.id %}" class="hidden-links" id='vouch{{trans.id}}'></a>
+                            {{trans.receiver.name}}
+                        {% endif %}
+                        &nbsp;-&nbsp;
+                        {{entry.description}}
+                    </td>
+                    <td class="text-center">{% if trans.payee.file_no == off_acc.file_no %}{{entry.amount}} {% endif %}</td>
+                    <td class="text-center">{% if trans.receiver.file_no == off_acc.file_no %}{{entry.amount}}{% endif %}</td>
+                    <td>{% if forloop.last %}{{rb}}{% endif %}</td>
+                </tr>
+                {% endfor %}
+            {% endfor %}
+            </tbody>    
+        </table>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="editNameModal{{off_acc.id}}" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">Name Change:</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    Existing Name : {{off_acc.name}}
+                </div>
+                <form id='nameForm{{off_acc.id}}' action="{% url 'ledger:show_off' %}" method="POST"  class="mt-2 ms-1">
+                    {%csrf_token%}
+                    <input type="text" name='new_name' placeholder="new name">
+                    <input type="hidden" value='{{off_acc.id}}' name='off_id'>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary subBtn" data-id='{{off_acc.id}}'>Save changes</button>
+            </div>
+            </div>
         </div>
     </div>
-</div>
 {% endfor %}
 
 
 <script charset="utf-8">
     $(()=>{
+        console.log('{{selected}}')
         radBtns = $('.btn-check');
         radBtns.each((i,e)=>{
-            if(e.attr('checked') == true){
-                e.removeClass('d-none');
+            if (e.checked){
+                console.log('yes')
+                id = $(e).attr('data-id');
+                $(`#off-acc-${id}`).removeClass('d-none');
             }
         })
         radBtns.click((e)=>{
@@ -116,8 +120,9 @@
             $(`#vouch${id}`)[0].click()
         })
 
-        $('#subBtn').click(()=>{
-            $('#nameForm').submit()
+        $('.subBtn').click((e)=>{
+            id = $(e.target).attr('data-id');
+            $(`#nameForm${id}`).submit()
         })
     
     })
