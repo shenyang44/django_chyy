@@ -32,9 +32,17 @@ def index(request):
 def show_off(request):
     if request.method == 'POST':
         new_name = request.POST['new_name']
-        print(new_name)
+        off_id = request.POST['off_id']
+        try:
+            off_acc = Account.objects.get(pk=off_id)
+            old_name = off_acc.name
+            off_acc.name = new_name
+            off_acc.save()
+            messages.success(request, f'Office account name was changed successfully from {old_name} to {off_acc.name}')
+        except:
+            messages.error(request, 'Name change failed.')
         
-    off_accs = Account.objects.filter(file_no__startswith = 'OFFICE')
+    off_accs = Account.objects.filter(file_no__startswith = 'OFFICE').order_by('created_at')
     transactions_list = []
     for off_acc in off_accs:
         transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc))
@@ -50,29 +58,17 @@ def show_off(request):
         transactions_list.append(zip(transactions, entries_list, rb_list))
     
     office_data = zip(off_accs, transactions_list)
-
-    selected = off_accs[0].id
+    
+    try:
+        off_id = int(off_id)
+    except:
+        off_id = None
     context = {
-        'selected': selected,
+        'selected': off_id,
         'off_accs':off_accs,
         'office_data':office_data,
     }
     return render(request, 'ledger/office.html', context=context)
-
-
-def update_off(request, off_id):
-    if request.method == "POST":
-        try:
-            off_acc = Account.get(pk = off_id)
-        except:
-            messages.error(request, f'File with client code: {acc.client_code} does not have any running balance prior to date selected')
-            return redirect(reverse('ledger:show_off'))
-        context={
-
-        }
-        return render(request, 'ledger/update-off.html', context=context)
-    else:
-        return render(request, 'ledger/update-off.html', context=context)
 
 def show_cli(request):
     if request.method == 'POST':
@@ -414,10 +410,12 @@ def create_cli_acc(request):
 def create_off_acc(request):
     if request.method =='POST':
         name = request.POST['acc_name']
+        client_code = request.POST['bank']
         balance = Decimal(request.POST['balance'])
-        file_no = 'OFFICE' + name
-    
-        new_acc = Account(name = name, file_no= file_no, balance = balance)
+        count = 0
+        count += len(Account.objects.filter(file_no__startswith='OFFICE'))
+        file_no = f'OFFICE{count}'
+        new_acc = Account(name = name, file_no=file_no, balance = balance, client_code=client_code)
         try:
             new_acc.save()
         except:
