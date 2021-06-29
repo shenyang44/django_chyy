@@ -2,14 +2,31 @@
 {% block title %}Office Account{% endblock %}
 {% load static %}
 {% block body %}
-<header class="d-flex align-items-center flex-column">
+<header class="fluid-container">
     {% if off_accs %}
-    <span class="fs-3">Please Select Office Account to View.</span>
-    <div class="btn-group my-3" role="group" aria-label="Basic radio toggle button group">
-        {% for off_acc in off_accs %}
-        <input type="radio" class="btn-check" name="btnradio" data-id='{{off_acc.id}}' id = "btnRadio{{off_acc.id}}" autocomplete="off" {% if selected == off_acc.id %}checked{% endif %}>
-        <label class="btn btn-outline-primary" for="btnRadio{{off_acc.id}}">{{off_acc.name}}</label>
-        {% endfor %}
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6 align-items-center d-flex flex-column">
+            <div class="fs-3">Select Office Account to View</div>
+            <div class="btn-group my-3" role="group" aria-label="Basic radio toggle button group">
+                {% for off_acc in off_accs %}
+                <input type="radio" class="btn-check" name="btnradio" data-id='{{off_acc.id}}' id = "btnRadio{{off_acc.id}}" autocomplete="off" {% if selected == off_acc.id %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="btnRadio{{off_acc.id}}">{{off_acc.name}}</label>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-3 d-flex flex-column align-items-center">
+            <div class="fs-3">View Options</div>
+            <div class="dropdown my-3">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownBtn1" data-bs-toggle="dropdown" aria-expanded="false">
+                  Dropdown button
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownBtn1">
+                  <li><a class="dropdown-item" href="#">Outstanding AD/AT</a></li>
+                  <li><a class="dropdown-item" href="{% url 'ledger:total_tax' %}">Service Tax Received</a></li>
+                </ul>
+              </div>
+        </div>
     </div>
     {% else %}
     <p class="fs-4 text-center">No Office Accounts are available for viewing.</p>

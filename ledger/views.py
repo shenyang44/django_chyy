@@ -207,7 +207,7 @@ def trans_cont(acc_id):
         
     file_no_list = [acc.file_no for acc in other_cli_accs]
 
-    off_accs = Account.objects.filter(file_no__startswith='OFFICE')
+    off_accs = Account.objects.filter(file_no__startswith='OFFICE').order_by('created_at')
     if account.is_external():
         return redirect(reverse('ledger:index'))
     
@@ -346,7 +346,6 @@ def create_trans(request, acc_id):
     else:
         context = trans_cont(acc_id)
         return render(request, 'ledger/transaction.html', context=context)
-
 
 def create_ad(request, acc_id):
     curr_acc = get_object_or_404(Account, pk = acc_id)
