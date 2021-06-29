@@ -42,7 +42,7 @@ def show_off(request):
         except:
             messages.error(request, 'Name change failed.')
         
-    off_accs = Account.objects.filter(file_no__startswith = 'OFFICE')
+    off_accs = Account.objects.filter(file_no__startswith = 'OFFICE').order_by('created_at')
     transactions_list = []
     for off_acc in off_accs:
         transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc))
