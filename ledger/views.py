@@ -131,7 +131,6 @@ def create_acc(request):
 
         return redirect(reverse('ledger:show_acc', args=(new_acc.id,)))
 
-
 def show_acc(request, acc_id):
     if request.method == 'GET':
         try:
@@ -262,7 +261,8 @@ def create_trans(request, acc_id):
         adv_trans = False
 
         # iterates over each dict adding decimal vals to total and checking if trans is service tax/fees or advanced transfer.
-        for each in table_list:
+        table_list_cpy = table_list.copy()
+        for each in table_list_cpy:
             total += Decimal(each['amount'])
             if each['type_code'] in ['RF', 'RS']:
                 if each['type_code'] == 'RF':
