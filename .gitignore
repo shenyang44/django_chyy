@@ -3,4 +3,4 @@
 /ledger/__pycache__/
 /ledger/migrations/__pycache__/
 /ledger/todo.txt
-/env
+.env
