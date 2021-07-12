@@ -201,6 +201,37 @@ def tax(request, acc_id):
     }
     return render(request, 'ledger/tax.html', context=context)
 
+def total_tax(request):
+    if request.method == 'POST':
+        date_from_inp = request.POST['date_from']
+        date_to_inp = request.POST['date_to']
+        date_from = datetime.strptime(date_from_inp, "%Y/%m/%d")
+        date_to = datetime.strptime(date_to_inp, "%Y/%m/%d")
+    else:
+        date_from = datetime.strptime('1900/01/01', "%Y/%m/%d")
+        date_to=timezone.localdate()
+    
+    date_to += timedelta(days=1)
+    trans = Transaction.objects.filter(receiver__file_no__startswith='OFFICE',created_at__lte=date_to).filter(created_at__gte=date_from)
+    total = 0
+    ps_trans = []
+
+    for each in trans:
+        entries = json.loads(each.table_list)
+        for entry in entries:
+            if entry['type_code'] == 'PS':
+                total += Decimal(entry['amount'])
+                entry.update({"id" : each.id, "created_at": each.created_at})
+                ps_trans.append(entry)
+    date_to -= timedelta(days=1)
+    context = {
+        'total': total,
+        'trans': ps_trans,
+        'date_from':date_from.strftime("%Y/%m/%d"),
+        'date_to':date_to.strftime("%Y/%m/%d"),
+    }
+    return render(request, 'ledger/total_tax.html', context=context)
+
 def trans_cont(acc_id):
     account = get_object_or_404(Account, pk=acc_id)
     other_cli_accs = Account.objects.filter(client_account__isnull=False).exclude(id = account.id)
