@@ -3,14 +3,14 @@
 
 {% block body %}
 <div class="print-n">
-    <div class='btn-cluster'>
+    <div class='d-flex align-items-center justify-content-between p-1'>
         <form id='dateForm' autocomplete="off" method="POST">
             {% csrf_token %}
             Date from: <input name='date_from' class="datepicker" type="text" id="datepickerFrom" placeholder="{{date_from}}">
             Date to: <input name='date_to' class='datepicker' type="text" id="datepickerTo" placeholder="{{date_to}}">
             <button id='upBtn' type="button">Update</button>
         </form>
-        <a class="btn btn-outline-secondary" href="{% url 'ledger:show_off' %}">View Full Ledger</a>
+        <a class="btn btn-outline-secondary me-2" href="{% url 'ledger:show_off' %}">View Full Ledger</a>
     </div>
     <hr>
 </div>
