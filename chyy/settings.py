@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
+import django_heroku
 from pathlib import Path
 from django.contrib.messages import constants as messages
 import os
@@ -134,3 +135,5 @@ STATIC_ROOT = '/ledger/static/ledger/'
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
+
+django_heroku.settings(locals())
