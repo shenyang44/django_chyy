@@ -15,6 +15,7 @@ from pathlib import Path
 from django.contrib.messages import constants as messages
 import os
 from dotenv import load_dotenv
+import dj_database_url
 
 load_dotenv()
 
@@ -89,8 +90,12 @@ DATABASES = {
         'PASSWORD': 'onestop',
         'HOST': '',
         'PORT': '5432',
+    },
+    'heroku' : {
     }
 }
+os.environ['DATABASE_URL'] = dj_database_url.config(conn_max_age=600)
+DATABASES['heroku'].update(os.environ['DATABASE_URL'])
 
 
 # Password validation
