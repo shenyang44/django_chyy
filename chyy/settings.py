@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
+from logging import debug
 import django_heroku
 from pathlib import Path
 from django.contrib.messages import constants as messages
@@ -90,12 +91,10 @@ DATABASES = {
         'PASSWORD': 'onestop',
         'HOST': '',
         'PORT': '5432',
-    },
-    'heroku' : {
     }
 }
-os.environ['DATABASE_URL'] = dj_database_url.config(conn_max_age=600)
-DATABASES['heroku'].update(os.environ['DATABASE_URL'])
+if not DEBUG:
+    DATABASES['default'] = dj_database_url.parse(os.environ['DATABASE_URL'], conn_max_age=600)
 
 
 # Password validation
