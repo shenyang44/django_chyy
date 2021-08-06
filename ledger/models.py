@@ -65,6 +65,7 @@ class Transaction(models.Model):
     cheque_text = models.TextField(null=True)
     resolved = models.BooleanField(default=True)
     category = models.CharField(max_length=2)
+    ad_link = models.ForeignKey(Account, related_name='ad_link', null=True, on_delete=models.CASCADE)
 
 class Running_Balance(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
