@@ -22,7 +22,7 @@
                   Dropdown button
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownBtn1">
-                  <li><a class="dropdown-item" href="#">Outstanding AD/AT</a></li>
+                  <li><a class="dropdown-item" href="{% url 'ledger:adat_index' %}">Outstanding AD/AT</a></li>
                   <li><a class="dropdown-item" href="{% url 'ledger:total_tax' %}">Service Tax Received</a></li>
                 </ul>
               </div>

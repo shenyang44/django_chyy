@@ -17,5 +17,6 @@ urlpatterns = [
     path('search-results/', views.search, name='search'),
     path('<int:acc_id>/create_ad/', views.create_ad, name='create_ad'),
     path('<int:acc_id>/tax/', views.tax, name='tax'),
-    path('total_tax/', views.total_tax, name='total_tax')
+    path('total_tax/', views.total_tax, name='total_tax'),
+    path('adat-index/', views.adat_index, name="adat_index")
 ]

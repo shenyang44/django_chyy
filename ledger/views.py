@@ -2,6 +2,7 @@ from abc import get_cache_token
 from django.http.response import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404, HttpResponseRedirect
+from django.urls.base import resolve
 from .models import Account, Transaction, Client_Account, Running_Balance
 from django.urls import reverse
 from django.views import generic
@@ -469,3 +470,15 @@ def search(request):
         # an OR query to see if either NAME or FILE_NO field contain the searched string (case insensitive)
         accounts = Account.objects.filter(Q(file_no__icontains = search_q) | Q(name__icontains = search_q) | Q(client_code__icontains = search_q)).exclude(file_no__startswith = 'EXTERNAL')
         return render(request, 'ledger/search.html', {'accs':accounts, 'search_q':search_q,})
+
+def adat_index(request):
+    if request.method == "GET":
+        unresolved_trans = Transaction.objects.filter(resolved = False, ad_link__isnull = False)
+        total = 0
+        for trans in unresolved_trans:
+            unresolved_trans
+        context = {
+            'total': total,
+            'trans': unresolved_trans,
+        }
+        return render(request, 'ledger/adat-index.html', context=context)
