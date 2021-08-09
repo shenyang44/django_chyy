@@ -13,7 +13,7 @@ import inflect
 from decimal import Decimal
 from django.contrib import messages
 from datetime import date, datetime, time, timedelta
-import math
+import math, copy
 
 def brace_num(x):
     if x < 0:
@@ -296,7 +296,7 @@ def create_trans(request, acc_id):
         adv_trans = False
 
         # iterates over each dict adding decimal vals to total and checking if trans is service tax/fees or advanced transfer.
-        table_list_cpy = table_list.copy()
+        table_list_cpy = copy.deepcopy(table_list)
         for each in table_list_cpy:
             total += Decimal(each['amount'])
             if each['type_code'] in ['RF', 'RS']:
@@ -308,13 +308,15 @@ def create_trans(request, acc_id):
                 auto_outgoing_total += Decimal(each['amount'])
             elif each['type_code'] in ['AD', 'AT']:
                 adv_trans = True
+                each['description'] = f"{each['type_code']} | {curr_account.client_code} | {each['description']}"
+            print(table_list, table_list_cpy)
         
         # handling for advance disbursements.
         if adv_trans:
             resolved = False
             off_id = request.POST['off_id']
             off_acc = Account.objects.get(id = off_id)
-            off_trans = Transaction(payee=off_acc, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=False)
+            off_trans = Transaction(payee=off_acc, receiver=receiver, table_list=json.dumps(table_list_cpy), total=total, cheque_text=cheque_text, resolved=False)
             off_acc.balance -= total
             try:
                 off_acc.save()
@@ -355,7 +357,8 @@ def create_trans(request, acc_id):
 
         if auto_outgoing_list:
             curr_account.balance += auto_outgoing_total
-            off_acc = Account.objects.get(file_no__startswith='OFFICE')
+            off_acc = Account.objects.filter(file_no__startswith='OFFICE')
+            off_acc = off_acc[0]
             off_acc.balance += auto_outgoing_total
             messages.warning(request, 'currently the office account being credited for the auto transaction is fixed')
             auto_trans = Transaction(payee=curr_account, receiver=off_acc, table_list=json.dumps(auto_outgoing_list), total = auto_outgoing_total, cheque_text="Auto outgoing transaction")
