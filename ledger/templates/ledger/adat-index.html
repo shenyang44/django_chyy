@@ -1,0 +1,8 @@
+{% extends 'ledger/layout.html' %}
+{% block title %}Outstanding AD/AT{% endblock %}
+
+{% block body %}
+{%for each in trans%}
+    {{each.table_list}}
+{% endfor %}
+{% endblock %}
