@@ -265,6 +265,9 @@ def create_trans(request, acc_id):
         cheque_text = request.POST['cheque_text']
         other_name = request.POST['other_name']
         curr_account = get_object_or_404(Account, pk=acc_id)
+        resolved = True
+        # model self ref prop is none unless it is an advance disburse, in which case, it links to the transaction made on the Off Acc.
+        ad_link = None
 
         if other_party == 'office':
             other_party = get_object_or_404(Account, id=other_name)
@@ -305,7 +308,9 @@ def create_trans(request, acc_id):
             elif each['type_code'] in ['AD', 'AT']:
                 adv_trans = True
         
+        # handling for advance disbursements.
         if adv_trans:
+            resolved = False
             off_id = request.POST['off_id']
             off_acc = Account.objects.get(id = off_id)
             off_trans = Transaction(payee=off_acc, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=False)
@@ -315,14 +320,14 @@ def create_trans(request, acc_id):
                 off_trans.save()
             except:
                 return trans_save_err(request, curr_account.id)
-                
+            ad_link = off_trans
             off_rb = Running_Balance(account=off_acc, transaction=off_trans, value=off_acc.balance)
             try:
                 off_rb.save()
             except:
                 return trans_save_err(request, curr_account.id)
 
-        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text)
+        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link)
         if payee.is_office():
             payee.balance -= total
         else:
