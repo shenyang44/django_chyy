@@ -1,0 +1,207 @@
+{% extends 'ledger/layout.html' %}
+{% block title %}Settle Advance Disbursement{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row justify-content-center fs-4 m-4">Settle Advance Disbursement/Transfer</div>
+    <div class="row">
+        <div class="col-sm">
+        </div>
+        <div class="col-lg-8 col-sm-10">
+            <form id='transForm' action="" method="post">
+                {% csrf_token %}
+                <div class="mb-4 d-flex justify-content-around fs-5">
+                    {% if not acc.is_office %}
+                        <div>For File : {{acc.file_no}}</div>
+                    {% endif %}
+                    <div>Name : {{acc.name}}</div>
+                    <div>Balance : {{acc.balance}}</div>
+                </div>
+                <hr>
+                <input type="hidden" name="trans_type" value="debit">
+                <div id = 'otherDiv' class="d-flex justify-content-between mb-3">
+                    <div class="w-50">
+                        <label for='otherParty' class="form-label">Other Party:</label>
+                        <select name='other_party' class="form-select w-75" aria-label="trans-select" id='otherParty'>
+                            <option value="" selected></option>
+                            <option value="other">3rd Party</option>
+                            <option value="client">Client Account</option>
+                        </select>
+                    </div>                    
+                    <div class="w-50">
+                        <label for="officeNo" class="form-label">From Office Account:</label>
+                        <select name='off_id' class="form-select w-75" aria-label="trans-select" id='officeNo'>
+                            <option value="" selected></option>
+                            {% for off_acc in off_accs %}
+                                <option value="{{off_acc.id}}">{{off_acc.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <br>
+                <table style="width:100%" class="bordered">
+                    <colgroup>
+                        <col style="width: 10%;">
+                        <col style="width: 5%;">
+                        <col style="width:65%">
+                        <col style="width:20%">
+                    </colgroup>
+                    <tr>
+                        <th class="bordered">&nbsp; Trans. Type</th>
+                        <th class="bordered">&nbsp; Cat.</th>
+                        <th class="bordered">&nbsp; For</th>
+                        <th class="bordered">&nbsp; RM</th>
+                    </tr>
+                    <tr class="trIn">
+                        <td class="bordered"><select class="typeCode" style="width: 100%;">
+                            <option value=""></option>
+                            <option value="AD">AD</option>
+                            <option value="AT">AT</option>
+                        </select></td>
+                        <td class="bordered"></td>
+                        <td class="bordered"><input type="text" class="descript"></td>
+                        <td class="bordered"><input type="text" class="amount"></td>
+                    </tr>
+                </table>
+                <br>
+                <div class="d-flex justify-content-evenly"><button id='addBtn' type="button">+ New Row</button> <button id='rmvBtn' type="button">- Remove Row</button></div> 
+                <input hidden name='table_data' id='tableData' type="text">
+                <label class="form-label" for="chequeText">Cheque No.</label>
+                <input class="formInput form-control" type="text" name="cheque_text" id="chequeText">
+                <br>
+                <button id='transBtn' disabled type='button' class="btn btn-primary">Confirm</button>
+            </form>
+        </div>
+        <div class="col-sm">
+        </div>
+    </div>
+</div>
+<script charset="utf-8">
+$(()=>{
+    let transBtn = $('#transBtn');
+    let otherParty = $('#otherParty');
+    // if other is selected then input is added for account name.
+    otherParty.change((e)=>{
+        let currVal = $(e.target).val()
+        $('#otherInput').remove()
+        let otherDiv = $('#otherDiv')
+        if (currVal == 'other'){
+                otherDiv.after(`
+                    <div id='otherInput' class="mb-3">
+                        <label for="otherName" class="form-label">Other Party's Name:</label>
+                        <input name='other_name' type="text" class="formInput form-control w-75" id="otherName">
+                    </div>
+                `)
+        } else{
+            otherDiv.after(`
+                <div id='otherInput' class="mb-3">
+                    <label for="otherName" class="form-label">Client's File No. :</label>
+                    <input name='other_name' type="text" class="formInput form-control w-75" id="otherCli">
+                </div>
+            `)
+        }
+    })
+    
+    $('table').on('click', '.typeCode', (e)=>{
+        let typeCode = $(e.target).val();
+        $(e.target).parent().next().text(typeCode);
+    })
+
+    // Button is disabled if input val is empty on any select element.
+    $('form').on('click', 'select', (e)=>{
+        let selectValid = true;
+        $('select').each((i, e)=>{
+            currVal = $(e).val()
+            if (!currVal){
+                selectValid = false;
+            }
+        })
+        if(selectValid){
+            transBtn.attr('disabled', false)
+        } else{
+            transBtn.attr('disabled', true)
+        }
+    })
+
+    // initialising arrays to pass to server.
+    let descriptions = [];
+    let amounts = [];
+    let typeCodes = [];
+    let total;
+    // checks if all descript class inputs are filled.
+    emptyCheck = () =>{
+        let x = true;
+        $('.descript').each((i,e)=>{
+            let desc = $(e).val()
+            if (desc == ''){
+                x = false;
+            } else {
+                descriptions[i] = desc;
+            }
+        })
+        $('.typeCode').each((i,e)=>{
+            let typeCode = $(e).val()
+            if (!typeCode){
+                x = false;
+            } else{
+                typeCodes[i] = typeCode;
+            }
+        })
+        return x;
+    }
+
+    // checks if all .amount inputs are positive numbs with 2 decimal places.
+    amountCheck = () =>{
+        total=0;
+        let y = true;
+        $('.amount').each((i,e)=>{
+            let amt = $(e).val();
+            if (!/^\d+\.\d{2}$/.test(amt)){
+                y = false;
+            } else{
+                amounts[i] = amt;
+                total +=  Number(amt*100);
+            }
+        })
+        return y;
+    }
+
+    let fileNoList = JSON.parse('{{ file_no_list|escapejs }}')
+    cli_acc_check = () =>{
+        if ($("#otherCli").length < 1){
+            return true;
+        }
+        if (!fileNoList.includes($('#otherCli').val())){
+            return false;
+        } else{
+            return true;
+        }
+    }
+    // runs the 3 functions above, and submits form if all are true.
+    transBtn.click(()=>{
+        if (!emptyCheck()){
+            alert('No table cells can be left empty.');
+            return;
+        }
+        if (!amountCheck()){
+            alert('The transaction amount must be a positive number with 2 decimal places.');
+            return;
+        }
+        if (cli_acc_check()){
+            let tableData = [];
+            for (let i = 0; i < amounts.length; i++){
+                tableData.push({
+                    description:descriptions[i],
+                    amount:amounts[i],
+                    type_code:typeCodes[i]
+                })
+            }
+            $('#tableData').val(JSON.stringify(tableData));
+            $('#transForm').submit();
+        } else{
+            alert('The client file number provided does not exist.')
+        }
+    })
+})
+</script>
+{% endblock %}
