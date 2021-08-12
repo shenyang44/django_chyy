@@ -491,13 +491,15 @@ def adat_index(request):
         return render(request, 'ledger/adat-index.html', context=context)
 
 def resolve(request, trans_id):
-    try:
-        trans = Transaction.objects.get(pk=trans_id)
-    except:
-        messages.error(request,'Transaction that was attempted to be cleared could not be retrieved.')
-        return redirect(reverse('ledger:adat_index'))
     if request.method == "GET":
+        try:
+            trans = Transaction.objects.get(pk=trans_id)
+        except:
+            messages.error(request,'Transaction that was attempted to be cleared could not be retrieved.')
+            return redirect(reverse('ledger:adat_index'))
+        cli_trans = trans.cli_ad_link.get()
+        curr_acc = cli_trans.payee
         context={
-
+            'acc':curr_acc
         }
         return render(request, 'ledger/resolve.html', context=context)

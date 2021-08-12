@@ -11,11 +11,11 @@
             <form id='transForm' action="" method="post">
                 {% csrf_token %}
                 <div class="mb-4 d-flex justify-content-around fs-5">
-                    {% if not account.is_office %}
-                        <div>For File : {{account.file_no}}</div>
+                    {% if not acc.is_office %}
+                        <div>For File : {{acc.file_no}}</div>
                     {% endif %}
-                    <div>Name : {{account.name}}</div>
-                    <div>Balance : {{balance}}</div>
+                    <div>Name : {{acc.name}}</div>
+                    <div>Balance : {{acc.balance}}</div>
                 </div>
                 <hr>
                 <input type="hidden" name="trans_type" value="debit">
