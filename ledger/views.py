@@ -499,7 +499,14 @@ def resolve(request, trans_id):
             return redirect(reverse('ledger:adat_index'))
         cli_trans = trans.cli_ad_link.get()
         curr_acc = cli_trans.payee
-        context={
-            'acc':curr_acc
-        }
+        off_acc = trans.payee
+        balance = brace_num(curr_acc.balance)
+        context= receipt_voucher_retriever(cli_trans.id)
+            
+        context.update({
+            'acc':curr_acc,
+            'off_acc':off_acc,
+            'balance': balance,
+            'off_trans':trans
+        })
         return render(request, 'ledger/resolve.html', context=context)
