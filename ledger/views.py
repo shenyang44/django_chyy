@@ -1,4 +1,5 @@
 from abc import get_cache_token
+import ledger
 from django.http.response import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404, HttpResponseRedirect
@@ -476,7 +477,7 @@ def search(request):
 
 def adat_index(request):
     if request.method == "GET":
-        unresolved_trans = Transaction.objects.filter(resolved = False, ad_link__isnull = False)
+        unresolved_trans = Transaction.objects.filter(resolved = False, ad_link__isnull = True)
         total = 0
         entries_list=[]
         for trans in unresolved_trans:
@@ -488,3 +489,15 @@ def adat_index(request):
             'trans_zipped': zip(unresolved_trans, entries_list),
         }
         return render(request, 'ledger/adat-index.html', context=context)
+
+def resolve(request, trans_id):
+    try:
+        trans = Transaction.objects.get(pk=trans_id)
+    except:
+        messages.error(request,'Transaction that was attempted to be cleared could not be retrieved.')
+        return redirect(reverse('ledger:adat_index'))
+    if request.method == "GET":
+        context={
+
+        }
+        return render(request, 'ledger/resolve.html', context=context)

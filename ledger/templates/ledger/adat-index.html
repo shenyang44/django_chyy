@@ -10,12 +10,13 @@
 </div>
 <table class="table print-sm">
     <colgroup>
-        <col style="width: 10%;">
+        <col style="width: 8%;">
         <col style="width:10%;">
         <col style="width: 5%;">
-        <col style="width: 40%;">
+        <col style="width: 30%;">
+        <col style="width: 15%;">
         <col style="width:10%">
-        <col style="width: 10%;">
+        <col style="width: 7%;">
     </colgroup>
     <thead>
         <tr style="border:none">
@@ -31,6 +32,7 @@
             <th scope="col">Date</th>
             <th scope="col">Type</th>
             <th scope="col">Description</th>
+            <th scope="col">Recipient</th>
             <th class="text-center" scope="col">Amount</th>
             <th class="text-center" scope="col">Resolve</th>
         </tr>
@@ -38,7 +40,7 @@
     <tbody>
     {% for trans, entries in trans_zipped %}
         {% for each in entries %}
-        <tr class="transRow" data-id="{{each.id}}">
+        <tr class="transRow" data-id="{{trans.id}}">
             <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
             <td class="refCell">
                 {% if forloop.first %}
@@ -54,9 +56,14 @@
             <td>
                 {{each.description}}
             </td>
+            <td>
+                {{trans.receiver}}
+            </td>
             <td class="text-center">{{each.amount}}</td>
             <td class="text-center">
-                <button>boop</button>
+                {% if forloop.last%}
+                <a class="btn btn-outline-success" style="padding: 0px;" href="{% url 'ledger:resolve' trans.id %}">click</a>
+                {% endif %}
             </td>
         </tr>
         {% endfor %}
@@ -73,28 +80,9 @@
 </table>
 <script charset="utf-8">
     $(()=>{
-        $('.transRow').dblclick((e)=>{
+        $('.transRow').dblclick((e)=>{  
             id = $(e.currentTarget).attr('data-id');
-            $(`#a${id}`)[0].click()
-        })
-        $(".datepicker").datepicker({
-            changeMonth: true,
-            changeYear: true,
-            dateFormat: 'yy/mm/dd'
-        });
-        $('#upBtn').click((e)=>{
-            dateFrom = $('#datepickerFrom').val();
-            dateTo = $('#datepickerTo').val();
-            if (dateFrom && dateTo){
-                if (Date.parse(dateFrom) <= Date.parse(dateTo)){
-                $('#dateForm').submit();
-                } else{
-                    alert('The "Date To" selected is prior to the "Date From"');
-                }
-            } else{
-                alert('Both "Date From" and "Date To" must be selected.')
-            }
-            
+            $(`#a${id}`)[0].click()           
         })
     })
 </script>
