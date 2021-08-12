@@ -478,10 +478,13 @@ def adat_index(request):
     if request.method == "GET":
         unresolved_trans = Transaction.objects.filter(resolved = False, ad_link__isnull = False)
         total = 0
+        entries_list=[]
         for trans in unresolved_trans:
-            unresolved_trans
+            total += trans.total
+            entries_list.append(json.loads(trans.table_list))
+            
         context = {
             'total': total,
-            'trans': unresolved_trans,
+            'trans_zipped': zip(unresolved_trans, entries_list),
         }
         return render(request, 'ledger/adat-index.html', context=context)
