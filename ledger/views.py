@@ -1,4 +1,5 @@
 from abc import get_cache_token
+
 import ledger
 from django.http.response import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -47,7 +48,7 @@ def show_off(request):
     off_accs = Account.objects.filter(file_no__startswith = 'OFFICE').order_by('created_at')
     transactions_list = []
     for off_acc in off_accs:
-        transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc))
+        transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc)).order_by('created_at')
         entries_list =[]
         rb_list = []
         for trans in transactions:
@@ -146,7 +147,7 @@ def show_acc(request, acc_id):
         try:
             transactions = Transaction.objects.filter(
                 Q(payee=account) | Q(receiver=account)
-            )
+            ).order_by('created_at')
         except:
             transactions = ''
 
@@ -510,3 +511,43 @@ def resolve(request, trans_id):
             'off_trans':trans
         })
         return render(request, 'ledger/resolve.html', context=context)
+
+    else:
+        try:
+            trans = Transaction.objects.get(pk=request.POST['trans_id'])
+            off_trans = Transaction.objects.get(pk=request.POST['off_trans_id'])
+            acc = Account.objects.get(pk=request.POST['acc_id'])
+            off_acc = Account.objects.get(pk=request.POST['off_acc_id'])
+        except:
+            messages.error(request, 'Advance disbursement resolution failed, could not retrieved transaction/account object(s).')
+            return redirect(reverse('ledger:adat_index'))
+        
+        total = trans.total
+        new_trans = Transaction(payee=acc, receiver=off_acc, table_list=trans.table_list, total=total, cheque_text='customisable')
+        table_list=[{
+            "description": "Pre-authorized credit for AD/AT",
+            "amount":f"{trans.total}",
+            "type_code":"NA"
+        }]
+        pre_auth_debit = Transaction(payee=off_acc, receiver=acc, table_list=json.dumps(table_list), total=total, cheque_text='customisable')
+        trans.resolved = True
+        off_trans.resolved = True
+        off_acc.balance += total
+        try:
+            pre_auth_debit.save()
+            trans.save()
+            off_trans.save()
+            off_acc.save()
+            new_trans.save()
+        except:
+            messages.error(request, 'An error occured saving resolved and new transactions.')
+            return redirect(reverse('ledger:resolve'))
+        rb = Running_Balance(account=off_acc, transaction=new_trans, value=off_acc.balance)
+        rb1 = Running_Balance(account=acc, transaction=pre_auth_debit, value=acc.balance-total)
+        rb2 = Running_Balance(account=acc, transaction=new_trans, value=acc.balance)
+        rb.save()
+        rb1.save()
+        rb2.save()
+        messages.success(request, 'Successfully resolved.')
+        messages.warning(request, 'Finalise account to debit for preauth.')
+        return redirect(reverse('ledger:adat_index'))

@@ -34,8 +34,10 @@
                 <div class="row justify-content-end p-3" >Total <div class="fw-bold w-auto">RM</div>{{transaction.total}}</div>
                 <div class="fs-5">Cheque No. &nbsp;{{transaction.cheque_text}}</div>
                 <br>
-                <input type="hidden" name="" id="">
-                <input type="text" name="" id=""  value="do dis">
+                <input type="hidden" name="trans_id" id="" value="{{transaction.id}}">
+                <input type="hidden" name="off_trans_id" id=""  value="{{off_trans.id}}">
+                <input type="hidden" name="off_acc_id" value="{{off_acc.id}}">
+                <input type="hidden" name="acc_id" value="{{acc.id}}">
                 <button id='transBtn' type='submit' class="btn btn-primary mb-3">Confirm</button>
                 <summary>This transaction will debit the aforementioned client account({{acc.client_code}}) whilst crediting the stated office account.</summary>
             </form>
