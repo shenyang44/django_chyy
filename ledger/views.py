@@ -539,7 +539,12 @@ def resolve(request, trans_id):
             "amount":f"{trans.total}",
             "type_code":"NA"
         }]
-        pre_auth_debit = Transaction(payee=off_acc, receiver=acc, table_list=json.dumps(table_list), total=total, cheque_text='customisable')
+        try:
+            auth_acc = Account.objects.get(file_no='auth_acc')
+        except:
+            auth_acc= Account(name='Account for Pre Auth Debit', file_no='auth_acc', balance=0)
+            auth_acc.save()
+        pre_auth_debit = Transaction(payee=auth_acc, receiver=acc, table_list=json.dumps(table_list), total=total, cheque_text='customisable')
         trans.resolved = True
         off_trans.resolved = True
         off_acc.balance += total
