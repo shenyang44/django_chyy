@@ -15,7 +15,7 @@
             <div class="fw-bold col d-flex justify-content-center">BAUCER</div>
             <div class="col d-flex justify-content-evenly fs-4"><span class="fw-bold">A</span><span class='doc-id'>{{transaction.id|stringformat:"05d"}}</span></div>
         </div>
-        <div class="row justify-content-center">FILLTHIS</div>
+        <div class="row justify-content-center">現銀支單</div>
         {% if 'OFFICE' in transaction.payee.file_no %}
             <div class="row text-decoration-underline fw-bold justify-content-center">OFFICE ACCOUNT'S VOUCHER</div>
         {% else %}
@@ -26,10 +26,10 @@
             <div class="col-3"></div>
             <div class="col-4 d-flex">Date.&nbsp;<div class="w-75 dotted text-center">{{transaction.created_at|date:"j. n. Y"}}</div></div>
         </div>
-        <div class="row mb-2">Debit (FILLTHIS) <div class="mx-2 dotted w-50">{{transaction.payee}}</div> Account</div>
-        <div class="row my-3">Bayaran Kepada / Pay / FILLTHIS <div class="mx-2 dotted w-50">{{transaction.receiver}}</div></div>
+        <div class="row mb-2">Debit (帳戶科目) <div class="mx-2 dotted w-50">{{transaction.payee}}</div> Account</div>
+        <div class="row my-3">Bayaran Kepada / Pay / 給何人 <div class="mx-2 dotted w-50">{{transaction.receiver}}</div></div>
         <div class="row ">
-            <div class="col-10">Untuk / For / FILLTHIS</div>
+            <div class="col-10">Untuk / For / 因何費用</div>
             <div class="col-2 fw-bold text-center">RM</div>
         </div>
         {% for entry in entries %}
@@ -38,7 +38,7 @@
             <div class="col-2 border-start border-dark text-end">{{entry.amount}}</div>
         </div>
         {% endfor %}
-        <div class="row justify-content-end p-3" >Jumlah / Total / FILLTHIS <div class="fw-bold w-auto">RM</div>{{ total }}</div>
+        <div class="row justify-content-end p-3" >Jumlah / Total / 共銀 <div class="fw-bold w-auto">RM</div>{{ total }}</div>
         <div class="row dotted w-75 "><span class="w-auto mr-2 fw-bold">CHEQUE No.</span><span class="w-auto fs-5">{{transaction.cheque_text}}</span></div>
         <div class="row my-3">
             <div class="col">
@@ -53,9 +53,9 @@
         </div>
         <div class="row" style="height: 3em;"></div>
         <div class="row text-center">
-            <div class="col border-top border-dark">Issued / Aprroved By / FILLTHIS</div>
+            <div class="col border-top border-dark">Issued / Aprroved By / 經手批准人</div>
             <div class="col"></div>
-            <div class="col border-top border-dark">Received By / FILLTHIS</div>
+            <div class="col border-top border-dark">Received By / 收銀人</div>
         </div>
     </div>
 </div>
