@@ -135,41 +135,51 @@ def create_acc(request):
         return redirect(reverse('ledger:show_acc', args=(new_acc.id,)))
 
 def show_acc(request, acc_id):
-    if request.method == 'GET':
-        try:
-            account = get_object_or_404(Account, pk=acc_id)
-        except:
-            messages.error(request, 'That account does not exist. If you believe this to be a mistake, click on help button.')
-            return redirect(reverse('ledger:index'))
-        if account.file_no.startswith('EXTERNAL'):
-            messages.warning(request, 'Sorry but that account is not viewable. If you believe this is an error, please click on help button.')
-            return redirect(reverse('ledger:index'))
-        try:
-            transactions = Transaction.objects.filter(
-                Q(payee=account) | Q(receiver=account)
-            ).order_by('created_at')
-        except:
-            transactions = ''
-
-        entries_list=[]
-        rb_list=[]
-        for trans in transactions:
-            entries_list.append(json.loads(trans.table_list))
-            try:
-                rb = Running_Balance.objects.get(account = account, transaction=trans)
-                rb_list.append(brace_num(rb.value))
-            except:
-                rb_list.append('fail')
-            
-        balance = brace_num(account.balance)
-        context={
-            'account':account,
-            'trans_zipped': zip(transactions, entries_list, rb_list),
-            'balance' : balance
-        }
-        return render(request, 'ledger/show-acc.html', context=context)
+    if request.method == 'POST':
+        date_from_inp = request.POST['date_from']
+        date_to_inp = request.POST['date_to']
+        date_from = datetime.strptime(date_from_inp, "%Y/%m/%d")
+        date_to = datetime.strptime(date_to_inp, "%Y/%m/%d")
     else:
-        return redirect(reverse('ledger:show_acc', acc_id))
+        date_from = datetime.strptime('1900/01/01', "%Y/%m/%d")
+        date_to=timezone.localdate()
+
+    date_to += timedelta(days=1)
+    try:
+        account = Account.objects.get(pk=acc_id)
+    except:
+        messages.error(request, 'That account does not exist. If you believe this to be a mistake, click on help button.')
+        return redirect(reverse('ledger:index'))
+    if account.file_no.startswith('EXTERNAL'):
+        messages.warning(request, 'Sorry but that account is not viewable. If you believe this is an error, please click on help button.')
+        return redirect(reverse('ledger:index'))
+    try:
+        transactions = Transaction.objects.filter(
+            Q(payee=account) | Q(receiver=account)
+        ).filter(created_at__lte=date_to).filter(created_at__gte=date_from).order_by('created_at')
+    except:
+        transactions = ''
+
+    entries_list=[]
+    rb_list=[]
+    for trans in transactions:
+        entries_list.append(json.loads(trans.table_list))
+        try:
+            rb = Running_Balance.objects.get(account = account, transaction=trans)
+            rb_list.append(brace_num(rb.value))
+        except:
+            rb_list.append('fail')
+        
+    balance = brace_num(account.balance)
+    date_to -= timedelta(days=1)
+    context={
+        'account':account,
+        'trans_zipped': zip(transactions, entries_list, rb_list),
+        'balance' : balance,
+        'date_from': date_from.strftime('%Y/%m/%d'),
+        'date_to': date_to.strftime('%Y/%m/%d'),
+    }
+    return render(request, 'ledger/show-acc.html', context=context)
 
 def tax(request, acc_id):
     if request.method == 'POST':
