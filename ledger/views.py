@@ -114,7 +114,7 @@ def create_acc(request):
         subject_matter = request.POST['subject_matter']
         client_code = request.POST['client_code']
 
-        if not owing:
+        if owing == '0':
             balance = -(Decimal(balance))
         else:
             balance = Decimal(balance)
