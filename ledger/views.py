@@ -92,14 +92,25 @@ def show_cli(request):
         total += last_rb
         
         rbs.append(brace_num(last_rb))
-        
-    transactions = Transaction.objects.filter(Q(payee__client_account = True) | Q(receiver__client_account = True))
+    
+    entries_list=[]
+    dupe = []
+    transactions = Transaction.objects.filter(Q(payee__client_account = True) | Q(receiver__client_account = True)).order_by('created_at')
+    for trans in transactions:
+        entries_list.append(json.loads(trans.table_list))
+        if trans.payee.client_account == True and trans.receiver.client_account==True:
+            dupe.append(True)
+        else:
+            dupe.append(False)
+
+    trans_zip = zip(transactions, entries_list, dupe)
     total = brace_num(total)
     context = {
         'accounts_data': zip(accounts,rbs),
         'total': total,
         'date_to' : date_to,
-        'file_count' : len(accounts)
+        'file_count' : len(accounts),
+        'trans_zip':trans_zip,
     }
     return render(request, 'ledger/client.html', context=context)
 
