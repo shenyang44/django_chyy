@@ -92,7 +92,8 @@ def show_cli(request):
         total += last_rb
         
         rbs.append(brace_num(last_rb))
-
+        
+    transactions = Transaction.objects.filter(Q(payee__client_account = True) | Q(receiver__client_account = True))
     total = brace_num(total)
     context = {
         'accounts_data': zip(accounts,rbs),
