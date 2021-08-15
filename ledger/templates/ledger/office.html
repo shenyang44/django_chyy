@@ -19,7 +19,7 @@
             <div class="fs-3">View Options</div>
             <div class="dropdown my-3">
                 <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownBtn1" data-bs-toggle="dropdown" aria-expanded="false">
-                  Dropdown button
+                  Tax / AD / etc.
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownBtn1">
                   <li><a class="dropdown-item" href="{% url 'ledger:adat_index' %}">Outstanding AD/AT</a></li>
@@ -48,7 +48,7 @@
         </div>
         <table  class="table">
             <colgroup>
-                <col style="width: 10%;">
+                <col style="width: 8%;">
                 <col style="width:60%">
                 <col style="width:10%">
                 <col style="width: 10%;">
@@ -67,7 +67,7 @@
             {% for trans, entries, rb in trans_zipped %}
                 {% for entry in entries %}
                 <tr class="transRow" data-id="{{trans.id}}">
-                    <td>{{trans.created_at|date:"j. n. Y"}}</td>
+                    <td class="text-end">{{trans.created_at|date:"j. n. Y"}}&nbsp;</td>
                     <td>
                         {% if trans.payee.name != off_acc.name %}
                             {{trans.payee.name}}
@@ -120,8 +120,8 @@
         console.log('{{selected}}')
         radBtns = $('.btn-check');
         radBtns.each((i,e)=>{
+            // todo, still not working.
             if (e.checked){
-                console.log('yes')
                 id = $(e).attr('data-id');
                 $(`#off-acc-${id}`).removeClass('d-none');
             }
