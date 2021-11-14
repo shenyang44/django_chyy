@@ -98,7 +98,7 @@ $(()=>{
         } else if (currVal == 'client'){
             otherDiv.after(`
                 <div id='otherInput' class="mb-3">
-                    <label for="otherName" class="form-label">Client's File No. :</label>
+                    <label for="otherCli" class="form-label">Client's File No. :</label>
                     <input name='other_name' type="text" class="formInput form-control w-75" id="otherCli">
                 </div>
             `)
@@ -127,6 +127,24 @@ $(()=>{
         $(e.target).parent().next().text(cat)
     })
 
+    btnUpdate = () =>{
+        let btnValid = true;
+        $('select').each((i, e)=>{
+            currVal = $(e).val()
+            if (!currVal){
+                btnValid = false;
+            }
+        })
+        if ($('.trIn').length < 1){
+            btnValid = false;
+        }
+        if (btnValid){
+            transBtn.attr('disabled', false)
+        } else{
+            transBtn.attr('disabled', true)
+        }
+    }
+
     // 2 buttons to add or remove input rows.
     const addBtn = $('#addBtn')
     addBtn.click(()=>{
@@ -146,27 +164,19 @@ $(()=>{
                 <td class="bordered"><input type="text" class="amount" id=""></td>
             </tr>
         `)
+        btnUpdate()
     })
+
     $('#rmvBtn').click(()=>{
         $('.trIn').last().remove()
+        btnUpdate()
     })
     // adds the first row
     addBtn.click()
-
+    
     // Button is disabled if select input val is empty on either element.
     $('form').on('click', 'select', (e)=>{
-        let selectValid = true;
-        $('select').each((i, e)=>{
-            currVal = $(e).val()
-            if (!currVal){
-                selectValid = false;
-            }
-        })
-        if(selectValid){
-            transBtn.attr('disabled', false)
-        } else{
-            transBtn.attr('disabled', true)
-        }
+        btnUpdate()
     })
 
     // initialising arrays to pass to server.
@@ -199,14 +209,13 @@ $(()=>{
     // checks if all .amount inputs are positive numbs with 2 decimal places.
     amountCheck = () =>{
         total=0;
-        let y = true;
+        let y = false;
         $('.amount').each((i,e)=>{
             let amt = $(e).val();
-            if (!/^\d+\.\d{2}$/.test(amt)){
-                y = false;
-            } else{
+            if (/^\d+\.\d{2}$/.test(amt)){
                 amounts[i] = amt;
                 total +=  Number(amt*100);
+                y = true
             }
         })
         return y;
@@ -223,20 +232,31 @@ $(()=>{
             return true;
         }
     }
+    otherPartyCheck = () =>{
+        otherName = $('#otherName')
+        if (otherName.length < 1){
+            return true;
+        }
+        let nonEmpty = /\S/;
+        return nonEmpty.test(otherName.val());
+    }
     // runs the 3 functions above, and submits form if all are true.
     transBtn.click(()=>{
         if (!emptyCheck()){
-            alert('No table cells can be left empty.');
+            alert('No cells under the "For" header can be left empty.');
             return;
         }
         if (!amountCheck()){
             alert('The transaction amount must be a positive number with 2 decimal places.');
             return;
         }
+        if (!otherPartyCheck()){
+            alert("Other party's name cannot be empty.")
+            return;
+        }
         if (cli_acc_check()){
-            let trans = $('#transSelect').val();
             let acc_bal = Math.abs(Number('{{account.balance}}')*100)
-            if (total>acc_bal && trans == 'debit'){
+            if (total>acc_bal && debCred == 'deb'){
                 alert("The amount being deducted exceeds the account's current balance, please click on AD/AT instead.")
                 return;
             }

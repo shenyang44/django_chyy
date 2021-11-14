@@ -285,7 +285,6 @@ def create_trans(request, acc_id, trans_type):
     if request.method == 'POST':
         # retrieving form data
         table_list = json.loads(request.POST['table_data'])
-        trans_type = request.POST['trans_type']
         other_party = request.POST['other_party']
         cheque_text = request.POST['cheque_text']
         other_name = request.POST['other_name']
