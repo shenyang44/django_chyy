@@ -281,7 +281,7 @@ def trans_save_err(request, acc_id):
     messages.error(request, f'Saving the new transaction failed for: {account.name}')
     return render(request, 'ledger/transaction.html', {'account':account})
 
-def create_trans(request, acc_id):
+def create_trans(request, acc_id, trans_type):
     if request.method == 'POST':
         # retrieving form data
         table_list = json.loads(request.POST['table_data'])
@@ -307,7 +307,7 @@ def create_trans(request, acc_id):
                 other_party = Account(name=other_name, file_no=f"EXTERNAL{count}", balance=0)
                 other_party.save()
     
-        if trans_type == 'credit':
+        if trans_type == 'cre':
             payee = other_party
             receiver = curr_account
         else:
@@ -332,7 +332,7 @@ def create_trans(request, acc_id):
                 auto_outgoing_total += Decimal(each['amount'])
             elif each['type_code'] in ['AD', 'AT']:
                 adv_trans = True
-                each['description'] = f"{each['type_code']} | {curr_account.client_code} | {each['description']}"
+                each['description'] = f"{curr_account.client_code} | {each['description']}"
             print(table_list, table_list_cpy)
         
         # handling for advance disbursements.
@@ -409,6 +409,7 @@ def create_trans(request, acc_id):
         
     else:
         context = trans_cont(acc_id)
+        context.update({'trans_type':trans_type})
         return render(request, 'ledger/transaction.html', context=context)
 
 def create_ad(request, acc_id):

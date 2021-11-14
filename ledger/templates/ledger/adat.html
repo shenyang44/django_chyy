@@ -8,7 +8,7 @@
         <div class="col-sm">
         </div>
         <div class="col-lg-8 col-sm-10">
-            <form id='transForm' action="{% url 'ledger:create_trans' account.id %}" method="post">
+            <form id='transForm' action="{% url 'ledger:create_trans' account.id 'deb'%}" method="post">
                 {% csrf_token %}
                 <div class="mb-4 d-flex justify-content-around fs-5">
                     {% if not account.is_office %}
@@ -18,7 +18,6 @@
                     <div>Balance : {{balance}}</div>
                 </div>
                 <hr>
-                <input type="hidden" name="trans_type" value="debit">
                 <div id = 'otherDiv' class="d-flex justify-content-between mb-3">
                     <div class="w-50">
                         <label for='otherParty' class="form-label">Other Party:</label>

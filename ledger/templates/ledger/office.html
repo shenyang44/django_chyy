@@ -49,7 +49,8 @@
         <table  class="table">
             <colgroup>
                 <col style="width: 8%;">
-                <col style="width:60%">
+                <col style='width: 8%;'>
+                <col style="width:52%">
                 <col style="width:10%">
                 <col style="width: 10%;">
                 <col style="width: 10%">
@@ -57,6 +58,7 @@
             <thead>
                 <tr>
                     <th scope="col" class="text-center">Date</th>
+                    <th scope="col" class="text-center">Type</th>
                     <th scope="col">Item</th>
                     <th class="text-center" scope="col">Debit</th>
                     <th class="text-center" scope="col">Credit</th>
@@ -68,6 +70,7 @@
                 {% for entry in entries %}
                 <tr class="transRow" data-id="{{trans.id}}">
                     <td class="text-end">{{trans.created_at|date:"j. n. Y"}}&nbsp;</td>
+                    <td class="text-center">{{entry.type_code}}</td>
                     <td>
                         {% if trans.payee.name != off_acc.name %}
                             {{trans.payee.name}}

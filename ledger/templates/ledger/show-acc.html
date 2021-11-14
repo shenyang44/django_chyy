@@ -11,9 +11,20 @@
             <button id='upBtn' type="button">Update</button>
         </form>
         <button id='printBtn' class="btn btn-secondary" type="button" onclick="window.print()">Print</button>
-        <a class="btn btn-outline-primary" href="{% url 'ledger:create_trans' account.id %}">New Transaction</a>
+        <div class="btn-group">
+            <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle='dropdown' aria-expanded="false" >
+                New Transaction
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'ledger:create_trans' account.id 'cre'%}">Client Receipt</a></li>
+                <li><a class="dropdown-item" href="{% url 'ledger:create_trans' account.id 'deb'%}">Client Voucher</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'ledger:create_ad' account.id %}">Advance Disbursement</a></li>
+              </ul>
+        </div>
         <a class="btn btn-outline-secondary" href="{% url 'ledger:tax' account.id %}">View Service Tax</a>
     </div>
+   
     <hr>
 </div>
 <table class="table print-sm">
