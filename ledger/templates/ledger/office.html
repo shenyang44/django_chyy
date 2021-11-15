@@ -44,7 +44,11 @@
             </div>
         </div>
         <div class="text-center mb-3">
-            <a href='{% url "ledger:create_trans" off_acc.id %}' class="btn btn-outline-secondary">New Transaction</a>
+            <div class="btn-group" role="group" aria-label="Basic outlined example">
+                <a href='{% url "ledger:create_trans" off_acc.id "deb" %}' class="btn btn-outline-secondary">New Voucher</a>
+                <a href='{% url "ledger:create_trans" off_acc.id "cre" %}' class="btn btn-outline-secondary">Receiving</a>
+            </div>
+            
         </div>
         <table  class="table">
             <colgroup>

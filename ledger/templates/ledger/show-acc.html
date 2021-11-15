@@ -10,7 +10,16 @@
             Date to: <input name='date_to' class='datepicker' type="text" id="datepickerTo" value="{{date_to}}">
             <button id='upBtn' type="button">Update</button>
         </form>
-        <button id='printBtn' class="btn btn-secondary" type="button" onclick="window.print()">Print</button>
+        <div class="btn-group">
+            <button id='printBtn' class="btn btn-outline-secondary" type="button" onclick="window.print()">Print</button>
+            <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{% url 'ledger:custom_receipt' account.id %}">Print Custom Receipt</a></li>
+            </ul>
+          </div>
+        
         <div class="btn-group">
             <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle='dropdown' aria-expanded="false" >
                 New Transaction

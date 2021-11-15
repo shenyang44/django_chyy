@@ -77,3 +77,7 @@ tr input{
     cursor: pointer;
 }
 
+.border-bot{
+    border-bottom: 1px solid black;
+}
+

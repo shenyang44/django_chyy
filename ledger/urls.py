@@ -20,4 +20,5 @@ urlpatterns = [
     path('total_tax/', views.total_tax, name='total_tax'),
     path('adat-index/', views.adat_index, name="adat_index"),
     path('<int:trans_id>/resolve-adat/', views.resolve, name='resolve'),
+    path('<int:acc_id>/custom-receipt/', views.custom_receipt, name='custom_receipt')
 ]

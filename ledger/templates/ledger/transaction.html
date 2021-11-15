@@ -34,7 +34,12 @@
                             {% endif %}
                             <option value="other">3rd Party</option>
                             <option value="client">
-                                Transfer between files
+                                {% if account.is_office %}
+                                    Client File
+                                {% else %}
+                                    Transfer between files
+                                {% endif %}
+                                
                             </option>
                         </select>
                     </div>               
@@ -42,8 +47,8 @@
                 <br>
                 <table id='inpTable' style="width:100%" class="bordered">
                     <colgroup>
-                        <col style="width: 10%;">
-                        <col style="width: 5%;">
+                        <col style="width:10%;">
+                        <col style="width:5%;">
                         <col style="width:65%">
                         <col style="width:20%">
                     </colgroup>

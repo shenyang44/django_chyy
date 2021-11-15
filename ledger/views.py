@@ -545,7 +545,11 @@ def resolve(request, trans_id):
             return redirect(reverse('ledger:adat_index'))
         
         total = trans.total
-        new_trans = Transaction(payee=acc, receiver=off_acc, table_list=trans.table_list, total=total, cheque_text='customisable')
+        updated_tbl_list = json.loads(trans.table_list)
+        for each in updated_tbl_list:
+            each['type_code'] = 'AT'
+        
+        new_trans = Transaction(payee=acc, receiver=off_acc, table_list=json.dumps(updated_tbl_list), total=total, cheque_text='customisable')
         table_list=[{
             "description": "Pre-authorized credit for AD/AT",
             "amount":f"{trans.total}",
@@ -578,3 +582,16 @@ def resolve(request, trans_id):
         messages.success(request, 'Successfully resolved.')
         messages.warning(request, 'Finalise account to debit for preauth.')
         return redirect(reverse('ledger:adat_index'))
+
+def custom_receipt(request, acc_id):
+    if request.method == 'GET':
+        try:
+            acc = Account.objects.get(pk=acc_id)
+        except:
+            messages.warning(request, 'Could not find account details')
+            return redirect(reverse('ledger:show_acc', args=(acc_id,)))
+
+        context = {
+            "acc": acc,
+        }
+        return render(request,'ledger/custom_receipt.html', context=context)
