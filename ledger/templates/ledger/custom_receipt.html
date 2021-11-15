@@ -12,7 +12,7 @@
             <div class="d-flex">Your Ref:&nbsp;<div class="border-bottom border-dark w-75"></div></div>
         </div>
         <div class="col-3">
-            <div class="mb-3 d-flex ms-5"><div>Receipt No. <span class="fw-bold">A</span></div><span class="doc-id ms-3">{{transaction.id|stringformat:"05d"}}</span></div>
+            <div class="mb-3 d-flex ms-5"><div>Receipt No. <span class="fw-bold">B</span></div><span class="doc-id ms-3">{{transaction.id|stringformat:"05d"}}</span></div>
             <div class="ms-5">Date: <span class="border-bottom border-dark">{% now 'j. n. Y' %}</span></div>
         </div>
     </section>
@@ -21,7 +21,7 @@
     </div>
     <div class="row mb-3">
         <div class="col-auto">Received from:</div>
-        <div class="col border-bottom border-dark">{{transaction.payee}}</div>
+        <div class="col border-bottom border-dark">{{acc.name}}</div>
     </div>
     <div class="row d-flex mb-3">
         <div class="col-auto">
@@ -32,11 +32,11 @@
     <div class="row">
         <div class="col">Being:</div>
     </div>
-    <div class="row border-bottom border-dark">
-        <div class="col-10">boop</div>
-        <div class="col-2 border-start border-dark text-end">1.00</div>
+    <div class="row deets">
+        <span class="col-10 border-bottom border-dark"><input class="border-0 print-n hiddenInp w-100"></span>
+        <span class="col-2 border-start border-dark text-end"><input class="text-end border-0 hiddenInp w-100"></span>
     </div>
-    <div class="row justify-content-end p-3" >Jumlah / Total / 共銀 <span class="fw-bold w-auto">RM</span>heretoo</div>
+    <div class="row justify-content-end p-3" id='total'>Jumlah / Total / 共銀 <span class="fw-bold w-auto">RM</span>heretoo</div>
     <div class="row dotted w-75">
         <span class="w-auto mr-2 fw-bold">CHEQUE No.</span><span class="w-auto fs-5">cust.</span>
     </div>
@@ -50,7 +50,39 @@
 <hr>
 <div class='mt-3 print-n btn-cluster'>
     <button class="btn btn-secondary" type="button" onclick="window.print()">Print</button>
+    <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+        <button type="button" class="btn btn-danger" id='addBtn'>+ Add Row</button>
+        <button type="button" class="btn btn-success" id='remBtn'>- Remove Row</button>
+    </div>
     <a class="btn btn-outline-primary" href="{% url 'ledger:show_acc' acc.id %}">View Account</a>
 </div>
 
+<script charset="utf-8">
+$(()=>{
+    $('#addBtn').click(()=>{
+        let deets = $('.deets')
+        if (deets.length>=10){
+            alert('Maximum number of input rows have been reached.')
+        } else{
+            $('#total').before(`
+                <div class="deets row border-bottom border-dark">
+                    <div class="col-10">boop</div>
+                    <div class="col-2 border-start border-dark text-end">1.00</div>
+                </div>
+            `)
+        }
+    })
+    $('#remBtn').click(()=>{
+        let deets = $('.deets')
+        if(deets.length>1){
+            deets.last().remove()
+        } else{
+            alert('You cannot remove all rows.')
+        }
+    })
+    $('.hiddenInp').change((e)=>{
+        $(e.target).parent().prepend(e.target.value)
+    })
+})
+</script>
 {% endblock %}
