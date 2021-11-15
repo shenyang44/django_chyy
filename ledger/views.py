@@ -281,11 +281,10 @@ def trans_save_err(request, acc_id):
     messages.error(request, f'Saving the new transaction failed for: {account.name}')
     return render(request, 'ledger/transaction.html', {'account':account})
 
-def create_trans(request, acc_id):
+def create_trans(request, acc_id, trans_type):
     if request.method == 'POST':
         # retrieving form data
         table_list = json.loads(request.POST['table_data'])
-        trans_type = request.POST['trans_type']
         other_party = request.POST['other_party']
         cheque_text = request.POST['cheque_text']
         other_name = request.POST['other_name']
@@ -307,7 +306,7 @@ def create_trans(request, acc_id):
                 other_party = Account(name=other_name, file_no=f"EXTERNAL{count}", balance=0)
                 other_party.save()
     
-        if trans_type == 'credit':
+        if trans_type == 'cre':
             payee = other_party
             receiver = curr_account
         else:
@@ -332,7 +331,7 @@ def create_trans(request, acc_id):
                 auto_outgoing_total += Decimal(each['amount'])
             elif each['type_code'] in ['AD', 'AT']:
                 adv_trans = True
-                each['description'] = f"{each['type_code']} | {curr_account.client_code} | {each['description']}"
+                each['description'] = f"{curr_account.client_code} | {each['description']}"
             print(table_list, table_list_cpy)
         
         # handling for advance disbursements.
@@ -409,6 +408,7 @@ def create_trans(request, acc_id):
         
     else:
         context = trans_cont(acc_id)
+        context.update({'trans_type':trans_type})
         return render(request, 'ledger/transaction.html', context=context)
 
 def create_ad(request, acc_id):
@@ -545,7 +545,11 @@ def resolve(request, trans_id):
             return redirect(reverse('ledger:adat_index'))
         
         total = trans.total
-        new_trans = Transaction(payee=acc, receiver=off_acc, table_list=trans.table_list, total=total, cheque_text='customisable')
+        updated_tbl_list = json.loads(trans.table_list)
+        for each in updated_tbl_list:
+            each['type_code'] = 'AT'
+        
+        new_trans = Transaction(payee=acc, receiver=off_acc, table_list=json.dumps(updated_tbl_list), total=total, cheque_text='customisable')
         table_list=[{
             "description": "Pre-authorized credit for AD/AT",
             "amount":f"{trans.total}",
@@ -578,3 +582,16 @@ def resolve(request, trans_id):
         messages.success(request, 'Successfully resolved.')
         messages.warning(request, 'Finalise account to debit for preauth.')
         return redirect(reverse('ledger:adat_index'))
+
+def custom_receipt(request, acc_id):
+    if request.method == 'GET':
+        try:
+            acc = Account.objects.get(pk=acc_id)
+        except:
+            messages.warning(request, 'Could not find account details')
+            return redirect(reverse('ledger:show_acc', args=(acc_id,)))
+
+        context = {
+            "acc": acc,
+        }
+        return render(request,'ledger/custom_receipt.html', context=context)

@@ -2,13 +2,19 @@
 {% block title %}New Transaction{% endblock %}
 
 {% block body %}
-<div class="container">
-    <div class="row justify-content-center fs-4 m-4">New Transaction</div>
-    <div class="row">
-        <div class="col-sm">
+<div class="fluid-container">
+    <div class="row mt-4">
+        <div class="col-lg-3 col-sm-4">
+            <table id='legend'>
+                <tr>
+                  <th class="border-end">Code&nbsp;</th>
+                  <th class="ps-1">Meaning</th>
+                </tr>
+              </table>
         </div>
         <div class="col-lg-8 col-sm-10">
-            <form id='transForm' action="{% url 'ledger:create_trans' account.id %}" method="post">
+            <h3 class="text-center mb-4">New {% if trans_type == 'cre' %}Receipt{%else%}Voucher{% endif %}</h3>
+            <form id='transForm' action="{% url 'ledger:create_trans' account.id trans_type %}" method="post" class="mt-3">
                 {% csrf_token %}
                 <div class="mb-4 d-flex justify-content-around fs-5">
                     {% if not account.is_office %}
@@ -28,30 +34,21 @@
                             {% endif %}
                             <option value="other">3rd Party</option>
                             <option value="client">
-                                Client Account
+                                {% if account.is_office %}
+                                    Client File
+                                {% else %}
+                                    Transfer between files
+                                {% endif %}
+                                
                             </option>
                         </select>
-                    </div>                    
-                    <div style="width: 33%;">
-                        <label for='transSelect' class="form-label">Debit or Credit:</label>
-                        <select name='trans_type' class="form-select w-50" aria-label="trans-select" id='transSelect'>
-                            <option value="" selected></option>
-                            <option value="debit">Debit</option>
-                            <option value="credit">Credit</option>
-                        </select>
-                    </div>
-                    <div>
-                        {% if not account.is_office %}
-                        <div>AD / AT</div>
-                        <a href='{% url "ledger:create_ad" account.id %}' class="btn btn-outline-primary">Click Here</a>
-                        {% endif %}
-                    </div>
+                    </div>               
                 </div>
                 <br>
-                <table style="width:100%" class="bordered">
+                <table id='inpTable' style="width:100%" class="bordered">
                     <colgroup>
-                        <col style="width: 10%;">
-                        <col style="width: 5%;">
+                        <col style="width:10%;">
+                        <col style="width:5%;">
                         <col style="width:65%">
                         <col style="width:20%">
                     </colgroup>
@@ -60,14 +57,6 @@
                         <th class="bordered">&nbsp; Cat.</th>
                         <th class="bordered">&nbsp; For</th>
                         <th class="bordered">&nbsp; RM</th>
-                    </tr>
-                    <tr class="trIn">
-                        <td class="bordered"><select class="typeCode" style="width: 100%;">
-                            <option value=""></option>
-                        </select></td>
-                        <td class="bordered"></td>
-                        <td class="bordered"><input type="text" class="descript"></td>
-                        <td class="bordered"><input type="text" class="amount"></td>
                     </tr>
                 </table>
                 <br>
@@ -114,37 +103,24 @@ $(()=>{
         } else if (currVal == 'client'){
             otherDiv.after(`
                 <div id='otherInput' class="mb-3">
-                    <label for="otherName" class="form-label">Client's File No. :</label>
+                    <label for="otherCli" class="form-label">Client's File No. :</label>
                     <input name='other_name' type="text" class="formInput form-control w-75" id="otherCli">
                 </div>
             `)
         }
     })
-    optionsArray = (debCred) => {
-        let options;
-        let descriptions;
-        if (debCred == 'debit'){
-            options = ['PD', 'PD1', 'PD2', 'PD3', 'PD4', 'PD5', 'PD6', 'PD7', 'PD8', 'PD9', 'PD10', 'PD11', 'PD12', 'PD13', 'PD14', 'PD15', 'PD16', 'PD17', 'PD18', 'PF', 'PI', 'PO', 'PS', 'PT', 'PT1', 'PT2', 'PT3', 'PT4', 'PT5', 'PT6', 'PT7', 'PT8', 'PT9', 'PT10', 'PT11', 'PT12', 'PT13'];
-            descriptions = ['Disbursement payments', 'Affirmation', 'Stamping', 'Printing & photostat charges', 'Regist. fees', 'Transport & Despatch', 'Searches', 'Filing', 'Stamp duty', 'Adjudication', 'Subsitence allowance', 'Accommodation', 'Refund of fees & disbursements', 'Maintenance fees', 'Prior year adj', 'Disbursements for close files to OA', 'Bank charges', 'CTC', 'Documentation charges', 'Fees payments/transfer', 'F.D. interest payments', 'Miscellaneous payments', 'Service tax payments', 'Trust payments', 'R P G T', 'Diff. sum', 'Balance of purchase price', 'Redemption sum', 'Late payment interest', 'Settlement sum/Judgement sum', 'Costs', 'Progessive Payment', 'Earnest money', 'Administrative Charges', 'Deposit', 'Stakeholder', 'Assessment & quit rent']
-        } else{
-            options = ['RD', 'RD1', 'RD2', 'RD3', 'RD4', 'RD5', 'RD6', 'RD7', 'RD8', 'RD11', 'RD14', 'RD15', 'RD17', 'RF', 'RI', 'RO', 'RFDG', 'RS', 'RT', 'RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT13'];
-            descriptions = ['Disbursement received', 'Affirmation', 'Stamping', 'Printing & photostat charges', 'Regist. fees', 'Transport & despatch', 'Searches', 'Filing', 'Stamp Duty', 'Accommodation charges', 'Prior year adj', 'Deposit for close file to OA', 'CTC', 'Fees Received', 'F.D. interest received', 'Miscellaneous received', 'Fees, disbursements & GST', 'Service tax received', 'Trust received', 'R P G T', 'Diff. sum', 'Balance of purchase price', 'Redemption sum', 'Late payment interest', 'Settlement sum/judgement sum', 'Costs', 'Progressive payment', 'Earnest money', 'Administrative charges', 'Deposit', 'Stakeholder', 'Assessment & quit rent']
-        }
-        return [options, descriptions];
-    }
-    $('#transSelect').change((e)=>{
-        let debCred = $(e.target).val()
-        let [options, descriptions] = (debCred ? optionsArray(debCred) : [[],[]])
-        typeCode = $('.typeCode')
-        typeCode.each((i, e)=>{
-            e.innerHTML = '<option value = ""></option>';
-            for (i = 0; i < options.length; i++){
-                e.innerHTML += `<option data-toggle="tooltip" data-placement="right" title="${descriptions[i]}" value="${options[i]}">${options[i]}</option>`
-            }
-            $(e).parent().next().text('')
-        })
-    })
     
+    let debCred = '{{trans_type|escapejs}}';
+    let options = ['RD', 'RD1', 'RD2', 'RD3', 'RD4', 'RD5', 'RD6', 'RD7', 'RD8', 'RD11', 'RD14', 'RD15', 'RD17', 'RF', 'RI', 'RO', 'RFDG', 'RS', 'RT', 'RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT13'];
+    let meanings = ['Disbursement received', 'Affirmation', 'Stamping', 'Printing & photostat charges', 'Regist. fees', 'Transport & despatch', 'Searches', 'Filing', 'Stamp Duty', 'Accommodation charges', 'Prior year adj', 'Deposit for close file to OA', 'CTC', 'Fees Received', 'F.D. interest received', 'Miscellaneous received', 'Fees, disbursements & GST', 'Service tax received', 'Trust received', 'R P G T', 'Diff. sum', 'Balance of purchase price', 'Redemption sum', 'Late payment interest', 'Settlement sum/judgement sum', 'Costs', 'Progressive payment', 'Earnest money', 'Administrative charges', 'Deposit', 'Stakeholder', 'Assessment & quit rent']
+    if (debCred == 'deb'){
+        options = ['PD', 'PD1', 'PD2', 'PD3', 'PD4', 'PD5', 'PD6', 'PD7', 'PD8', 'PD9', 'PD10', 'PD11', 'PD12', 'PD13', 'PD14', 'PD15', 'PD16', 'PD17', 'PD18', 'PF', 'PI', 'PO', 'PS', 'PT', 'PT1', 'PT2', 'PT3', 'PT4', 'PT5', 'PT6', 'PT7', 'PT8', 'PT9', 'PT10', 'PT11', 'PT12', 'PT13'];
+        meanings = ['Disbursement payments', 'Affirmation', 'Stamping', 'Printing & photostat charges', 'Regist. fees', 'Transport & Despatch', 'Searches', 'Filing', 'Stamp duty', 'Adjudication', 'Subsitence allowance', 'Accommodation', 'Refund of fees & disbursements', 'Maintenance fees', 'Prior year adj', 'Disbursements for close files to OA', 'Bank charges', 'CTC', 'Documentation charges', 'Fees payments/transfer', 'F.D. interest payments', 'Miscellaneous payments', 'Service tax payments', 'Trust payments', 'R P G T', 'Diff. sum', 'Balance of purchase price', 'Redemption sum', 'Late payment interest', 'Settlement sum/Judgement sum', 'Costs', 'Progessive Payment', 'Earnest money', 'Administrative Charges', 'Deposit', 'Stakeholder', 'Assessment & quit rent']
+    }
+    for (i = 0; i<options.length; i++){
+        $('#legend').append(`<tr><td>${options[i]}</td><td>${meanings[i]}</td></tr>`)
+    }
+
     $('table').on('click', '.typeCode', (e)=>{
         let typeCode = $(e.target).val()
         let cat;
@@ -155,20 +131,57 @@ $(()=>{
         }
         $(e.target).parent().next().text(cat)
     })
-    // Button is disabled if select input val is empty on either element.
-    $('form').on('click', 'select', (e)=>{
-        let selectValid = true;
+
+    btnUpdate = () =>{
+        let btnValid = true;
         $('select').each((i, e)=>{
             currVal = $(e).val()
             if (!currVal){
-                selectValid = false;
+                btnValid = false;
             }
         })
-        if(selectValid){
+        if ($('.trIn').length < 1){
+            btnValid = false;
+        }
+        if (btnValid){
             transBtn.attr('disabled', false)
         } else{
             transBtn.attr('disabled', true)
         }
+    }
+
+    // 2 buttons to add or remove input rows.
+    const addBtn = $('#addBtn')
+    addBtn.click(()=>{
+        let optTxt = '<option value = ""></option>';
+        for (i = 0; i < options.length; i++){
+            optTxt += `<option value="${options[i]}">${options[i]}</option>`
+        }
+        $('#inpTable').append(`
+            <tr class='trIn'>
+                <td class="bordered">
+                    <select class='typeCode' style="width: 100%;">
+                        ${optTxt}
+                    </select>
+                </td>
+                <td class='bordered'></td>
+                <td class="bordered"><input type="text" class="descript" id=""></td>
+                <td class="bordered"><input type="text" class="amount" id=""></td>
+            </tr>
+        `)
+        btnUpdate()
+    })
+
+    $('#rmvBtn').click(()=>{
+        $('.trIn').last().remove()
+        btnUpdate()
+    })
+    // adds the first row
+    addBtn.click()
+    
+    // Button is disabled if select input val is empty on either element.
+    $('form').on('click', 'select', (e)=>{
+        btnUpdate()
     })
 
     // initialising arrays to pass to server.
@@ -201,14 +214,13 @@ $(()=>{
     // checks if all .amount inputs are positive numbs with 2 decimal places.
     amountCheck = () =>{
         total=0;
-        let y = true;
+        let y = false;
         $('.amount').each((i,e)=>{
             let amt = $(e).val();
-            if (!/^\d+\.\d{2}$/.test(amt)){
-                y = false;
-            } else{
+            if (/^\d+\.\d{2}$/.test(amt)){
                 amounts[i] = amt;
                 total +=  Number(amt*100);
+                y = true
             }
         })
         return y;
@@ -225,20 +237,31 @@ $(()=>{
             return true;
         }
     }
+    otherPartyCheck = () =>{
+        otherName = $('#otherName')
+        if (otherName.length < 1){
+            return true;
+        }
+        let nonEmpty = /\S/;
+        return nonEmpty.test(otherName.val());
+    }
     // runs the 3 functions above, and submits form if all are true.
     transBtn.click(()=>{
         if (!emptyCheck()){
-            alert('No table cells can be left empty.');
+            alert('No cells under the "For" header can be left empty.');
             return;
         }
         if (!amountCheck()){
             alert('The transaction amount must be a positive number with 2 decimal places.');
             return;
         }
+        if (!otherPartyCheck()){
+            alert("Other party's name cannot be empty.")
+            return;
+        }
         if (cli_acc_check()){
-            let trans = $('#transSelect').val();
             let acc_bal = Math.abs(Number('{{account.balance}}')*100)
-            if (total>acc_bal && trans == 'debit'){
+            if (total>acc_bal && debCred == 'deb'){
                 alert("The amount being deducted exceeds the account's current balance, please click on AD/AT instead.")
                 return;
             }
@@ -255,29 +278,6 @@ $(()=>{
         } else{
             alert('The client file number provided does not exist.')
         }
-    })
-    // 2 buttons to add or remove input rows.
-    $('#addBtn').click(()=>{
-        options = optionsArray()
-        let optTxt = '<option value = ""></option>';
-        for (i = 0; i < options.length; i++){
-            optTxt += `<option value="${options[i]}">${options[i]}</option>`
-        }
-        $('table').append(`
-            <tr class='trIn'>
-                <td class="bordered">
-                    <select class='typeCode' style="width: 100%;">
-                        ${optTxt}
-                    </select>
-                </td>
-                <td class='bordered'></td>
-                <td class="bordered"><input type="text" class="descript" id=""></td>
-                <td class="bordered"><input type="text" class="amount" id=""></td>
-            </tr>
-        `)
-    })
-    $('#rmvBtn').click(()=>{
-        $('.trIn').last().remove()
     })
 })
 </script>
