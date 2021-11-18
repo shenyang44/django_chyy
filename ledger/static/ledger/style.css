@@ -78,6 +78,11 @@ tr input{
 }
 
 .border-bot{
+    border: none;
     border-bottom: 1px solid black;
 }
 
+.dotted-bot{
+    border:none;
+    border-bottom: 1px dotted black;
+}

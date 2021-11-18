@@ -41,14 +41,15 @@
         <col style="width: 10%;">
         <col style="width:10%;">
         <col style="width: 5%;">
-        <col style="width: 40%;">
-        <col style="width:10%">
         <col style="width: 10%;">
-        <col style="width: 15%;">
+        <col style="width: 40%;">
+        <col style="width: 7%">
+        <col style="width: 7%;">
+        <col style="width: 11%;">
     </colgroup>
     <thead>
         <tr style="border:none">
-            <th colspan="7">
+            <th colspan="8">
                 <header class="fs-5 text-center mb-3">
                     <div>MESSRS C.H.YEOH & YIEW</div>
                     <div>Transaction History</div>
@@ -114,6 +115,7 @@
             <th scope="col">Ref No</th>
             <th scope="col">Date</th>
             <th scope="col">Type</th>
+            <th scope='col'>Bank Account</th>
             <th scope="col">Description</th>
             <th class="text-center" scope="col">Debit</th>
             <th class="text-center" scope="col">Credit</th>
@@ -142,6 +144,7 @@
                 <td>
                     {% if forloop.first %}{{trans.created_at|date:"d/m/Y"}}{% endif %}</td>
                 <td>{{entry.type_code}}</td>
+                <td>{{trans.cli_acc.name}}</td>
                 <td>
                     <div class="d-flex justify-content-between">
                         {{entry.description}}

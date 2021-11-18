@@ -1,5 +1,7 @@
 from abc import get_cache_token
 
+from django.db.models.fields import NullBooleanField
+
 import ledger
 from django.http.response import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -153,7 +155,7 @@ def show_acc(request, acc_id):
         date_from = datetime.strptime(date_from_inp, "%Y/%m/%d")
         date_to = datetime.strptime(date_to_inp, "%Y/%m/%d")
     else:
-        date_from = datetime.strptime('1900/01/01', "%Y/%m/%d")
+        date_from = datetime.strptime('2020/01/01', "%Y/%m/%d")
         date_to=timezone.localdate()
 
     date_to += timedelta(days=1)
@@ -267,12 +269,15 @@ def trans_cont(acc_id):
     if account.is_external():
         return redirect(reverse('ledger:index'))
     
+    cli_accs = Client_Account.objects.all()
+    
     balance = brace_num(account.balance)
     context = {
         'account':account,
         'off_accs':off_accs,
         'file_no_list': json.dumps(file_no_list),
-        'balance' : balance
+        'balance' : balance,
+        'cli_accs': cli_accs,
     }
     return context
 
@@ -292,6 +297,11 @@ def create_trans(request, acc_id, trans_type):
         resolved = True
         # model self ref prop is none unless it is an advance disburse, in which case, it links to the transaction made on the Off Acc.
         ad_link = None
+        try:
+            cli_acc_name = request.POST['cli_acc_name']
+            cli_acc = Client_Account.objects.get(name = cli_acc_name)
+        except:
+            cli_acc = None
 
         if other_party == 'office':
             other_party = get_object_or_404(Account, id=other_name)
@@ -353,7 +363,7 @@ def create_trans(request, acc_id, trans_type):
             except:
                 return trans_save_err(request, curr_account.id)
 
-        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link)
+        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc = cli_acc)
         if payee.is_office():
             payee.balance -= total
         else:

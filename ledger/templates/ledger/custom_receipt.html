@@ -8,37 +8,41 @@
     <section class="row mb-4">
         <div class="col-2"></div>
         <div class="col-7">
-            <div class="d-flex mb-3">Our Ref:&nbsp;<div class="border-bottom border-dark w-75">{{acc.subject_matter}}</div></div>
+            <div class="d-flex mb-3">Our Ref:&nbsp;<div class="border-bottom border-dark w-75">{{acc.file_no}}</div></div>
             <div class="d-flex">Your Ref:&nbsp;<div class="border-bottom border-dark w-75"></div></div>
         </div>
         <div class="col-3">
-            <div class="mb-3 d-flex ms-5"><div>Receipt No. <span class="fw-bold">A</span></div><span class="doc-id ms-3">{{transaction.id|stringformat:"05d"}}</span></div>
+            <div class="mb-3 d-flex ms-5"><div>Receipt No. <span class="fw-bold">B</span></div><span class="doc-id ms-3">{{transaction.id|stringformat:"05d"}}</span></div>
             <div class="ms-5">Date: <span class="border-bottom border-dark">{% now 'j. n. Y' %}</span></div>
         </div>
     </section>
     <div class="row justify-content-center mb-3">
-        <div class="col-10 d-flex">RE&nbsp;<div class="border-bottom border-dark w-100">&nbsp;{{transaction.receiver.subject_matter}}</div></div>
+        <div class="col-10 d-flex">RE&nbsp;<div class="border-bottom border-dark w-100">&nbsp;{{acc.subject_matter}}</div></div>
     </div>
     <div class="row mb-3">
         <div class="col-auto">Received from:</div>
-        <div class="col border-bottom border-dark">{{transaction.payee}}</div>
+        <div class="col border-bottom border-dark">{{acc.name}}</div>
     </div>
     <div class="row d-flex mb-3">
         <div class="col-auto">
             Ringgit Malaysia&nbsp;
         </div>
-        <div class="col border-bottom border-dark">{{total_worded}}</div>
+        <input type="text" class="col border-bot">
     </div>
     <div class="row">
         <div class="col">Being:</div>
     </div>
-    <div class="row border-bottom border-dark">
-        <div class="col-10">boop</div>
-        <div class="col-2 border-start border-dark text-end">1.00</div>
+    <div class="row deets">
+        <input class="border-bot col-10">
+        <input class="text-end border-bot border-start border-dark col-2">
     </div>
-    <div class="row justify-content-end p-3" >Jumlah / Total / 共銀 <span class="fw-bold w-auto">RM</span>heretoo</div>
-    <div class="row dotted w-75">
-        <span class="w-auto mr-2 fw-bold">CHEQUE No.</span><span class="w-auto fs-5">cust.</span>
+    <div class="d-flex justify-content-end p-3" id='total'>
+        <div>Jumlah / Total / 共銀</div>
+        <div class="fw-bold mx-3">RM</div>
+        <div id="summedUp">0.00</div>
+    </div>
+    <div class="row w-75">
+        <span class="w-auto mr-2 fw-bold dotted-bot">CHEQUE No.</span><input type="text" class="w-75 fs-5 dotted-bot">
     </div>
     <div class="row" style="height: 3em;"></div>
     <div class="row text-center mt-5">
@@ -50,7 +54,49 @@
 <hr>
 <div class='mt-3 print-n btn-cluster'>
     <button class="btn btn-secondary" type="button" onclick="window.print()">Print</button>
+    <div class="btn-group" role="group" aria-label="Left to add, right to remove.">
+        <button type="button" class="btn btn-danger" id='addBtn'>+ Add Row</button>
+        <button type="button" class="btn btn-success" id='remBtn'>- Remove Row</button>
+    </div>
     <a class="btn btn-outline-primary" href="{% url 'ledger:show_acc' acc.id %}">View Account</a>
 </div>
-
+<script charset="utf-8">
+$(()=>{
+    $('#addBtn').click(()=>{
+        let deets = $('.deets')
+        if (deets.length>=10){
+            alert('Maximum number of input rows have been reached.')
+        } else{
+            $('#total').before(`
+            <div class="row deets">
+                <input class="border-bot col-10">
+                <input class="text-end border-bot border-start border-dark col-2">
+            </div>
+            `)
+        }
+    })
+    $('#remBtn').click(()=>{
+        let deets = $('.deets')
+        if(deets.length>1){
+            deets.last().remove()
+        } else{
+            alert('You cannot remove all rows.')
+        }
+    })
+    sumUp = () =>{
+        let total = 0;
+        $('.border-start').each((i,e)=>{
+            if (isNaN(e.value) || e.value == ''){
+                return
+            } else{
+                total += parseFloat(e.value);
+            }
+        })
+        $('#summedUp').text(total.toFixed(2))
+    }
+    $('.container').on('change', '.border-start', ((e)=>{
+        sumUp()
+    }))
+})
+</script>
 {% endblock %}
