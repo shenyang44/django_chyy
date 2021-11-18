@@ -267,12 +267,15 @@ def trans_cont(acc_id):
     if account.is_external():
         return redirect(reverse('ledger:index'))
     
+    cli_accs = Client_Account.objects.all()
+    
     balance = brace_num(account.balance)
     context = {
         'account':account,
         'off_accs':off_accs,
         'file_no_list': json.dumps(file_no_list),
-        'balance' : balance
+        'balance' : balance,
+        'cli_accs': cli_accs,
     }
     return context
 

@@ -27,7 +27,7 @@
                 <div id = 'otherDiv' class="d-flex justify-content-between mb-3">
                     <div class="w-50">
                         <label for='otherParty' class="form-label">Other Party:</label>
-                        <select name='other_party' class="form-select w-75" aria-label="trans-select" id='otherParty'>
+                        <select name='other_party' class="form-select w-75" aria-label="other-party-select" id='otherParty'>
                             <option value="" selected></option>
                             {% if not account.is_office %}
                                 <option value="office">Office</option>
@@ -42,7 +42,18 @@
                                 
                             </option>
                         </select>
-                    </div>               
+                    </div>
+                    {% if not account.is_office %}
+                    <div class="w-50">
+                        <label for='cli-acc' class="form-label">Client Bank Account:</label>
+                        <select name='cli_acc_name' class="form-select w-75" aria-label="cli-acc-select" id='cli-acc'>
+                            <option value="" selected></option>
+                            {% for cli_acc in cli_accs %}
+                            <option value="{{cli_acc.name}}">{{cli_acc.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div> 
+                    {% endif %}             
                 </div>
                 <br>
                 <table id='inpTable' style="width:100%" class="bordered">
