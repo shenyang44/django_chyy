@@ -1,4 +1,5 @@
 from abc import get_cache_token
+from typing import Type
 
 from django.db.models.fields import NullBooleanField
 
@@ -7,7 +8,7 @@ from django.http.response import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404, HttpResponseRedirect
 from django.urls.base import resolve
-from .models import Account, Transaction, Client_Account, Running_Balance
+from .models import Account, Transaction, Client_Account, Running_Balance, Type_Code
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
@@ -270,7 +271,10 @@ def trans_cont(acc_id):
         return redirect(reverse('ledger:index'))
     
     cli_accs = Client_Account.objects.all()
-    
+    type_codes = Type_Code.objects.all()
+    tc_dict = {}
+    for each in type_codes:
+        tc_dict[each.code] = each.description
     balance = brace_num(account.balance)
     context = {
         'account':account,
@@ -278,6 +282,7 @@ def trans_cont(acc_id):
         'file_no_list': json.dumps(file_no_list),
         'balance' : balance,
         'cli_accs': cli_accs,
+        'tc_dict': json.dumps(tc_dict),
     }
     return context
 
@@ -498,8 +503,27 @@ def create_off_acc(request):
     else:
         return render(request, 'ledger/create-off-acc.html')
 
-def admin_options(request):
-    return render(request, 'ledger/admin-options.html')
+def create_tc(request):
+    if request.method == "GET":
+        type_codes = Type_Code.objects.all()
+        tc_dict = {}
+        
+        for each in type_codes:
+            tc_dict[each.code] = each.description
+
+        context = {
+            'tc_dict': tc_dict
+        }
+        return render(request, 'ledger/create-tc.html', context=context)
+    else:
+        code = request.POST['code']
+        description = request.POST['description']
+        new_tc = Type_Code(code = code, description = description)
+        try: 
+            new_tc.save()
+        except:
+            messages.error(request,'Could not save new type code addition.')
+        return redirect(reverse('ledger:create_tc'))
 
 def search(request):
     if request.method == "POST":

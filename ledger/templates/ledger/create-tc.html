@@ -1,0 +1,29 @@
+{% extends 'ledger/layout.html' %}
+{% block title %}Admin Options{% endblock %}
+{% block body %}
+<div class="d-flex">
+    <div class="w-50">
+        {% if tc_dict|length < 1 %}
+        No addtional type codes added yet.
+        {% else %}
+        Current ADDITIONAL type code:
+        <ol>
+            {% for code, description in tc_dict.items %}
+            <li>{{code}} : {{description}}</li>
+            {% endfor %}
+        </ol>
+        {% endif %}
+        
+    </div>
+    <form action="{% url 'ledger:create_tc' %}" method="post" class="w-50">
+        {% csrf_token %}
+        <label class="form-label" for="code_inp">Type Code(shortform):</label>
+        <input class="form-control w-50" type="text" name="code" id="code_inp">
+        <br>
+        <label class="form-label" for="desc_inp">Description:</label>
+        <input class="form-control w-50" type="text" name="description" id='desc_inp'>
+        <br>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+{% endblock %}
