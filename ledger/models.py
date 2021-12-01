@@ -73,3 +73,9 @@ class Running_Balance(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, null=True)
     value = models.DecimalField(max_digits=11, decimal_places=2)
+
+class Type_Code(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    code = models.CharField(max_length=10, unique=True)
+    description = models.TextField()
+    

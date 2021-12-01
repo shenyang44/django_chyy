@@ -1,4 +1,5 @@
 from abc import get_cache_token
+from typing import Type
 
 from django.db.models.fields import NullBooleanField
 
@@ -7,7 +8,7 @@ from django.http.response import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404, HttpResponseRedirect
 from django.urls.base import resolve
-from .models import Account, Transaction, Client_Account, Running_Balance
+from .models import Account, Transaction, Client_Account, Running_Balance, Type_Code
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
@@ -270,7 +271,10 @@ def trans_cont(acc_id):
         return redirect(reverse('ledger:index'))
     
     cli_accs = Client_Account.objects.all()
-    
+    type_codes = Type_Code.objects.all()
+    tc_dict = {}
+    for each in type_codes:
+        tc_dict[each.code] = each.description
     balance = brace_num(account.balance)
     context = {
         'account':account,
@@ -278,6 +282,7 @@ def trans_cont(acc_id):
         'file_no_list': json.dumps(file_no_list),
         'balance' : balance,
         'cli_accs': cli_accs,
+        'tc_dict': json.dumps(tc_dict),
     }
     return context
 
@@ -498,9 +503,38 @@ def create_off_acc(request):
     else:
         return render(request, 'ledger/create-off-acc.html')
 
-def admin_options(request):
-    return render(request, 'ledger/admin-options.html')
+def create_tc(request):
+    if request.method == "GET":
+        type_codes = Type_Code.objects.all()
+        tc_list = ['RD', 'RD1', 'RD2', 'RD3', 'RD4', 'RD5', 'RD6', 'RD7', 'RD8', 'RD11', 'RD14', 'RD15', 'RD17', 'RF', 'RI', 'RO', 'RFDG', 'RS', 'RT', 'RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT13','PD', 'PD1', 'PD2', 'PD3', 'PD4', 'PD5', 'PD6', 'PD7', 'PD8', 'PD9', 'PD10', 'PD11', 'PD12', 'PD13', 'PD14', 'PD15', 'PD16', 'PD17', 'PD18', 'PF', 'PI', 'PO', 'PS', 'PT', 'PT1', 'PT2', 'PT3', 'PT4', 'PT5', 'PT6', 'PT7', 'PT8', 'PT9', 'PT10', 'PT11', 'PT12', 'PT13']
+        for each in type_codes:
+            tc_list.append(each.code)
 
+        context = {
+            'type_codes': type_codes,
+            'tc_list': json.dumps(tc_list),
+        }
+        return render(request, 'ledger/create-tc.html', context=context)
+    else:
+        code = request.POST['code']
+        description = request.POST['description']
+        new_tc = Type_Code(code = code, description = description)
+        try: 
+            new_tc.save()
+        except:
+            messages.error(request,'Could not save new type code addition.')
+        return redirect(reverse('ledger:create_tc'))
+
+def remove_tc(request, tc_id):
+    if request.method == 'GET':
+        try:
+            Type_Code.objects.get(pk = tc_id).delete()
+            messages.success(request, 'Type code was successfully deleted.')       
+        except:
+            messages.error(request, 'There was an issue in attempting to delete type code.')
+        
+        return redirect(reverse('ledger:create_tc'))
+        
 def search(request):
     if request.method == "POST":
         search_q = request.POST['search_q']
