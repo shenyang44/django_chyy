@@ -3,15 +3,20 @@
 {% block body %}
 <div class="d-flex">
     <div class="w-50">
-        {% if tc_dict|length < 1 %}
-        No addtional type codes added yet.
+        {% if not type_codes %}
+        <p>No addtional type codes added yet.</p>
         {% else %}
-        Current ADDITIONAL type code:
-        <ol>
-            {% for code, description in tc_dict.items %}
-            <li>{{code}} : {{description}}</li>
+        <div class="w-75">
+            <h5>Current ADDITIONAL type codes:</h5>
+            {% for each in type_codes %}
+            <a href="{% url 'ledger:remove_tc' each.id %}" id='a{{each.id}}' class="hidden-links"></a>
+            <div class="d-flex mt-2 justify-content-between px-4">
+                {{each.code}} : {{each.description}} 
+                <button class="btn btn-danger delBtn p-1" data-id='{{each.id}}' data-code='{{each.code}}'>Delete</button>
+            </div>
             {% endfor %}
-        </ol>
+        </div>
+        
         {% endif %}
         
     </div>
@@ -21,9 +26,32 @@
         <input class="form-control w-50" type="text" name="code" id="code_inp">
         <br>
         <label class="form-label" for="desc_inp">Description:</label>
-        <input class="form-control w-50" type="text" name="description" id='desc_inp'>
+        <input class="form-control w-75" type="text" name="description" id='desc_inp'>
         <br>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="button" class="btn btn-primary" id='subBtn'>Submit</button>
     </form>
 </div>
+<script>
+    $(()=>{
+        let tcArr = JSON.parse('{{tc_list|escapejs}}')
+        $('#subBtn').click(()=>{
+            let typeCode = $('#code_inp').val()
+            let description = $('#desc_inp').val()
+            if (tcArr.includes(typeCode)){
+                alert('The type code you are trying to add is already in use!')
+            } else{
+                if(confirm(`Make type code "${typeCode}" with description "${description}"`)){
+                    $('form').submit()
+                }
+            }
+        })
+        $('.delBtn').click((e)=>{
+            let tc = $(e.target).attr('data-code')
+            let tcID = $(e.target).attr('data-id')
+            if(confirm(`Delete typecode: ${tc}`)){
+                $(`#a${tcID}`)[0].click()
+            }
+        })
+    })
+</script>
 {% endblock %}

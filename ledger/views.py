@@ -506,13 +506,13 @@ def create_off_acc(request):
 def create_tc(request):
     if request.method == "GET":
         type_codes = Type_Code.objects.all()
-        tc_dict = {}
-        
+        tc_list = ['RD', 'RD1', 'RD2', 'RD3', 'RD4', 'RD5', 'RD6', 'RD7', 'RD8', 'RD11', 'RD14', 'RD15', 'RD17', 'RF', 'RI', 'RO', 'RFDG', 'RS', 'RT', 'RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT13','PD', 'PD1', 'PD2', 'PD3', 'PD4', 'PD5', 'PD6', 'PD7', 'PD8', 'PD9', 'PD10', 'PD11', 'PD12', 'PD13', 'PD14', 'PD15', 'PD16', 'PD17', 'PD18', 'PF', 'PI', 'PO', 'PS', 'PT', 'PT1', 'PT2', 'PT3', 'PT4', 'PT5', 'PT6', 'PT7', 'PT8', 'PT9', 'PT10', 'PT11', 'PT12', 'PT13']
         for each in type_codes:
-            tc_dict[each.code] = each.description
+            tc_list.append(each.code)
 
         context = {
-            'tc_dict': tc_dict
+            'type_codes': type_codes,
+            'tc_list': json.dumps(tc_list),
         }
         return render(request, 'ledger/create-tc.html', context=context)
     else:
@@ -525,6 +525,16 @@ def create_tc(request):
             messages.error(request,'Could not save new type code addition.')
         return redirect(reverse('ledger:create_tc'))
 
+def remove_tc(request, tc_id):
+    if request.method == 'GET':
+        try:
+            Type_Code.objects.get(pk = tc_id).delete()
+            messages.success(request, 'Type code was successfully deleted.')       
+        except:
+            messages.error(request, 'There was an issue in attempting to delete type code.')
+        
+        return redirect(reverse('ledger:create_tc'))
+        
 def search(request):
     if request.method == "POST":
         search_q = request.POST['search_q']

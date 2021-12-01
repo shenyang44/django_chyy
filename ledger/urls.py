@@ -13,6 +13,7 @@ urlpatterns = [
     path('create-cli-acc/', views.create_cli_acc, name='create_cli_acc'),
     path('create-off-acc/', views.create_off_acc, name='create_off_acc'),
     path('add-type-codes/', views.create_tc, name='create_tc'),
+    path('<int:tc_id>/remove-tc/', views.remove_tc, name='remove_tc'),
     path('show-client-accounts/', views.show_cli, name='show_cli'),
     path('search-results/', views.search, name='search'),
     path('<int:acc_id>/create_ad/', views.create_ad, name='create_ad'),
