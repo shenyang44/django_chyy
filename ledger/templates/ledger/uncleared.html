@@ -1,65 +1,59 @@
 {% extends 'ledger/layout.html' %}
 {% block title %}Uncleared Credits{% endblock %}
 {% block body %}
-<div class='d-none offEach' id='off-acc-{{off_acc.id}}'>
-    <div class="d-flex justify-content-around fs-4 fw-bold mb-3">
-        <div class="d-flex align-items-center">
-            <div>Name : {{off_acc.name}}</div>&nbsp;&nbsp;
-            <svg data-bs-toggle="modal" data-bs-target="#editNameModal{{off_acc.id}}" id='editOffName' xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.994 12.964l3.106 3.105-4.112.931 1.006-4.036zm9.994-3.764l-5.84 5.921-3.202-3.202 5.841-5.919 3.201 3.2z"/></svg>
-        </div>
-        <div>
-            Bank : {{off_acc.client_code}}
-        </div>
-    </div>
-    <div class="text-center mb-3">
-        <div class="btn-group" role="group" aria-label="Basic outlined example">
-            <a href='{% url "ledger:create_trans" off_acc.id "deb" %}' class="btn btn-outline-secondary">New Voucher</a>
-            <a href='{% url "ledger:create_trans" off_acc.id "cre" %}' class="btn btn-outline-secondary">Receiving</a>
-        </div>
-        
-    </div>
-    <table  class="table">
-        <colgroup>
-            <col style="width: 8%;">
-            <col style='width: 8%;'>
-            <col style="width:52%">
-            <col style="width:10%">
-            <col style="width: 10%;">
-            <col style="width: 10%">
-        </colgroup>
-        <thead>
-            <tr>
-                <th scope="col" class="text-center">Date</th>
-                <th scope="col" class="text-center">Type</th>
-                <th scope="col">Item</th>
-                <th class="text-center" scope="col">Debit</th>
-                <th class="text-center" scope="col">Credit</th>
-                <th scope="col">Balance</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for trans, entries, rb in trans_zipped %}
-            {% for entry in entries %}
-            <tr class="transRow" data-id="{{trans.id}}">
-                <td class="text-end">{{trans.created_at|date:"j. n. Y"}}&nbsp;</td>
-                <td class="text-center">{{entry.type_code}}</td>
-                <td>
-                    {% if trans.payee.name != off_acc.name %}
-                        {{trans.payee.name}}
-                    {% else %}
-                        <a href="{% url 'ledger:voucher' trans.id %}" class="hidden-links" id='vouch{{trans.id}}'></a>
-                        {{trans.receiver.name}}
-                    {% endif %}
-                    &nbsp;-&nbsp;
-                    {{entry.description}}
-                </td>
-                <td class="text-center">{% if trans.payee.file_no == off_acc.file_no %}{{entry.amount}} {% endif %}</td>
-                <td class="text-center">{% if trans.receiver.file_no == off_acc.file_no %}{{entry.amount}}{% endif %}</td>
-                <td>{% if forloop.last %}{{rb}}{% endif %}</td>
-            </tr>
-            {% endfor %}
-        {% endfor %}
-        </tbody>    
-    </table>
-</div>
+
+
+<table  class="table">
+    <colgroup>
+        <col style="width: 8%;">
+        <col style='width: 8%;'>
+        <col style="width:52%">
+        <col style="width:10%">
+        <col style="width: 10%">
+        <col style="width: 10%;">
+    </colgroup>
+    <thead>
+        <tr>
+            <th scope="col" class="text-center">Date</th>
+            <th scope="col" class="text-center">Type</th>
+            <th scope="col">Item</th>
+            <th class="text-center" scope="col">Bank Acc.</th>
+            <th scope="col">Total</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% if not trans %}
+    <tr>
+        <td colspan="6" class="fw-bold text-center">There are no uncleared credits to any office accounts.</td>
+    </tr>
+    {% else %}
+    {% for each in trans %}
+        <tr>
+            <td class="text-end">{{each.created_at|date:"j. n. Y"}}&nbsp;</td>
+            <td class="text-center">{{each.category}}</td>
+            <td>
+                {{each}}
+            </td>
+            <td class="text-center">{{each.receiver}}</td>
+            <td>{% if forloop.last %}{{each.total}}{% endif %}</td>
+            <td><button data-id='{{each.id}}' class="clearBtn">Clear</button></td>
+            <form id ='form{{each.id}}' action="{% url 'ledger:uncleared' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="trans_id" value="{{each.id}}">
+            </form>
+        </tr>
+    {% endfor %}
+    {% endif %}
+    </tbody>    
+</table>
+
+<script>
+    $(()=>{
+        $('.clearBtn').click((e)=>{
+            tID = $(e.currentTarget).attr('data-id')
+            $(`#form${tID}`).submit()
+        })
+    })
+</script>
 {% endblock %}

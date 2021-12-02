@@ -51,7 +51,7 @@ def show_off(request):
     off_accs = Account.objects.filter(file_no__startswith = 'OFFICE').order_by('created_at')
     transactions_list = []
     for off_acc in off_accs:
-        transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc)).order_by('created_at')
+        transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc)).filter(cleared=True).order_by('created_at')
         entries_list =[]
         rb_list = []
         for trans in transactions:
@@ -649,7 +649,25 @@ def custom_receipt(request, acc_id):
 
 def uncleared(request):
     if request.method == 'GET':
+        trans = Transaction.objects.filter(cleared=False)
         context = {
-
+            'trans':trans,
         }
         return render(request, 'ledger/uncleared.html', context=context)
+    else:
+        trans_id = request.POST['trans_id']
+        try:
+            trans = Transaction.objects.get(pk = trans_id)
+        except:
+            messages.error(request, 'Unable to retrieve transaction with id: {trans_id}')
+            return redirect(reverse('ledger:uncleared'))
+        trans.cleared = True
+        off_acc = trans.receiver
+        off_acc.balance += trans.total
+        new_rb = Running_Balance(account=off_acc, value = off_acc.balance, transaction = trans)
+        try:
+            new_rb.save()
+            off_acc.save()
+        except:
+            messages.error(request, 'Saving of running balance and office account failed.')
+            return redirect(reverse('ledger:uncleared'))
