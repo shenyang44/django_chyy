@@ -368,15 +368,21 @@ def create_trans(request, acc_id, trans_type):
             except:
                 return trans_save_err(request, curr_account.id)
 
-        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc = cli_acc)
         if payee.is_office():
             payee.balance -= total
         else:
             payee.balance += total
-        if receiver.is_office():
+        # cleared variable to prevent showing in ledger till manually cleared.
+        cleared = True
+        if other_party.is_office() and other_party == receiver:
+            cleared = False 
+        elif receiver.is_office():
             receiver.balance += total
         else:
             receiver.balance -= total
+
+        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc = cli_acc, cleared = cleared)
+        
 
         try:
             new_trans.save()
@@ -385,11 +391,12 @@ def create_trans(request, acc_id, trans_type):
         except:
             return trans_save_err(request, curr_account.id)
 
-        payee_rb = Running_Balance(account = payee, transaction = new_trans, value = payee.balance)
-        receiver_rb = Running_Balance(account=receiver, transaction=new_trans, value=receiver.balance)
         try:
+            payee_rb = Running_Balance(account = payee, transaction = new_trans, value = payee.balance)
             payee_rb.save()
-            receiver_rb.save()
+            if cleared:
+                receiver_rb = Running_Balance(account=receiver, transaction=new_trans, value=receiver.balance)
+                receiver_rb.save()
         except:
             return trans_save_err(request, curr_account.id)
 
@@ -639,3 +646,10 @@ def custom_receipt(request, acc_id):
             "acc": acc,
         }
         return render(request,'ledger/custom_receipt.html', context=context)
+
+def uncleared(request):
+    if request.method == 'GET':
+        context = {
+
+        }
+        return render(request, 'ledger/uncleared.html', context=context)

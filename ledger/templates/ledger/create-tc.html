@@ -1,13 +1,13 @@
 {% extends 'ledger/layout.html' %}
 {% block title %}Admin Options{% endblock %}
 {% block body %}
-<div class="d-flex">
+<div class="d-flex m-2">
     <div class="w-50">
         {% if not type_codes %}
         <p>No addtional type codes added yet.</p>
         {% else %}
         <div class="w-75">
-            <h5>Current ADDITIONAL type codes:</h5>
+            <h5>Current additional type codes:</h5>
             {% for each in type_codes %}
             <a href="{% url 'ledger:remove_tc' each.id %}" id='a{{each.id}}' class="hidden-links"></a>
             <div class="d-flex mt-2 justify-content-between px-4">

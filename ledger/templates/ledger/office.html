@@ -16,14 +16,14 @@
             </div>
         </div>
         <div class="col-3 d-flex flex-column align-items-center">
-            <div class="fs-3">View Options</div>
             <div class="dropdown my-3">
                 <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownBtn1" data-bs-toggle="dropdown" aria-expanded="false">
-                  Tax / AD / etc.
+                  View Options
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownBtn1">
                   <li><a class="dropdown-item" href="{% url 'ledger:adat_index' %}">Outstanding AD/AT</a></li>
                   <li><a class="dropdown-item" href="{% url 'ledger:total_tax' %}">Service Tax Received</a></li>
+                  <li><a class="dropdown-item" href="{% url 'ledger:uncleared' %}">Uncleared Credits</a></li>
                 </ul>
               </div>
         </div>

@@ -1,3 +1,4 @@
+from django.contrib.messages import default_app_config
 from django.db import models
 import datetime
 from django.utils import timezone
@@ -64,9 +65,11 @@ class Transaction(models.Model):
     total = models.DecimalField(max_digits=11, decimal_places=2)
     cheque_text = models.TextField(null=True)
     resolved = models.BooleanField(default=True)
+    cleared = models.BooleanField(default=True)
     category = models.CharField(max_length=2)
     cli_acc = models.ForeignKey(Client_Account, related_name='transactions', on_delete=models.CASCADE, null=True)
     ad_link = models.ForeignKey('self', related_name='cli_ad_link', null=True, on_delete=models.CASCADE)
+
 
 class Running_Balance(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
