@@ -1,0 +1,59 @@
+{% extends 'ledger/layout.html' %}
+{% block title %}Uncleared Credits{% endblock %}
+{% block body %}
+
+
+<table  class="table">
+    <colgroup>
+        <col style="width: 8%;">
+        <col style='width: 8%;'>
+        <col style="width:52%">
+        <col style="width:10%">
+        <col style="width: 10%">
+        <col style="width: 10%;">
+    </colgroup>
+    <thead>
+        <tr>
+            <th scope="col" class="text-center">Date</th>
+            <th scope="col" class="text-center">Type</th>
+            <th scope="col">Item</th>
+            <th class="text-center" scope="col">Bank Acc.</th>
+            <th scope="col">Total</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% if not trans %}
+    <tr>
+        <td colspan="6" class="fw-bold text-center">There are no uncleared credits to any office accounts.</td>
+    </tr>
+    {% else %}
+    {% for each in trans %}
+        <tr>
+            <td class="text-end">{{each.created_at|date:"j. n. Y"}}&nbsp;</td>
+            <td class="text-center">{{each.category}}</td>
+            <td>
+                {{each}}
+            </td>
+            <td class="text-center">{{each.receiver}}</td>
+            <td>{% if forloop.last %}{{each.total}}{% endif %}</td>
+            <td><button data-id='{{each.id}}' class="clearBtn">Clear</button></td>
+            <form id ='form{{each.id}}' action="{% url 'ledger:uncleared' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="trans_id" value="{{each.id}}">
+            </form>
+        </tr>
+    {% endfor %}
+    {% endif %}
+    </tbody>    
+</table>
+
+<script>
+    $(()=>{
+        $('.clearBtn').click((e)=>{
+            tID = $(e.currentTarget).attr('data-id')
+            $(`#form${tID}`).submit()
+        })
+    })
+</script>
+{% endblock %}

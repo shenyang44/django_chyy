@@ -16,14 +16,14 @@
             </div>
         </div>
         <div class="col-3 d-flex flex-column align-items-center">
-            <div class="fs-3">View Options</div>
             <div class="dropdown my-3">
                 <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownBtn1" data-bs-toggle="dropdown" aria-expanded="false">
-                  Tax / AD / etc.
+                  View Options
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownBtn1">
                   <li><a class="dropdown-item" href="{% url 'ledger:adat_index' %}">Outstanding AD/AT</a></li>
                   <li><a class="dropdown-item" href="{% url 'ledger:total_tax' %}">Service Tax Received</a></li>
+                  <li><a class="dropdown-item" href="{% url 'ledger:uncleared' %}">Uncleared Credits</a></li>
                 </ul>
               </div>
         </div>
@@ -44,7 +44,7 @@
             </div>
         </div>
         <div class="text-center mb-3">
-            <div class="btn-group" role="group" aria-label="Basic outlined example">
+            <div class="btn-group" role="group" aria-label="transaction button group">
                 <a href='{% url "ledger:create_trans" off_acc.id "deb" %}' class="btn btn-outline-secondary">New Voucher</a>
                 <a href='{% url "ledger:create_trans" off_acc.id "cre" %}' class="btn btn-outline-secondary">Receiving</a>
             </div>

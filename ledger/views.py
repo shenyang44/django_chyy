@@ -51,7 +51,7 @@ def show_off(request):
     off_accs = Account.objects.filter(file_no__startswith = 'OFFICE').order_by('created_at')
     transactions_list = []
     for off_acc in off_accs:
-        transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc)).order_by('created_at')
+        transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc)).filter(cleared=True).order_by('created_at')
         entries_list =[]
         rb_list = []
         for trans in transactions:
@@ -368,15 +368,21 @@ def create_trans(request, acc_id, trans_type):
             except:
                 return trans_save_err(request, curr_account.id)
 
-        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc = cli_acc)
         if payee.is_office():
             payee.balance -= total
         else:
             payee.balance += total
-        if receiver.is_office():
+        # cleared variable to prevent showing in ledger till manually cleared.
+        cleared = True
+        if other_party.is_office() and other_party == receiver:
+            cleared = False 
+        elif receiver.is_office():
             receiver.balance += total
         else:
             receiver.balance -= total
+
+        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc = cli_acc, cleared = cleared)
+        
 
         try:
             new_trans.save()
@@ -385,11 +391,12 @@ def create_trans(request, acc_id, trans_type):
         except:
             return trans_save_err(request, curr_account.id)
 
-        payee_rb = Running_Balance(account = payee, transaction = new_trans, value = payee.balance)
-        receiver_rb = Running_Balance(account=receiver, transaction=new_trans, value=receiver.balance)
         try:
+            payee_rb = Running_Balance(account = payee, transaction = new_trans, value = payee.balance)
             payee_rb.save()
-            receiver_rb.save()
+            if cleared:
+                receiver_rb = Running_Balance(account=receiver, transaction=new_trans, value=receiver.balance)
+                receiver_rb.save()
         except:
             return trans_save_err(request, curr_account.id)
 
@@ -639,3 +646,28 @@ def custom_receipt(request, acc_id):
             "acc": acc,
         }
         return render(request,'ledger/custom_receipt.html', context=context)
+
+def uncleared(request):
+    if request.method == 'GET':
+        trans = Transaction.objects.filter(cleared=False)
+        context = {
+            'trans':trans,
+        }
+        return render(request, 'ledger/uncleared.html', context=context)
+    else:
+        trans_id = request.POST['trans_id']
+        try:
+            trans = Transaction.objects.get(pk = trans_id)
+        except:
+            messages.error(request, 'Unable to retrieve transaction with id: {trans_id}')
+            return redirect(reverse('ledger:uncleared'))
+        trans.cleared = True
+        off_acc = trans.receiver
+        off_acc.balance += trans.total
+        new_rb = Running_Balance(account=off_acc, value = off_acc.balance, transaction = trans)
+        try:
+            new_rb.save()
+            off_acc.save()
+        except:
+            messages.error(request, 'Saving of running balance and office account failed.')
+            return redirect(reverse('ledger:uncleared'))
