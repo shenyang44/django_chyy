@@ -336,7 +336,7 @@ def create_trans(request, acc_id, trans_type):
         # iterates over each dict adding decimal vals to total and checking if trans is service tax/fees or advanced transfer.
         table_list_cpy = copy.deepcopy(table_list)
         for each in table_list_cpy:
-            # total += Decimal(each['amount'])
+            total += Decimal(each['amount'])
             # if each['type_code'] in ['RF', 'RS']:
             #     if each['type_code'] == 'RF':
             #         each['type_code'] = 'PF'

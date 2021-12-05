@@ -36,7 +36,7 @@
                 {{each}}
             </td>
             <td class="text-center">{{each.receiver}}</td>
-            <td>{% if forloop.last %}{{each.total}}{% endif %}</td>
+            <td>{{each.total}}</td>
             <td><button data-id='{{each.id}}' class="clearBtn">Clear</button></td>
             <form id ='form{{each.id}}' action="{% url 'ledger:uncleared' %}" method="post">
                 {% csrf_token %}
