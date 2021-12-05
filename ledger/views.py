@@ -328,26 +328,26 @@ def create_trans(request, acc_id, trans_type):
             payee = curr_account
             receiver = other_party
 
-        auto_outgoing_list = []
-        auto_outgoing_total = 0
+        # auto_outgoing_list = []
+        # auto_outgoing_total = 0
         total = 0
         adv_trans = False
 
         # iterates over each dict adding decimal vals to total and checking if trans is service tax/fees or advanced transfer.
         table_list_cpy = copy.deepcopy(table_list)
         for each in table_list_cpy:
-            total += Decimal(each['amount'])
-            if each['type_code'] in ['RF', 'RS']:
-                if each['type_code'] == 'RF':
-                    each['type_code'] = 'PF'
-                else:
-                    each['type_code'] = 'PS'
-                auto_outgoing_list.append(each)
-                auto_outgoing_total += Decimal(each['amount'])
-            elif each['type_code'] in ['AD', 'AT']:
+            # total += Decimal(each['amount'])
+            # if each['type_code'] in ['RF', 'RS']:
+            #     if each['type_code'] == 'RF':
+            #         each['type_code'] = 'PF'
+            #     else:
+            #         each['type_code'] = 'PS'
+            #     auto_outgoing_list.append(each)
+            #     auto_outgoing_total += Decimal(each['amount'])
+            # !!!! NEED TO MAKE BELOW AN ELIF !!!!
+            if each['type_code'] in ['AD', 'AT']:
                 adv_trans = True
                 each['description'] = f"{curr_account.client_code} | {each['description']}"
-            print(table_list, table_list_cpy)
         
         # handling for advance disbursements.
         if adv_trans:
@@ -400,28 +400,28 @@ def create_trans(request, acc_id, trans_type):
         except:
             return trans_save_err(request, curr_account.id)
 
-        if auto_outgoing_list:
-            curr_account.balance += auto_outgoing_total
-            off_acc = Account.objects.filter(file_no__startswith='OFFICE')
-            off_acc = off_acc[0]
-            off_acc.balance += auto_outgoing_total
-            messages.warning(request, 'currently the office account being credited for the auto transaction is fixed')
-            auto_trans = Transaction(payee=curr_account, receiver=off_acc, table_list=json.dumps(auto_outgoing_list), total = auto_outgoing_total, cheque_text="Auto outgoing transaction")
-            try:
-                auto_trans.save()
-                off_acc.save()
-                curr_account.save()
-            except:
-                return trans_save_err(request, curr_account.id)
+        # if auto_outgoing_list:
+        #     curr_account.balance += auto_outgoing_total
+        #     off_acc = Account.objects.filter(file_no__startswith='OFFICE')
+        #     off_acc = off_acc[0]
+        #     off_acc.balance += auto_outgoing_total
+        #     messages.warning(request, 'currently the office account being credited for the auto transaction is fixed')
+        #     auto_trans = Transaction(payee=curr_account, receiver=off_acc, table_list=json.dumps(auto_outgoing_list), total = auto_outgoing_total, cheque_text="Auto outgoing transaction")
+        #     try:
+        #         auto_trans.save()
+        #         off_acc.save()
+        #         curr_account.save()
+        #     except:
+        #         return trans_save_err(request, curr_account.id)
             
-            off_rb = Running_Balance(account = off_acc, transaction = auto_trans, value = off_acc.balance)
-            curr_rb = Running_Balance(account = curr_account, transaction = auto_trans, value = curr_account.balance)
+        #     off_rb = Running_Balance(account = off_acc, transaction = auto_trans, value = off_acc.balance)
+        #     curr_rb = Running_Balance(account = curr_account, transaction = auto_trans, value = curr_account.balance)
 
-            try:
-                off_rb.save()
-                curr_rb.save()
-            except:
-                return trans_save_err(request, curr_account.id)
+        #     try:
+        #         off_rb.save()
+        #         curr_rb.save()
+        #     except:
+        #         return trans_save_err(request, curr_account.id)
 
         if curr_account == payee:
             return redirect(reverse('ledger:voucher', args=(new_trans.id,)))
@@ -666,8 +666,19 @@ def uncleared(request):
         off_acc.balance += trans.total
         new_rb = Running_Balance(account=off_acc, value = off_acc.balance, transaction = trans)
         try:
+            trans.save()
+        except:
+            messages.error(request, 'Transaction failed to clear.')
+            return redirect(reverse('ledger:uncleared'))
+        try:
             new_rb.save()
+        except:
+            messages.error(request, 'Saving of running balance failed, but transaction cleared.')
+            return redirect(reverse('ledger:uncleared'))
+        try:
             off_acc.save()
         except:
-            messages.error(request, 'Saving of running balance and office account failed.')
+            messages.error(request, 'Saving of office account balance failed, trans and r_b were saved.')
             return redirect(reverse('ledger:uncleared'))
+        
+        return redirect(reverse('ledger:uncleared'))
