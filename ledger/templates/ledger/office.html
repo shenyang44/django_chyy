@@ -52,6 +52,7 @@
         </div>
         <table  class="table">
             <colgroup>
+                <col>
                 <col style="width: 8%;">
                 <col style='width: 8%;'>
                 <col style="width:52%">
@@ -61,6 +62,7 @@
             </colgroup>
             <thead>
                 <tr>
+                    <th scope="col"></th>
                     <th scope="col" class="text-center">Date</th>
                     <th scope="col" class="text-center">Type</th>
                     <th scope="col">Item</th>
@@ -73,6 +75,9 @@
             {% for trans, entries, rb in trans_zipped %}
                 {% for entry in entries %}
                 <tr class="transRow" data-id="{{trans.id}}">
+                    <td>
+                        <input class="form-check-input" type="checkbox" name="checked" data-id ='{{trans.id}}' data-off='{{off_acc.id}}' {% if trans.checked %} checked {% endif %}>
+                    </td>
                     <td class="text-end">{{trans.created_at|date:"j. n. Y"}}&nbsp;</td>
                     <td class="text-center">{{entry.type_code}}</td>
                     <td>
@@ -124,17 +129,15 @@
 
 <script charset="utf-8">
     $(()=>{
-        console.log('{{selected}}')
         radBtns = $('.btn-check');
         radBtns.each((i,e)=>{
-            // todo, still not working.
             if (e.checked){
                 id = $(e).attr('data-id');
                 $(`#off-acc-${id}`).removeClass('d-none');
             }
         })
         radBtns.click((e)=>{
-            id = $(e.target).attr('data-id');
+            let id = $(e.target).attr('data-id');
             $('.offEach').not(`#off-acc-${id}`).addClass('d-none');
             $(`#off-acc-${id}`).removeClass('d-none');
         })
@@ -145,10 +148,21 @@
         })
 
         $('.subBtn').click((e)=>{
-            id = $(e.target).attr('data-id');
+            let id = $(e.target).attr('data-id');
             $(`#nameForm${id}`).submit()
         })
-    
+        let csrftoken = $("[name=csrfmiddlewaretoken]").val();
+        $.ajaxSetup({
+            beforeSend: (xhr, settings)=>{
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        })
+        $('.form-check-input').click((e)=>{
+            checkInp = $(e.target)
+            let transID = checkInp.attr('data-id');
+            let offID = checkInp.attr('data-off');
+            $.post( "{% url 'ledger:show_off' %}", {checked:e.target.checked, off_id:offID, trans_id:transID, form_type:'checkbox'});
+        })        
     })
 </script>
 {% endblock %}
