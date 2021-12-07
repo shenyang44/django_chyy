@@ -37,23 +37,11 @@ def index(request):
 
 def show_off(request):
     if request.method == 'POST':
-        form_type = request.POST['form_type']
-        off_id = request.POST['off_id'] 
-        if form_type == 'checkbox':
-            checked = request.POST['checked']
-            trans_id = request.POST['trans_id']
-            try:
-                off_acc = Account.objects.get(pk=off_id)
-                trans = Transaction.objects.get(pk=trans_id)
-                if checked == 'on':
-                    trans.checked = True
-                else:
-                    trans.checked = False
-                trans.save()
-            except:
-                messages.warning(request, 'Could not locate office account in database.')
-        else:
-            new_name = request.POST['new_name']
+        off_id = request.POST.get('off_id')
+        checked = request.POST.get('checked')
+        trans_id = request.POST.get('trans_id')
+        new_name = request.POST.get('new_name')
+        if new_name:
             try:
                 off_acc = Account.objects.get(pk=off_id)
                 old_name = off_acc.name
@@ -62,6 +50,17 @@ def show_off(request):
                 messages.success(request, f'Office account name was changed successfully from {old_name} to {off_acc.name}')
             except:
                 messages.error(request, 'Name change failed.')
+        else:
+            try:
+                off_acc = Account.objects.get(pk=off_id)
+                trans = Transaction.objects.get(pk=trans_id)
+                if checked  == 'true':
+                    trans.checked = True
+                else:
+                    trans.checked = False
+                trans.save()
+            except:
+                messages.warning(request, 'Could not locate office account in database.')
         
     off_accs = Account.objects.filter(file_no__startswith = 'OFFICE').order_by('created_at')
     transactions_list = []
