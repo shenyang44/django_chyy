@@ -75,7 +75,16 @@
             {% for trans, entries, rb in trans_zipped %}
                 {% for entry in entries %}
                 <tr class="transRow" data-id="{{trans.id}}">
-                    <td><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"></td>
+                    <td>
+                        <!-- {% if forloop.first %}
+                        <form id='checkForm{{trans.id}}' action="{% url 'ledger:show_off' %}" method="POST"  class="mt-2 ms-1">
+                            {%csrf_token%}
+                            <input type="hidden" value='{{off_acc.id}}' name='off_id'><input type="hidden" name="form_type" value="checkbox">
+                            <input type="hidden" name="trans_id" value="{{trans.id}}"><input type="hidden" name="checked" value="off">
+                        </form>
+                        {% endif %} -->
+                        <input class="form-check-input" type="checkbox" name="checked" data-id ='{{trans.id}}' data-off='{{off_acc.id}}' {% if trans.checked %} checked {% endif %}>
+                    </td>
                     <td class="text-end">{{trans.created_at|date:"j. n. Y"}}&nbsp;</td>
                     <td class="text-center">{{entry.type_code}}</td>
                     <td>
@@ -113,6 +122,7 @@
                     {%csrf_token%}
                     <input type="text" name='new_name' placeholder="new name">
                     <input type="hidden" value='{{off_acc.id}}' name='off_id'>
+                    <input type="hidden" name="form_type" value="name">
                 </form>
             </div>
             <div class="modal-footer">
@@ -130,14 +140,13 @@
         console.log('{{selected}}')
         radBtns = $('.btn-check');
         radBtns.each((i,e)=>{
-            // todo, still not working.
             if (e.checked){
                 id = $(e).attr('data-id');
                 $(`#off-acc-${id}`).removeClass('d-none');
             }
         })
         radBtns.click((e)=>{
-            id = $(e.target).attr('data-id');
+            let id = $(e.target).attr('data-id');
             $('.offEach').not(`#off-acc-${id}`).addClass('d-none');
             $(`#off-acc-${id}`).removeClass('d-none');
         })
@@ -148,10 +157,15 @@
         })
 
         $('.subBtn').click((e)=>{
-            id = $(e.target).attr('data-id');
+            let id = $(e.target).attr('data-id');
             $(`#nameForm${id}`).submit()
         })
-    
+        
+        $('.form-check-input').click((e)=>{
+            let transID = $(e.target).attr('data-id');
+            let offID = $(e.target).attr('data-trans');
+            $.post( "{% url 'ledger:show_off' %}", {checked:'on', off_id:offID, trans_id:transID, form_type:'checkbox', csrfmiddlewaretoken:'{% csrf_token %}'});
+        })        
     })
 </script>
 {% endblock %}

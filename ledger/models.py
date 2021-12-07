@@ -69,6 +69,7 @@ class Transaction(models.Model):
     category = models.CharField(max_length=2)
     cli_acc = models.ForeignKey(Client_Account, related_name='transactions', on_delete=models.CASCADE, null=True)
     ad_link = models.ForeignKey('self', related_name='cli_ad_link', null=True, on_delete=models.CASCADE)
+    checked = models.BooleanField(default=False)
 
 
 class Running_Balance(models.Model):
