@@ -76,7 +76,9 @@
                 {% for entry in entries %}
                 <tr class="transRow" data-id="{{trans.id}}">
                     <td>
+                        {% if forloop.first%}
                         <input class="form-check-input" type="checkbox" name="checked" data-id ='{{trans.id}}' data-off='{{off_acc.id}}' {% if trans.checked %} checked {% endif %}>
+                        {% endif %}
                     </td>
                     <td class="text-end">{{trans.created_at|date:"j. n. Y"}}&nbsp;</td>
                     <td class="text-center">{{entry.type_code}}</td>
@@ -129,6 +131,14 @@
 
 <script charset="utf-8">
     $(()=>{
+        // jquery date picker
+        $(".datepicker").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: 'yy/mm/dd'
+        });
+        
+        // radio buttons to swap between office accs.
         radBtns = $('.btn-check');
         radBtns.each((i,e)=>{
             if (e.checked){
@@ -141,7 +151,7 @@
             $('.offEach').not(`#off-acc-${id}`).addClass('d-none');
             $(`#off-acc-${id}`).removeClass('d-none');
         })
-
+        
         $('.transRow').dblclick((e)=>{
             id = $(e.currentTarget).attr('data-id');
             $(`#vouch${id}`)[0].click()
@@ -151,6 +161,8 @@
             let id = $(e.target).attr('data-id');
             $(`#nameForm${id}`).submit()
         })
+
+        // ajax for checkbox updating server.
         let csrftoken = $("[name=csrfmiddlewaretoken]").val();
         $.ajaxSetup({
             beforeSend: (xhr, settings)=>{
@@ -162,7 +174,8 @@
             let transID = checkInp.attr('data-id');
             let offID = checkInp.attr('data-off');
             $.post( "{% url 'ledger:show_off' %}", {checked:e.target.checked, off_id:offID, trans_id:transID, form_type:'checkbox'});
-        })        
+        })
+
     })
 </script>
 {% endblock %}
