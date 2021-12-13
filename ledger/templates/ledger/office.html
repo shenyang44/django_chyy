@@ -63,13 +63,13 @@
         </div>
         <table  class="table">
             <colgroup>
-                <col>
-                <col style="width: 8%;">
-                <col style='width: 8%;'>
-                <col style="width:52%">
-                <col style="width:10%">
+                <col style="width: 2%;">
                 <col style="width: 10%;">
-                <col style="width: 10%">
+                <col style='width: 8%;'>
+                <col style="width:50%">
+                <col style="width:10%">
+                <col style="width:10%;">
+                <col style="width:10%">
             </colgroup>
             <thead>
                 <tr>
@@ -91,7 +91,7 @@
                         <input class="form-check-input" type="checkbox" name="checked" data-id ='{{trans.id}}' data-off='{{off_acc.id}}' {% if trans.checked %} checked {% endif %}>
                         {% endif %}
                     </td>
-                    <td class="text-end">{{trans.created_at|date:"j. n. Y"}}&nbsp;</td>
+                    <td class="text-center"> {% if forloop.first %}{{trans.created_at|date:"d/m/Y"}}{% endif %}&nbsp;</td>
                     <td class="text-center">{{entry.type_code}}</td>
                     <td>
                         {% if trans.payee.name != off_acc.name %}
@@ -148,7 +148,6 @@
             changeYear: true,
             dateFormat: 'yy/mm/dd'
         });
-        
         // radio buttons to swap between office accs.
         radBtns = $('.btn-check');
         radBtns.each((i,e)=>{

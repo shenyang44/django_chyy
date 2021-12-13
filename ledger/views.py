@@ -37,6 +37,11 @@ def index(request):
 
 def show_off(request):
     if request.method == 'POST':
+        date_from_inp = request.POST.get('date_from')
+        date_to_inp = request.POST.get('date_to')
+        if date_from_inp:
+            date_from = datetime.strptime(date_from_inp, "%Y/%m/%d")
+            date_to = datetime.strptime(date_to_inp, "%Y/%m/%d")
         off_id = request.POST.get('off_id')
         checked = request.POST.get('checked')
         trans_id = request.POST.get('trans_id')
@@ -61,11 +66,16 @@ def show_off(request):
                 trans.save()
             except:
                 messages.warning(request, 'Could not locate office account in database.')
-        
+    else:
+        date_from = datetime.strptime('2020/01/01', "%Y/%m/%d")
+        date_to=timezone.localdate()
+
+    date_to += timedelta(days=1)
+
     off_accs = Account.objects.filter(file_no__startswith = 'OFFICE').order_by('created_at')
     transactions_list = []
     for off_acc in off_accs:
-        transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc)).filter(cleared=True).order_by('created_at')
+        transactions = Transaction.objects.filter(Q(payee = off_acc) | Q(receiver = off_acc)).filter(cleared=True).filter(created_at__lte=date_to).filter(created_at__gte=date_from).order_by('created_at')
         entries_list =[]
         rb_list = []
         for trans in transactions:
@@ -87,6 +97,8 @@ def show_off(request):
         'selected': off_id,
         'off_accs':off_accs,
         'office_data':office_data,
+        'date_to':date_to.strftime('%Y/%m/%d'),
+        'date_from':date_from.strftime('%Y/%m/%d'),
     }
     return render(request, 'ledger/office.html', context=context)
 
@@ -697,9 +709,15 @@ def uncleared(request):
         
         return redirect(reverse('ledger:uncleared'))
 
-# def checkbox(request):
-#     if request.method=='POST':
-#         checked = request.POST['checkbox']
-#         try:
-#             trans.save()
-#             return redirect(reverse('ledger:'))
+# def off_date(request):
+#     if request.method == 'POST':
+#         date_from_inp = request.POST['date_from']
+#         date_to_inp = request.POST['date_to']
+#         date_from = datetime.strptime(date_from_inp, "%Y/%m/%d")
+#         date_to = datetime.strptime(date_to_inp, "%Y/%m/%d")
+#     else:
+#         date_from = datetime.strptime('2020/01/01', "%Y/%m/%d")
+#         date_to=timezone.localdate()
+
+#     date_to += timedelta(days=1)
+#     return redirect(reverse(''))
