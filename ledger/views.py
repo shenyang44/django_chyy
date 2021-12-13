@@ -38,10 +38,7 @@ def index(request):
 def show_off(request):
     if request.method == 'POST':
         date_from_inp = request.POST.get('date_from')
-        date_to_inp = request.POST.get('date_to')
-        if date_from_inp:
-            date_from = datetime.strptime(date_from_inp, "%Y/%m/%d")
-            date_to = datetime.strptime(date_to_inp, "%Y/%m/%d")
+        date_to_inp = request.POST.get('date_to')        
         off_id = request.POST.get('off_id')
         checked = request.POST.get('checked')
         trans_id = request.POST.get('trans_id')
@@ -55,7 +52,7 @@ def show_off(request):
                 messages.success(request, f'Office account name was changed successfully from {old_name} to {off_acc.name}')
             except:
                 messages.error(request, 'Name change failed.')
-        else:
+        elif checked:
             try:
                 off_acc = Account.objects.get(pk=off_id)
                 trans = Transaction.objects.get(pk=trans_id)
@@ -66,6 +63,9 @@ def show_off(request):
                 trans.save()
             except:
                 messages.warning(request, 'Could not locate office account in database.')
+        else:
+            date_from = datetime.strptime(date_from_inp, "%Y/%m/%d")
+            date_to = datetime.strptime(date_to_inp, "%Y/%m/%d")
     else:
         date_from = datetime.strptime('2020/01/01', "%Y/%m/%d")
         date_to=timezone.localdate()
@@ -93,6 +93,8 @@ def show_off(request):
         off_id = int(off_id)
     except:
         off_id = None
+    date_to -= timedelta(days=1)
+    
     context = {
         'selected': off_id,
         'off_accs':off_accs,
