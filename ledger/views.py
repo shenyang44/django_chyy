@@ -461,6 +461,17 @@ def create_trans(request, acc_id, trans_type):
         context.update({'trans_type':trans_type})
         return render(request, 'ledger/transaction.html', context=context)
 
+def counter_trans(request):
+    if request.method == 'POST':
+        trans_id = request.POST['trans_id']
+        acc_id = request.POST['acc_id']
+        try:
+            trans = Transaction.objects.get(pk=trans_id)
+        except:
+            messages.error(request, 'Could not retrieve or remove that transaction.')
+            return redirect(reverse('ledger:show_acc'))
+        return redirect(reverse('ledger:show_acc'))
+
 def create_ad(request, acc_id):
     curr_acc = get_object_or_404(Account, pk = acc_id)
     if curr_acc.is_office() or curr_acc.is_external():

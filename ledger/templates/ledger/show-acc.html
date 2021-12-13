@@ -37,9 +37,10 @@
 </div>
 <table class="table print-sm">
     <colgroup>
-        <col style="width: 10%;">
+        <col style="width: 4%;">
+        <col style="width: 9%;">
         <col style="width:10%;">
-        <col style="width: 5%;">
+        <col style="width: 2%;">
         <col style="width: 10%;">
         <col style="width: 40%;">
         <col style="width: 7%">
@@ -48,7 +49,7 @@
     </colgroup>
     <thead>
         <tr style="border:none">
-            <th colspan="8">
+            <th colspan="9">
                 <header class="fs-5 text-center mb-3">
                     <div>MESSRS C.H.YEOH & YIEW</div>
                     <div>Transaction History</div>
@@ -111,6 +112,7 @@
             </td>
         </tr>
         <tr>
+            <th scope="col" class="text-center">Del.</th>
             <th scope="col">Ref No</th>
             <th scope="col">Date</th>
             <th scope="col">Type</th>
@@ -125,6 +127,37 @@
     {% for trans, entries, rb in trans_zipped %}
         {% for entry in entries %}
             <tr class="transRow" data-id="{{trans.id}}">
+                <td class="text-center">
+                    {% if forloop.first %}
+                    <div class="modal fade" id="delMod{{trans.id}}" tabindex="-1" aria-labelledby="delModLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="delModLabel">Delete Transaction</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Confirm deletion for:</p>
+                                    <p>
+                                    {{entry.description}} | total : {{trans.total}}
+                                    </p>
+                                    <p>This will create a counter transaction, to correct the account's balance, and does not remove the above transaction from the ledger.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <form action="{% url 'ledger:counter_trans' %}">
+                                        <input type="hidden" name="trans_id" value="{{trans.id}}">
+                                        <input type="hidden" name="acc_id" value="{{account.id}}">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Confirm Removal</button>
+                                    </form>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div data-bs-toggle="modal" data-bs-target="#delMod{{trans.id}}" class="red-x" data-id="{{trans.id}}">X</div> 
+                    {% endif %}
+                </td>
                 {% if account == trans.payee %}
                     <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
                     <td class="refCell">
@@ -183,7 +216,6 @@
             } else{
                 alert('Both "Date From" and "Date To" must be selected.')
             }
-            
         })
     })
 </script>

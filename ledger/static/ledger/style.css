@@ -86,3 +86,12 @@ tr input{
     border:none;
     border-bottom: 1px dotted black;
 }
+
+.red-x{
+    font-weight: bold;
+    color: #ff3232;
+}
+.red-x:hover{
+    font-size: 1.1rem;
+    color: #bd0000;
+}
