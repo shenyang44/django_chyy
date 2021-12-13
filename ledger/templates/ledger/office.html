@@ -5,8 +5,20 @@
 <header class="fluid-container">
     {% if off_accs %}
     <div class="row">
-        <div class="col-3"></div>
-        <div class="col-6 align-items-center d-flex flex-column">
+        <div class="col-4">
+            <form id='dateForm' autocomplete="off" method="POST" class="d-flex p-3 h-100">
+                {% csrf_token %}
+                <input type="hidden" id='offID' name='off_id' {% if selected %}value='{{selected}}'{% endif %}>
+                    <div class="d-flex flex-column w-50">
+                        Date from: <input name='date_from' class="datepicker text-center w-75" type="text" id="datepickerFrom" value="{{date_from}}">
+                        Date to: <input name='date_to' class='datepicker text-center w-75' type="text" id="datepickerTo" value="{{date_to}}">
+                    </div>
+                    <div class="align-items-center d-flex w-50">
+                        <button type="button" class="btn btn-outline-secondary" id='upBtn'>Update</button>
+                    </div>
+            </form>
+        </div>
+        <div class="col-4 align-items-center d-flex flex-column">
             <div class="fs-3">Select Office Account to View</div>
             <div class="btn-group my-3" role="group" aria-label="Basic radio toggle button group">
                 {% for off_acc in off_accs %}
@@ -15,7 +27,7 @@
                 {% endfor %}
             </div>
         </div>
-        <div class="col-3 d-flex flex-column align-items-center">
+        <div class="col-4 d-flex flex-column align-items-center">
             <div class="dropdown my-3">
                 <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownBtn1" data-bs-toggle="dropdown" aria-expanded="false">
                   View Options
@@ -52,13 +64,13 @@
         </div>
         <table  class="table">
             <colgroup>
-                <col>
-                <col style="width: 8%;">
-                <col style='width: 8%;'>
-                <col style="width:52%">
-                <col style="width:10%">
+                <col style="width: 2%;">
                 <col style="width: 10%;">
-                <col style="width: 10%">
+                <col style='width: 8%;'>
+                <col style="width:50%">
+                <col style="width:10%">
+                <col style="width:10%;">
+                <col style="width:10%">
             </colgroup>
             <thead>
                 <tr>
@@ -80,7 +92,7 @@
                         <input class="form-check-input" type="checkbox" name="checked" data-id ='{{trans.id}}' data-off='{{off_acc.id}}' {% if trans.checked %} checked {% endif %}>
                         {% endif %}
                     </td>
-                    <td class="text-end">{{trans.created_at|date:"j. n. Y"}}&nbsp;</td>
+                    <td class="text-center"> {% if forloop.first %}{{trans.created_at|date:"d/m/Y"}}{% endif %}&nbsp;</td>
                     <td class="text-center">{{entry.type_code}}</td>
                     <td>
                         {% if trans.payee.name != off_acc.name %}
@@ -137,7 +149,20 @@
             changeYear: true,
             dateFormat: 'yy/mm/dd'
         });
-        
+        // input checks for update button
+        $('#upBtn').click((e)=>{
+            dateFrom = $('#datepickerFrom').val();
+            dateTo = $('#datepickerTo').val();
+            if (dateFrom && dateTo){
+                if (Date.parse(dateFrom) <= Date.parse(dateTo)){
+                $('#dateForm').submit();
+                } else{
+                    alert('The "Date To" selected is prior to the "Date From"');
+                }
+            } else{
+                alert('Both "Date From" and "Date To" must be selected.')
+            }
+        })
         // radio buttons to swap between office accs.
         radBtns = $('.btn-check');
         radBtns.each((i,e)=>{
@@ -150,6 +175,7 @@
             let id = $(e.target).attr('data-id');
             $('.offEach').not(`#off-acc-${id}`).addClass('d-none');
             $(`#off-acc-${id}`).removeClass('d-none');
+            $('#offID').val(id)
         })
         
         $('.transRow').dblclick((e)=>{
