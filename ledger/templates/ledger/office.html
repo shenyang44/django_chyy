@@ -6,13 +6,13 @@
     {% if off_accs %}
     <div class="row">
         <div class="col-4">
-            <form id='dateForm' autocomplete="off" method="POST" class="d-flex justify-content-around h-100">
+            <form id='dateForm' autocomplete="off" method="POST" class="d-flex p-3 h-100">
                 {% csrf_token %}
-                    <div class="d-flex flex-column">
-                        Date from: <input name='date_from' class="datepicker" type="text" id="datepickerFrom" value="{{date_from}}">
-                        Date to: <input name='date_to' class='datepicker' type="text" id="datepickerTo" value="{{date_to}}">
+                    <div class="d-flex flex-column w-50">
+                        Date from: <input name='date_from' class="datepicker text-center w-75" type="text" id="datepickerFrom" value="{{date_from}}">
+                        Date to: <input name='date_to' class='datepicker text-center w-75' type="text" id="datepickerTo" value="{{date_to}}">
                     </div>
-                    <div class="align-items-center d-flex">
+                    <div class="align-items-center d-flex w-50">
                         <button type="button" class="btn btn-outline-secondary" id='upBtn'>Update</button>
                     </div>
             </form>
