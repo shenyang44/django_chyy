@@ -146,7 +146,6 @@
                                 <div class="modal-footer">
                                     <form action="{% url 'ledger:counter_trans' %}">
                                         <input type="hidden" name="trans_id" value="{{trans.id}}">
-                                        <input type="hidden" name="acc_id" value="{{account.id}}">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                         <button type="submit" class="btn btn-primary">Confirm Removal</button>
                                     </form>
