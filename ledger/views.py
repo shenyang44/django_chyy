@@ -476,9 +476,14 @@ def counter_trans(request):
             'amount':total,
             'type_code':'NA'
         }]
+        try:
+            auth_acc = Account.objects.get(file_no='EXTERNAL_auth_acc')
+        except:
+            auth_acc= Account(name='Account for Pre Auth Debit', file_no='EXTERNAL_auth_acc', balance=0)
+            auth_acc.save()
         if not cleared:
             if payee.is_office():
-                new_trans = Transaction(total=total, receiver=payee, payee=receiver, table_list=json.dumps(entry), category='NA', cli_acc=trans.cli_acc, cleared=True)
+                new_trans = Transaction(total=total, receiver=receiver, payee=receiver, table_list=json.dumps(entry), category='NA', cli_acc=trans.cli_acc, cleared=True)
         if payee.is_office():
             if cleared:
                 payee.balance += total
@@ -738,16 +743,3 @@ def uncleared(request):
             return redirect(reverse('ledger:uncleared'))
         
         return redirect(reverse('ledger:uncleared'))
-
-# def off_date(request):
-#     if request.method == 'POST':
-#         date_from_inp = request.POST['date_from']
-#         date_to_inp = request.POST['date_to']
-#         date_from = datetime.strptime(date_from_inp, "%Y/%m/%d")
-#         date_to = datetime.strptime(date_to_inp, "%Y/%m/%d")
-#     else:
-#         date_from = datetime.strptime('2020/01/01', "%Y/%m/%d")
-#         date_to=timezone.localdate()
-
-#     date_to += timedelta(days=1)
-#     return redirect(reverse(''))
