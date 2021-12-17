@@ -400,18 +400,16 @@ def create_trans(request, acc_id, trans_type):
             payee.balance -= total
         else:
             payee.balance += total
-        # cleared variable to prevent showing in ledger till manually cleared.
+
+        # if receiver is office acc, not credited yet, waiting to be cleared from the off acc page.
         cleared = True
-        if other_party.is_office() and other_party == receiver:
-            cleared = False 
-        elif receiver.is_office():
-            receiver.balance += total
-        else:
+        if not receiver.is_office():
             receiver.balance -= total
+        else:
+            cleared = False
 
-        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc = cli_acc, cleared = cleared)
+        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc=cli_acc, cleared=cleared)
         
-
         try:
             new_trans.save()
             payee.save()
@@ -464,12 +462,36 @@ def create_trans(request, acc_id, trans_type):
 def counter_trans(request):
     if request.method == 'POST':
         trans_id = request.POST['trans_id']
-        acc_id = request.POST['acc_id']
         try:
             trans = Transaction.objects.get(pk=trans_id)
         except:
             messages.error(request, 'Could not retrieve or remove that transaction.')
             return redirect(reverse('ledger:show_acc'))
+        payee = trans.payee
+        receiver = trans.receiver
+        total = trans.total
+        cleared = trans.cleared
+        entry = [{
+            'description':f'Cancellation of transaction {trans_id}',
+            'amount':total,
+            'type_code':'NA'
+        }]
+        try:
+            auth_acc = Account.objects.get(file_no='EXTERNAL_auth_acc')
+        except:
+            auth_acc= Account(name='Account for Pre Auth Debit', file_no='EXTERNAL_auth_acc', balance=0)
+            auth_acc.save()
+        if not cleared:
+            if payee.is_office():
+                new_trans = Transaction(total=total, receiver=receiver, payee=receiver, table_list=json.dumps(entry), category='NA', cli_acc=trans.cli_acc, cleared=True)
+        if payee.is_office():
+            if cleared:
+                payee.balance += total
+        else:
+            payee.balance -= total
+        if receiver.is_office():
+            receiver -= total
+        p_rb = Running_Balance(value=total)
         return redirect(reverse('ledger:show_acc'))
 
 def create_ad(request, acc_id):
@@ -721,16 +743,3 @@ def uncleared(request):
             return redirect(reverse('ledger:uncleared'))
         
         return redirect(reverse('ledger:uncleared'))
-
-# def off_date(request):
-#     if request.method == 'POST':
-#         date_from_inp = request.POST['date_from']
-#         date_to_inp = request.POST['date_to']
-#         date_from = datetime.strptime(date_from_inp, "%Y/%m/%d")
-#         date_to = datetime.strptime(date_to_inp, "%Y/%m/%d")
-#     else:
-#         date_from = datetime.strptime('2020/01/01', "%Y/%m/%d")
-#         date_to=timezone.localdate()
-
-#     date_to += timedelta(days=1)
-#     return redirect(reverse(''))
