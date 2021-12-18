@@ -739,8 +739,10 @@ def custom_receipt(request, acc_id):
 def uncleared(request):
     if request.method == 'GET':
         trans = Transaction.objects.filter(cleared=False)
+        trans_list = [x for x in trans if x.receiver.is_office()]
+        
         context = {
-            'trans':trans,
+            'trans':trans_list,
         }
         return render(request, 'ledger/uncleared.html', context=context)
     else:

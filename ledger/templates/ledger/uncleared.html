@@ -5,12 +5,12 @@
 
 <table  class="table">
     <colgroup>
-        <col style="width: 8%;">
-        <col style='width: 8%;'>
+        <col style="width: 10%;">
+        <col style='width: 6%;'>
         <col style="width:52%">
         <col style="width:10%">
         <col style="width: 10%">
-        <col style="width: 10%;">
+        <col style="width: 7%;">
     </colgroup>
     <thead>
         <tr>
@@ -33,7 +33,7 @@
             <td class="text-end">{{each.created_at|date:"j. n. Y"}}&nbsp;</td>
             <td class="text-center">{{each.category}}</td>
             <td>
-                {{each}}
+                {{each}} | {{each.payee}}
             </td>
             <td class="text-center">{{each.receiver}}</td>
             <td>{{each.total}}</td>
