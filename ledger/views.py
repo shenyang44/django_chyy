@@ -462,18 +462,19 @@ def create_trans(request, acc_id, trans_type):
 def counter_trans(request):
     if request.method == 'POST':
         trans_id = request.POST['trans_id']
+        acc_id = int(request.POST['acc_id'])
         try:
             trans = Transaction.objects.get(pk=trans_id)
         except:
-            messages.error(request, 'Could not retrieve or remove that transaction.')
-            return redirect(reverse('ledger:show_acc'))
+            messages.error(request, 'Could not retrieve the transaction.')
+            return redirect(reverse('ledger:show_acc', args=(acc_id,)))
         payee = trans.payee
         receiver = trans.receiver
         total = trans.total
         cleared = trans.cleared
         entry = [{
             'description':f'Cancellation of transaction {trans_id}',
-            'amount':total,
+            'amount':str(total),
             'type_code':'NA'
         }]
 
@@ -513,11 +514,13 @@ def counter_trans(request):
             receiver.save()
             rb_p = Running_Balance(account=payee, transaction=new_trans, value=payee.balance)
             rb_r = Running_Balance(account=receiver, transaction=new_trans, value=receiver.balance)
+            rb_p.save()
+            rb_r.save()
         except:
-
+            messages.error(request, 'Error occurred while saving counter transaction.')
 
         p_rb = Running_Balance(value=total)
-        return redirect(reverse('ledger:show_acc'))
+        return redirect(reverse('ledger:show_acc', args=(acc_id,)))
 
 def create_ad(request, acc_id):
     curr_acc = get_object_or_404(Account, pk = acc_id)
