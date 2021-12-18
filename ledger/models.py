@@ -2,6 +2,7 @@ from django.contrib.messages import default_app_config
 from django.db import models
 import datetime
 from django.utils import timezone
+import json
 
 class Question(models.Model):
     question_text = models.CharField(max_length=200)
@@ -70,6 +71,10 @@ class Transaction(models.Model):
     cli_acc = models.ForeignKey(Client_Account, related_name='transactions', on_delete=models.CASCADE, null=True)
     ad_link = models.ForeignKey('self', related_name='cli_ad_link', null=True, on_delete=models.CASCADE)
     checked = models.BooleanField(default=False)
+
+    def __str__(self):
+        entries = json.loads(self.table_list)
+        return(entries[0]['description'])
 
 
 class Running_Balance(models.Model):

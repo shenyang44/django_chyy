@@ -144,8 +144,10 @@
                                     <p>This will create a counter transaction, to correct the account's balance, and does not remove the above transaction from the ledger.</p>
                                 </div>
                                 <div class="modal-footer">
-                                    <form action="{% url 'ledger:counter_trans' %}">
+                                    <form method="post" action="{% url 'ledger:counter_trans' %}">
+                                        {% csrf_token %}
                                         <input type="hidden" name="trans_id" value="{{trans.id}}">
+                                        <input type="hidden" name="acc_id" value="{{account.id}}">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                         <button type="submit" class="btn btn-primary">Confirm Removal</button>
                                     </form>

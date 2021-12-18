@@ -462,37 +462,65 @@ def create_trans(request, acc_id, trans_type):
 def counter_trans(request):
     if request.method == 'POST':
         trans_id = request.POST['trans_id']
+        acc_id = int(request.POST['acc_id'])
         try:
             trans = Transaction.objects.get(pk=trans_id)
         except:
-            messages.error(request, 'Could not retrieve or remove that transaction.')
-            return redirect(reverse('ledger:show_acc'))
+            messages.error(request, 'Could not retrieve the transaction.')
+            return redirect(reverse('ledger:show_acc', args=(acc_id,)))
         payee = trans.payee
         receiver = trans.receiver
         total = trans.total
         cleared = trans.cleared
         entry = [{
             'description':f'Cancellation of transaction {trans_id}',
-            'amount':total,
+            'amount':str(total),
             'type_code':'NA'
         }]
+
         try:
-            auth_acc = Account.objects.get(file_no='EXTERNAL_auth_acc')
+            cancel_acc = Account.objects.get(file_no='EXTERNAL_cancel_acc')
         except:
-            auth_acc= Account(name='Account for Pre Auth Debit', file_no='EXTERNAL_auth_acc', balance=0)
-            auth_acc.save()
+            cancel_acc= Account(name='Transaction Cancellation acc', file_no='EXTERNAL_cancel_acc', balance=0)
+            cancel_acc.save()
+
         if not cleared:
             if payee.is_office():
-                new_trans = Transaction(total=total, receiver=receiver, payee=receiver, table_list=json.dumps(entry), category='NA', cli_acc=trans.cli_acc, cleared=True)
-        if payee.is_office():
-            if cleared:
-                payee.balance += total
+                payee = cancel_acc
+                receiver.balance += total
+            else:
+                receiver = cancel_acc
+                payee.balance -= total
+
+            new_trans = Transaction(total=total, receiver=payee, payee=receiver, table_list=json.dumps(entry), category='NA', cli_acc=trans.cli_acc, cleared=True)
+            trans.payee = payee
+            trans.receiver = receiver
         else:
-            payee.balance -= total
-        if receiver.is_office():
-            receiver -= total
+            if payee.is_office():
+                payee.balance += total
+            else:
+                payee.balance -= total
+            if receiver.is_office():
+                receiver.balance -= total
+            else:
+                receiver.balance += total
+
+            new_trans = Transaction(total=total, receiver=payee, payee=receiver, table_list=json.dumps(entry), category='NA', cli_acc=trans.cli_acc, cleared=True)
+        
+        try:
+            trans.save()
+            new_trans.save()
+            payee.save()
+            receiver.save()
+            rb_p = Running_Balance(account=payee, transaction=new_trans, value=payee.balance)
+            rb_r = Running_Balance(account=receiver, transaction=new_trans, value=receiver.balance)
+            rb_p.save()
+            rb_r.save()
+        except:
+            messages.error(request, 'Error occurred while saving counter transaction.')
+
         p_rb = Running_Balance(value=total)
-        return redirect(reverse('ledger:show_acc'))
+        return redirect(reverse('ledger:show_acc', args=(acc_id,)))
 
 def create_ad(request, acc_id):
     curr_acc = get_object_or_404(Account, pk = acc_id)
@@ -711,8 +739,10 @@ def custom_receipt(request, acc_id):
 def uncleared(request):
     if request.method == 'GET':
         trans = Transaction.objects.filter(cleared=False)
+        trans_list = [x for x in trans if x.receiver.is_office()]
+        
         context = {
-            'trans':trans,
+            'trans':trans_list,
         }
         return render(request, 'ledger/uncleared.html', context=context)
     else:
