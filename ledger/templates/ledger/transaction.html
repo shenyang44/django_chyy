@@ -265,7 +265,7 @@ $(()=>{
             return;
         } 
         if (!amountCheck()){
-            alert('The transaction amount must be a positive number with 2 decimal places.');
+            alert('The transaction amount must be a positive number with 2 decimal places OR empty.');
             return;
         }
         if (!otherPartyCheck()){
@@ -273,8 +273,8 @@ $(()=>{
             return;
         }
         if (cli_acc_check()){
-            let acc_bal = Math.abs(Number('{{account.balance}}')*100)
-            if (total>acc_bal && debCred == 'deb'){
+            let acc_bal = (Number('{{account.balance}}')*100)
+            if (-total<acc_bal && debCred == 'deb'){
                 alert("The amount being deducted exceeds the account's current balance, please click on AD/AT instead.")
                 return;
             }
