@@ -199,7 +199,7 @@ $(()=>{
 
     // initialising arrays to pass to server.
     let descriptions = [];
-    let amounts = [];
+    let amounts;
     let typeCodes = [];
     let total;
     // checks if all descript class inputs are filled.
@@ -224,16 +224,20 @@ $(()=>{
         return x;
     }
 
-    // checks if all .amount inputs are positive numbs with 2 decimal places.
+    // checks if all .amount inputs are positive numbs with 2 decimal places OR empty.
     amountCheck = () =>{
+        amounts=[];
         total=0;
-        let y = false;
+        let y = true;
         $('.amount').each((i,e)=>{
             let amt = $(e).val();
             if (/^\d+\.\d{2}$/.test(amt)){
                 amounts[i] = amt;
                 total +=  Number(amt*100);
-                y = true
+            } else if (/^$/.test(amt)){
+                amounts[i] = '';
+            } else{
+                y=false;
             }
         })
         return y;

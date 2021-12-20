@@ -1,16 +1,12 @@
 from abc import get_cache_token
 from typing import Type
-
 from django.db.models.fields import NullBooleanField
-
 import ledger
 from django.http.response import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import Http404, HttpResponseRedirect
 from django.urls.base import resolve
 from .models import Account, Transaction, Client_Account, Running_Balance, Type_Code
 from django.urls import reverse
-from django.views import generic
 from django.utils import timezone
 import json
 from django.db.models import Q
@@ -244,7 +240,10 @@ def tax(request, acc_id):
         entries = json.loads(each.table_list)
         for entry in entries:
             if entry['type_code'] == 'PS':
-                total += Decimal(entry['amount'])
+                try:
+                    total += Decimal(entry['amount'])
+                except:
+                    pass
                 entry.update({"id" : each.id, "created_at": each.created_at})
                 ps_trans.append(entry)
     date_to -= timedelta(days=1)
@@ -276,7 +275,10 @@ def total_tax(request):
         entries = json.loads(each.table_list)
         for entry in entries:
             if entry['type_code'] == 'PS':
-                total += Decimal(entry['amount'])
+                try:
+                    total += Decimal(entry['amount'])
+                except:
+                    pass
                 entry.update({"id" : each.id, "created_at": each.created_at})
                 ps_trans.append(entry)
     date_to -= timedelta(days=1)
@@ -364,14 +366,15 @@ def create_trans(request, acc_id, trans_type):
         # iterates over each dict adding decimal vals to total and checking if trans is service tax/fees or advanced transfer.
         table_list_cpy = copy.deepcopy(table_list)
         for each in table_list_cpy:
-            total += Decimal(each['amount'])
+            if each['amount']:
+                total += Decimal(each['amount'])
             # if each['type_code'] in ['RF', 'RS']:
             #     if each['type_code'] == 'RF':
             #         each['type_code'] = 'PF'
             #     else:
             #         each['type_code'] = 'PS'
             #     auto_outgoing_list.append(each)
-            #     auto_outgoing_total += Decimal(each['amount'])
+            #     auto_outgoing_total += Decimal(each['amount']) !!! add an exception if it is an empty string!!!
             # !!!! NEED TO MAKE BELOW AN ELIF !!!!
             if each['type_code'] in ['AD', 'AT']:
                 adv_trans = True
