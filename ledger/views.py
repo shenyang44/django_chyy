@@ -35,11 +35,14 @@ def index(request):
         zipped = None
     return render(request, 'ledger/index.html', {'zipped':zipped})
 
-def show_off(request):
+def show_off(request, off_id=None):
+    date_from = datetime.strptime('2020/01/01', "%Y/%m/%d")
+    date_to=timezone.localdate()
     if request.method == 'POST':
+        if not off_id:
+            off_id = request.POST.get('off_id')
         date_from_inp = request.POST.get('date_from')
         date_to_inp = request.POST.get('date_to')        
-        off_id = request.POST.get('off_id')
         checked = request.POST.get('checked')
         trans_id = request.POST.get('trans_id')
         new_name = request.POST.get('new_name')
@@ -66,9 +69,6 @@ def show_off(request):
         else:
             date_from = datetime.strptime(date_from_inp, "%Y/%m/%d")
             date_to = datetime.strptime(date_to_inp, "%Y/%m/%d")
-    else:
-        date_from = datetime.strptime('2020/01/01', "%Y/%m/%d")
-        date_to=timezone.localdate()
 
     date_to += timedelta(days=1)
 
@@ -193,7 +193,7 @@ def show_acc(request, acc_id):
     except:
         messages.error(request, 'That account does not exist. If you believe this to be a mistake, click on help button.')
         return redirect(reverse('ledger:index'))
-    if account.file_no.startswith('EXTERNAL'):
+    if account.is_external() or account.is_office():
         messages.warning(request, 'Sorry but that account is not viewable. If you believe this is an error, please click on help button.')
         return redirect(reverse('ledger:index'))
     try:
@@ -465,9 +465,10 @@ def counter_trans(request):
         acc_id = int(request.POST['acc_id'])
         try:
             trans = Transaction.objects.get(pk=trans_id)
+            acc = Account.objects.get(pk=acc_id)
         except:
-            messages.error(request, 'Could not retrieve the transaction.')
-            return redirect(reverse('ledger:show_acc', args=(acc_id,)))
+            messages.error(request, 'Could not retrieve the transaction or account.')
+            return redirect(reverse('ledger:index'))
         payee = trans.payee
         receiver = trans.receiver
         total = trans.total
@@ -519,8 +520,10 @@ def counter_trans(request):
         except:
             messages.error(request, 'Error occurred while saving counter transaction.')
 
-        p_rb = Running_Balance(value=total)
-        return redirect(reverse('ledger:show_acc', args=(acc_id,)))
+        if acc.is_office():
+            return redirect(reverse('ledger:show_off', args=(acc_id,)))
+        else:
+            return redirect(reverse('ledger:show_acc', args=(acc_id,)))
 
 def create_ad(request, acc_id):
     curr_acc = get_object_or_404(Account, pk = acc_id)

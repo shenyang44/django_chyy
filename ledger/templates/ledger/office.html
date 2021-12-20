@@ -65,8 +65,9 @@
         <table  class="table">
             <colgroup>
                 <col style="width: 2%;">
-                <col style="width: 10%;">
-                <col style='width: 8%;'>
+                <col style="width: 2%;">
+                <col style="width:10%;">
+                <col style='width: 6%;'>
                 <col style="width:50%">
                 <col style="width:10%">
                 <col style="width:10%;">
@@ -74,6 +75,7 @@
             </colgroup>
             <thead>
                 <tr>
+                    <th scope="col"></th>
                     <th scope="col"></th>
                     <th scope="col" class="text-center">Date</th>
                     <th scope="col" class="text-center">Type</th>
@@ -87,6 +89,37 @@
             {% for trans, entries, rb in trans_zipped %}
                 {% for entry in entries %}
                 <tr class="transRow" data-id="{{trans.id}}">
+                    <td>
+                        {% if forloop.first %}
+                        <div class="modal fade" id="delMod{{trans.id}}" tabindex="-1" aria-labelledby="delModLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="delModLabel">Delete Transaction</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Confirm deletion for:</p>
+                                        <p>
+                                        {{entry.description}} | total : {{trans.total}}
+                                        </p>
+                                        <p>This will create a counter transaction, to correct the account's balance, and does not remove the above transaction from the ledger.</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form method="post" action="{% url 'ledger:counter_trans' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="trans_id" value="{{trans.id}}">
+                                            <input type="hidden" name="acc_id" value="{{off_acc.id}}">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Confirm Removal</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div data-bs-toggle="modal" data-bs-target="#delMod{{trans.id}}" class="red-x" data-id="{{trans.id}}">X</div> 
+                        {% endif %}
+                    </td>
                     <td>
                         {% if forloop.first%}
                         <input class="form-check-input" type="checkbox" name="checked" data-id ='{{trans.id}}' data-off='{{off_acc.id}}' {% if trans.checked %} checked {% endif %}>
@@ -125,10 +158,9 @@
                 <div>
                     Existing Name : {{off_acc.name}}
                 </div>
-                <form id='nameForm{{off_acc.id}}' action="{% url 'ledger:show_off' %}" method="POST"  class="mt-2 ms-1">
+                <form id='nameForm{{off_acc.id}}' action="{% url 'ledger:show_off' off_acc.id %}" method="POST"  class="mt-2 ms-1">
                     {%csrf_token%}
                     <input type="text" name='new_name' placeholder="new name">
-                    <input type="hidden" value='{{off_acc.id}}' name='off_id'>
                 </form>
             </div>
             <div class="modal-footer">
