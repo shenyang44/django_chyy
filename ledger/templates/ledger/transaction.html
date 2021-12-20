@@ -224,7 +224,7 @@ $(()=>{
         return x;
     }
 
-    // checks if all .amount inputs are positive numbs with 2 decimal places.
+    // checks if all .amount inputs are positive numbs with 2 decimal places OR empty.
     amountCheck = () =>{
         amounts=[];
         total=0;
@@ -236,6 +236,8 @@ $(()=>{
                 total +=  Number(amt*100);
             } else if (/^$/.test(amt)){
                 amounts[i] = '';
+            } else{
+                y=false;
             }
         })
         return y;
