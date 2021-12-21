@@ -4,15 +4,15 @@
 {% block body %}
 <div class="fluid-container">
     <div class="row mt-4">
-        <div class="col-lg-3 col-sm-4">
+        <div class="col-xl-3 col-4">
             <table id='legend'>
                 <tr>
-                  <th class="border-end">Code&nbsp;</th>
-                  <th class="ps-1">Meaning</th>
+                  <th class="bordered">Code&nbsp;</th>
+                  <th class="ps-1 bordered">Meaning</th>
                 </tr>
               </table>
         </div>
-        <div class="col-lg-8 col-sm-10">
+        <div class="col-8 col-xxl-7">
             <h3 class="text-center mb-4">New {% if trans_type == 'cre' %}Receipt{%else%}Voucher{% endif %}</h3>
             <form id='transForm' action="{% url 'ledger:create_trans' account.id trans_type %}" method="post" class="mt-3">
                 {% csrf_token %}
@@ -79,8 +79,7 @@
                 <button id='transBtn' disabled type='button' class="btn btn-primary">Confirm</button>
             </form>
         </div>
-        <div class="col-sm">
-        </div>
+        <div class="col-xl"></div>
     </div>
 </div>
 <script charset="utf-8">
@@ -131,7 +130,7 @@ $(()=>{
     options = options.concat(Object.keys(extraTypeCodes))
     meanings = meanings.concat(Object.values(extraTypeCodes))
     for (i = 0; i<options.length; i++){
-        $('#legend').append(`<tr><td>${options[i]}</td><td>${meanings[i]}</td></tr>`)
+        $('#legend').append(`<tr><td class='border'>${options[i]}</td><td class='border'>${meanings[i]}</td></tr>`)
     }
 
     $('table').on('click', '.typeCode', (e)=>{
@@ -178,7 +177,7 @@ $(()=>{
                     </select>
                 </td>
                 <td class='bordered'></td>
-                <td class="bordered"><input type="text" class="descript" id=""></td>
+                <td class="bordered"><input maxlength='55' type="text" class="descript" id=""></td>
                 <td class="bordered"><input type="text" class="amount" id=""></td>
             </tr>
         `)
@@ -209,7 +208,7 @@ $(()=>{
             let desc = $(e).val()
             if (desc == ''){
                 x = false;
-            } else {
+            } else{
                 descriptions[i] = desc;
             }
         })
