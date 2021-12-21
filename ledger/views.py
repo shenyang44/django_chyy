@@ -459,7 +459,10 @@ def create_trans(request, acc_id, trans_type):
         
     else:
         context = trans_cont(acc_id)
-        context.update({'trans_type':trans_type})
+        context.update({
+            'trans_type':trans_type,
+            'adat':False,
+        })
         return render(request, 'ledger/transaction.html', context=context)
 
 def counter_trans(request):
@@ -534,7 +537,11 @@ def create_ad(request, acc_id):
         messages.warning(request, 'Only client files can make AD/AT transactions.')
         return redirect(reverse('ledger:index'))
     context = trans_cont(acc_id)
-    return render(request, 'ledger/adat.html', context=context )
+    context.update({
+        'trans_type':'deb',
+        'adat': True,
+    })
+    return render(request, 'ledger/transaction.html', context=context )
 
 def receipt_voucher_retriever(trans_id):
     transaction = get_object_or_404(Transaction, pk = trans_id)
