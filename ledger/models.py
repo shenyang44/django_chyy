@@ -28,14 +28,15 @@ class Client_Account(models.Model):
     bank_code = models.CharField(max_length=30)
     
 class Account(models.Model):
-    name = models.CharField(max_length=150)
-    file_no = models.CharField(unique=True, max_length=100)
+    name = models.CharField(max_length=100)
+    file_no = models.CharField(unique=True, max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     balance = models.DecimalField(max_digits=11, decimal_places=2)
     client_code = models.CharField(max_length=20, null=True)
     client_account = models.BooleanField(default=False)
     subject_matter = models.TextField(null=True)
+    subject_matters = models.TextField(null=True)
 
     def __str__(self):
         return self.name
