@@ -28,8 +28,8 @@ class Client_Account(models.Model):
     bank_code = models.CharField(max_length=30)
     
 class Account(models.Model):
-    name = models.CharField(max_length=150)
-    file_no = models.CharField(unique=True, max_length=100)
+    name = models.CharField(max_length=100)
+    file_no = models.CharField(unique=True, max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     balance = models.DecimalField(max_digits=11, decimal_places=2)

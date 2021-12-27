@@ -25,4 +25,5 @@ urlpatterns = [
     path('<int:acc_id>/custom-receipt/', views.custom_receipt, name='custom_receipt'),
     path('uncleared-credits/', views.uncleared, name='uncleared'),
     path('counter_trans/', views.counter_trans, name='counter_trans'),
+    path('<int:acc_id>/subj_matter/', views.subj_matter, name='subj_matter'),
 ]

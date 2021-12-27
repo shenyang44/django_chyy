@@ -157,7 +157,8 @@ def create_acc(request):
             balance = -(Decimal(balance))
         else:
             balance = Decimal(balance)
-        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=True, client_code=client_code, subject_matter=subject_matter)
+        subject_matter_list = [subject_matter]
+        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=True, client_code=client_code, subject_matter=json.dumps(subject_matter_list))
         try:
             new_acc.save()
         except:
@@ -220,6 +221,9 @@ def show_acc(request, acc_id):
     }
     return render(request, 'ledger/show-acc.html', context=context)
 
+def subj_matter(request, acc_id):
+    return
+    
 def tax(request, acc_id):
     if request.method == 'POST':
         date_from_inp = request.POST['date_from']

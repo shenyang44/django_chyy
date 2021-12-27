@@ -95,3 +95,10 @@ tr input{
     font-size: 1.1rem;
     color: #bd0000;
 }
+
+#add-img{
+    margin-right: 5em;
+}
+#add-img:hover{
+    cursor: pointer;
+}
