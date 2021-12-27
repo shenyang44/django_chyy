@@ -207,8 +207,17 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <div>
-                Subject Matter : empty
+            <div class="dropdown mb-3">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="subjDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Action
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="subjDropdown">
+                  <li><button class="dropdown-item">Add Subject Matter</button></li>
+                  <li><button class="dropdown-item">Change Subject Matter</button></li>
+                  <li><button class="dropdown-item">Change Default Subject Matter</button></li>
+                </ul>
+              </div>
+            Subject Matter : {{account.subject_matter}}
             <form id='subjForm' action="{% url 'ledger:subj_matter' account.id %}" method="POST" class="mt-2 ms-1">
                 {%csrf_token%}
                 <input type="text" name='new_subj' placeholder="new subject matter">
