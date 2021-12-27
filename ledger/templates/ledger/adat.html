@@ -201,20 +201,7 @@ $(()=>{
     })
     // 2 buttons to add or remove input rows.
     $('#addBtn').click(()=>{
-        $('table').append(`
-            <tr class='trIn'>
-                <td class="bordered">
-                    <select class='typeCode' style="width: 100%;">
-                        <option value=""></option>
-                        <option value="AD">AD</option>
-                        <option value="AT">AT</option>
-                    </select>
-                </td>
-                <td class='bordered'></td>
-                <td class="bordered"><input maxlength='55' type="text" class="descript" id=""></td>
-                <td class="bordered"><input type="text" class="amount" id=""></td>
-            </tr>
-        `)
+        
     })
     $('#rmvBtn').click(()=>{
         if ($('.trIn').lenth > 1){
