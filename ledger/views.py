@@ -212,18 +212,38 @@ def show_acc(request, acc_id):
         
     balance = brace_num(account.balance)
     date_to -= timedelta(days=1)
+
+    try:
+        subj_list = json.loads(account.subj_list)
+        subj_list.remove(account.subject_matter)
+    except:
+        subj_list=None
     context={
         'account':account,
         'trans_zipped': zip(transactions, entries_list, rb_list),
         'balance' : balance,
         'date_from': date_from.strftime('%Y/%m/%d'),
         'date_to': date_to.strftime('%Y/%m/%d'),
+        'subj_list': subj_list,
     }
     return render(request, 'ledger/show-acc.html', context=context)
 
 def subj_matter(request, acc_id):
     if request.method == 'POST':
         new_subj = request.POST.get('new_subj')
+        if new_subj:
+            account = Account.objects.get(pk=acc_id)
+            try:
+                subj_list = json.loads(account.subj_list)
+                subj_list.append(new_subj)
+                print(subj_list, new_subj)
+            except:
+                if account.subject_matter:
+                    subj_list = [account.subject_matter, new_subj]
+                else:
+                    subj_list = [new_subj]
+            account.subj_list = json.dumps(subj_list)
+            account.save()
         return redirect(reverse('ledger:show_acc', args=(acc_id,)))
 
 def tax(request, acc_id):
