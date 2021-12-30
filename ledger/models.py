@@ -36,7 +36,7 @@ class Account(models.Model):
     client_code = models.CharField(max_length=20, null=True)
     client_account = models.BooleanField(default=False)
     subject_matter = models.TextField(null=True)
-    subject_matters = models.TextField(null=True)
+    subj_list = models.TextField(null=True)
 
     def __str__(self):
         return self.name
@@ -72,6 +72,7 @@ class Transaction(models.Model):
     cli_acc = models.ForeignKey(Client_Account, related_name='transactions', on_delete=models.CASCADE, null=True)
     ad_link = models.ForeignKey('self', related_name='cli_ad_link', null=True, on_delete=models.CASCADE)
     checked = models.BooleanField(default=False)
+    subj_matter = models.TextField(null=True)
 
     def __str__(self):
         entries = json.loads(self.table_list)

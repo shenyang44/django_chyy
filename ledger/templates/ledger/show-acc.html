@@ -207,25 +207,42 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <div class="dropdown mb-3">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="subjDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="dropdown mb-3 d-flex justify-content-center">
+                <button class="btn btn-outline-primary dropdown-toggle" type="button" id="subjDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                     Action
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="subjDropdown">
-                  <li><button class="dropdown-item">Add Subject Matter</button></li>
-                  <li><button class="dropdown-item">Change Subject Matter</button></li>
-                  <li><button class="dropdown-item">Change Default Subject Matter</button></li>
+                  <li><button id='addSubj' class="dropdown-item">Add Subject Matter</button></li>
+                  <li><button id='editSubj' class="dropdown-item">Edit Subject Matter Spelling</button></li>
+                  <li><button id='changeSubj' class="dropdown-item">Change Default Subject Matter</button></li>
                 </ul>
-              </div>
-            Subject Matter : {{account.subject_matter}}
+            </div>
+            <p>
+                <ul>Default Subject Matter : {{account.subject_matter}}</ul>
+            </p>
+            <p>
+                {% if subj_list %}
+                    <ul>
+                    Other Subject Matters :
+                        {% for each in subj_list %}
+                        <li>
+                            {{each}}
+                        </li>
+                        {% endfor %}
+                        
+                    </ul>
+                {% else %}
+                    <span style="color:grey;">No other subject matters</span>
+                {% endif %}
+            </p>
             <form id='subjForm' action="{% url 'ledger:subj_matter' account.id %}" method="POST" class="mt-2 ms-1">
                 {%csrf_token%}
-                <input type="text" name='new_subj' placeholder="new subject matter">
+                <div id='subjFormDiv'></div>
             </form>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary subBtn">Save changes</button>
+            <button type="button" id='subBtn' class="btn btn-primary">Save changes</button>
         </div>
         </div>
     </div>
@@ -253,6 +270,48 @@
             } else{
                 alert('Both "Date From" and "Date To" must be selected.')
             }
+        })
+        let subjForm = $('#subjForm');
+        let subjFormDiv = $('#subjFormDiv');
+        let subjList = JSON.parse('{{json_subj_list|escapejs}}');
+        $('#addSubj').click(()=>{
+            subjFormDiv.html(`
+                <div class="mb-3">
+                    <label for='newSubj' class='form-label'>New Subject Matter:</label>
+                    <input id='newSubj' class='form-control' type="text" name='new_subj' placeholder="new subject matter">
+                </div>
+            `)
+        })
+        let optText = '';
+        for(let i=0; i<subjList.length; i++){
+            optText+= `
+            <option value=${subjList[i]}>${subjList[i]}</option>
+            `
+        }
+        $('#editSubj').click(()=>{
+            subjFormDiv.html(`
+                <label for='subjSelect' class='form-label'>Subject Matter to Edit:</label>
+                <select name="to_edit" id="subjSelect">
+                    ${optText}
+                </select>
+                <div class="mb-3">
+                    <label for='editName' class='form-label'>Correct Subject Matter:</label>
+                    <input id ='editName' class='form-control' type="text" name='edited_name'>
+                </div>
+            `)
+        })
+        $('#changeSubj').click(()=>{
+            subjFormDiv.html(`
+                <p>
+                    New Default Subject:
+                </p>
+                <select name="new_default" id="subjSelect">
+                    ${optText}
+                </select>
+            `)
+        })
+        $('#subBtn').click(()=>{
+            subjForm.submit()
         })
     })
 </script>
