@@ -234,6 +234,9 @@ def show_acc(request, acc_id):
 def subj_matter(request, acc_id):
     if request.method == 'POST':
         new_subj = request.POST.get('new_subj')
+        new_default = request.POST.get('new_default')
+        to_edit = request.POST.get('to_edit')
+        edited_name = request.POST.get('edited_name')
         if new_subj:
             account = Account.objects.get(pk=acc_id)
             try:

@@ -218,12 +218,12 @@
                 </ul>
             </div>
             <p>
-                Default Subject Matter : {{account.subject_matter}}
+                <ul>Default Subject Matter : {{account.subject_matter}}</ul>
             </p>
             <p>
-                Other Subject Matters :
                 {% if subj_list %}
                     <ul>
+                    Other Subject Matters :
                         {% for each in subj_list %}
                         <li>
                             {{each}}
@@ -282,7 +282,6 @@
                 </div>
             `)
         })
-        console.log((subjList))
         let optText = '';
         for(let i=0; i<subjList.length; i++){
             optText+= `
@@ -291,18 +290,23 @@
         }
         $('#editSubj').click(()=>{
             subjFormDiv.html(`
-                <select name="cars" id="cars">
+                <label for='subjSelect' class='form-label'>Subject Matter to Edit:</label>
+                <select name="to_edit" id="subjSelect">
                     ${optText}
                 </select>
                 <div class="mb-3">
-                    <label for='newSubj' class='form-label'>New Subject Matter:</label>
-                    <input id ='newSubj' class='form-control' type="text" name='new_subj' placeholder="iamyitngi">
+                    <label for='editName' class='form-label'>Correct Subject Matter:</label>
+                    <input id ='editName' class='form-control' type="text" name='edited_name'>
                 </div>
             `)
         })
         $('#changeSubj').click(()=>{
             subjFormDiv.html(`
-                <select name="cars" id="cars">
+                <p>
+                    New Default Subject:
+                </p>
+                <select name="new_default" id="subjSelect">
+                    ${optText}
                 </select>
             `)
         })
