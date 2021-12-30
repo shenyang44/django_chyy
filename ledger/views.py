@@ -215,7 +215,9 @@ def show_acc(request, acc_id):
 
     try:
         subj_list = json.loads(account.subj_list)
+        json_subj_list = json.dumps(subj_list)
         subj_list.remove(account.subject_matter)
+       
     except:
         subj_list=None
     context={
@@ -225,6 +227,7 @@ def show_acc(request, acc_id):
         'date_from': date_from.strftime('%Y/%m/%d'),
         'date_to': date_to.strftime('%Y/%m/%d'),
         'subj_list': subj_list,
+        'json_subj_list' : json_subj_list,
     }
     return render(request, 'ledger/show-acc.html', context=context)
 

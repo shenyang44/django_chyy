@@ -271,9 +271,9 @@
                 alert('Both "Date From" and "Date To" must be selected.')
             }
         })
-        let subjForm = $('#subjForm')
-        let subjFormDiv = $('#subjFormDiv')
-        let subjList = '{{subj_list|escapejs}}'
+        let subjForm = $('#subjForm');
+        let subjFormDiv = $('#subjFormDiv');
+        let subjList = JSON.parse('{{json_subj_list|escapejs}}');
         $('#addSubj').click(()=>{
             subjFormDiv.html(`
                 <div class="mb-3">
@@ -282,9 +282,17 @@
                 </div>
             `)
         })
+        console.log((subjList))
+        let optText = '';
+        for(let i=0; i<subjList.length; i++){
+            optText+= `
+            <option value=${subjList[i]}>${subjList[i]}</option>
+            `
+        }
         $('#editSubj').click(()=>{
             subjFormDiv.html(`
                 <select name="cars" id="cars">
+                    ${optText}
                 </select>
                 <div class="mb-3">
                     <label for='newSubj' class='form-label'>New Subject Matter:</label>
