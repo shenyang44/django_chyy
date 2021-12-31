@@ -237,19 +237,27 @@ def subj_matter(request, acc_id):
         new_default = request.POST.get('new_default')
         to_edit = request.POST.get('to_edit')
         edited_name = request.POST.get('edited_name')
-        if new_subj:
-            account = Account.objects.get(pk=acc_id)
-            try:
+
+        account = Account.objects.get(pk=acc_id)
+        try:
                 subj_list = json.loads(account.subj_list)
-                subj_list.append(new_subj)
-                print(subj_list, new_subj)
-            except:
-                if account.subject_matter:
-                    subj_list = [account.subject_matter, new_subj]
-                else:
-                    subj_list = [new_subj]
-            account.subj_list = json.dumps(subj_list)
-            account.save()
+        except:
+            if account.subject_matter:
+                subj_list = [account.subject_matter]
+            else:
+                subj_list = []
+
+        if new_subj:
+            subj_list.append(new_subj)
+        elif to_edit:
+            subj_list[subj_list.index(to_edit)] = edited_name
+            if account.subject_matter == to_edit:
+                account.subject_matter = edited_name
+        elif new_default:
+            account.subject_matter = new_default
+
+        account.subj_list = json.dumps(subj_list)
+        account.save()
         return redirect(reverse('ledger:show_acc', args=(acc_id,)))
 
 def tax(request, acc_id):
@@ -338,6 +346,12 @@ def trans_cont(acc_id):
     for each in type_codes:
         tc_dict[each.code] = each.description
     balance = brace_num(account.balance)
+
+    if account.subj_list:
+        subj_list = json.loads(account.subj_list)
+        subj_list.remove(account.subject_matter)
+    else:
+        subj_list=None
     context = {
         'account':account,
         'off_accs':off_accs,
@@ -345,6 +359,7 @@ def trans_cont(acc_id):
         'balance' : balance,
         'cli_accs': cli_accs,
         'tc_dict': json.dumps(tc_dict),
+        'subj_list': subj_list,
     }
     return context
 

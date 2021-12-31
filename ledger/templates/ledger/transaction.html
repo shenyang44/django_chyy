@@ -27,6 +27,21 @@
                     <div>Name : {{account.name}}</div>
                     <div>Balance : {{balance}}</div>
                 </div>
+                {% if not account.is_office %}
+                <div class="mb-4 d-flex fs-5">
+                    <div>Subject Matter :</div>
+                    {% if subj_list %}
+                    <select class="form-select w-75 ms-2" aria-label="subject matter selector">
+                        <option selected value="{{account.subject_matter}}">{{account.subject_matter}}</option>
+                        {% for each in subj_list %}
+                            <option value="{{each}}">{{each}}</option>
+                        {% endfor %}
+                    </select>
+                    {% else %}
+                        <div class="ms-2">{{account.subject_matter}}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
                 <hr>
                 <div id = 'otherDiv' class="d-flex justify-content-between mb-3">
                     <div class="w-50">
