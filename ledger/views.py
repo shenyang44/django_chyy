@@ -246,7 +246,7 @@ def subj_matter(request, acc_id):
 
         account = Account.objects.get(pk=acc_id)
         try:
-                subj_list = json.loads(account.subj_list)
+            subj_list = json.loads(account.subj_list)
         except:
             if account.subject_matter:
                 subj_list = [account.subject_matter]
@@ -260,6 +260,7 @@ def subj_matter(request, acc_id):
             if account.subject_matter == to_edit:
                 account.subject_matter = edited_name
         elif new_default:
+            print(new_default, subj_list)
             account.subject_matter = new_default
 
         account.subj_list = json.dumps(subj_list)
@@ -382,6 +383,7 @@ def create_trans(request, acc_id, trans_type):
         cheque_text = request.POST['cheque_text']
         other_name = request.POST['other_name']
         curr_account = get_object_or_404(Account, pk=acc_id)
+        subject_matter = request.POST.get('subject_matter')
         resolved = True
         # model self ref prop is none unless it is an advance disburse, in which case, it links to the transaction made on the Off Acc.
         ad_link = None
@@ -464,7 +466,7 @@ def create_trans(request, acc_id, trans_type):
         else:
             cleared = False
 
-        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc=cli_acc, cleared=cleared)
+        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc=cli_acc, cleared=cleared, subj_matter=subject_matter)
         
         try:
             new_trans.save()
