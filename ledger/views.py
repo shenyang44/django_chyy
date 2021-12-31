@@ -214,12 +214,18 @@ def show_acc(request, acc_id):
     date_to -= timedelta(days=1)
 
     try:
-        subj_list = json.loads(account.subj_list)
-        json_subj_list = json.dumps(subj_list)
+        json_subj_list = account.subj_list
+        subj_list = json.loads(json_subj_list)
         subj_list.remove(account.subject_matter)
-       
     except:
         subj_list=None
+        if account.subject_matter:
+            account.subj_list = json.dumps([account.subject_matter])
+            account.save()
+            json_subj_list = account.subj_list
+        else:
+            json_subj_list = '[]'
+
     context={
         'account':account,
         'trans_zipped': zip(transactions, entries_list, rb_list),
@@ -237,19 +243,28 @@ def subj_matter(request, acc_id):
         new_default = request.POST.get('new_default')
         to_edit = request.POST.get('to_edit')
         edited_name = request.POST.get('edited_name')
+
+        account = Account.objects.get(pk=acc_id)
+        try:
+            subj_list = json.loads(account.subj_list)
+        except:
+            if account.subject_matter:
+                subj_list = [account.subject_matter]
+            else:
+                subj_list = []
+
         if new_subj:
-            account = Account.objects.get(pk=acc_id)
-            try:
-                subj_list = json.loads(account.subj_list)
-                subj_list.append(new_subj)
-                print(subj_list, new_subj)
-            except:
-                if account.subject_matter:
-                    subj_list = [account.subject_matter, new_subj]
-                else:
-                    subj_list = [new_subj]
-            account.subj_list = json.dumps(subj_list)
-            account.save()
+            subj_list.append(new_subj)
+        elif to_edit:
+            subj_list[subj_list.index(to_edit)] = edited_name
+            if account.subject_matter == to_edit:
+                account.subject_matter = edited_name
+        elif new_default:
+            print(new_default, subj_list)
+            account.subject_matter = new_default
+
+        account.subj_list = json.dumps(subj_list)
+        account.save()
         return redirect(reverse('ledger:show_acc', args=(acc_id,)))
 
 def tax(request, acc_id):
@@ -338,6 +353,12 @@ def trans_cont(acc_id):
     for each in type_codes:
         tc_dict[each.code] = each.description
     balance = brace_num(account.balance)
+
+    if account.subj_list:
+        subj_list = json.loads(account.subj_list)
+        subj_list.remove(account.subject_matter)
+    else:
+        subj_list=None
     context = {
         'account':account,
         'off_accs':off_accs,
@@ -345,6 +366,7 @@ def trans_cont(acc_id):
         'balance' : balance,
         'cli_accs': cli_accs,
         'tc_dict': json.dumps(tc_dict),
+        'subj_list': subj_list,
     }
     return context
 
@@ -361,6 +383,7 @@ def create_trans(request, acc_id, trans_type):
         cheque_text = request.POST['cheque_text']
         other_name = request.POST['other_name']
         curr_account = get_object_or_404(Account, pk=acc_id)
+        subject_matter = request.POST.get('subject_matter')
         resolved = True
         # model self ref prop is none unless it is an advance disburse, in which case, it links to the transaction made on the Off Acc.
         ad_link = None
@@ -443,7 +466,7 @@ def create_trans(request, acc_id, trans_type):
         else:
             cleared = False
 
-        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc=cli_acc, cleared=cleared)
+        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc=cli_acc, cleared=cleared, subj_matter=subject_matter)
         
         try:
             new_trans.save()

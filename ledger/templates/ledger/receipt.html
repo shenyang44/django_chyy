@@ -17,7 +17,7 @@
         </div>
     </section>
     <div class="row justify-content-center mb-3">
-        <div class="col-10 d-flex">RE&nbsp;<div class="border-bottom border-dark w-100">&nbsp;{{transaction.receiver.subject_matter}}</div></div>
+        <div class="col-10 d-flex">RE&nbsp;<div class="border-bottom border-dark w-100">&nbsp;{% if transaction.subj_matter %}{{transaction.subj_matter}}{% else %}{{transaction.receiver.subject_matter}}{% endif %}</div></div>
     </div>
     <div class="row mb-3">
         <div class="col-auto">Received from:</div>
