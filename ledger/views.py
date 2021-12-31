@@ -214,12 +214,18 @@ def show_acc(request, acc_id):
     date_to -= timedelta(days=1)
 
     try:
-        subj_list = json.loads(account.subj_list)
-        json_subj_list = json.dumps(subj_list)
+        json_subj_list = account.subj_list
+        subj_list = json.loads(json_subj_list)
         subj_list.remove(account.subject_matter)
-       
     except:
         subj_list=None
+        if account.subject_matter:
+            account.subj_list = json.dumps([account.subject_matter])
+            account.save()
+            json_subj_list = account.subj_list
+        else:
+            json_subj_list = '[]'
+
     context={
         'account':account,
         'trans_zipped': zip(transactions, entries_list, rb_list),
