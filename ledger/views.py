@@ -243,8 +243,8 @@ def subj_matter(request, acc_id):
         new_default = request.POST.get('new_default')
         to_edit = request.POST.get('to_edit')
         edited_name = request.POST.get('edited_name')
-
         account = Account.objects.get(pk=acc_id)
+
         try:
             subj_list = json.loads(account.subj_list)
         except:
@@ -260,7 +260,6 @@ def subj_matter(request, acc_id):
             if account.subject_matter == to_edit:
                 account.subject_matter = edited_name
         elif new_default:
-            print(new_default, subj_list)
             account.subject_matter = new_default
 
         account.subj_list = json.dumps(subj_list)
