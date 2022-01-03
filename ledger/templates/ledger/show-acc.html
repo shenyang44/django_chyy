@@ -18,8 +18,7 @@
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="{% url 'ledger:custom_receipt' account.id %}">Print Custom Receipt</a></li>
             </ul>
-          </div>
-        
+        </div>   
         <div class="btn-group">
             <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle='dropdown' aria-expanded="false" >
                 New Transaction
@@ -37,10 +36,10 @@
                 Edit Info
             </button>
             <ul class="dropdown-menu">
-                <li class="dropdown-item" data-bs-toggle="modal" data-bs-target="addSubjModal">Edit Subject Matter</li>
-                <li class="dropdown-item" data-bs-toggle='modal' data-bs-target='editInfoModal'>Edit Client Code</li>
-                <li class="dropdown-item" data-bs-toggle='modal' data-bs-target='editInfoModal'> Edit Name</li>
-                <li class="dropdown-item" data-bs-toggle='modal' data-bs-target='editInfoModal'>Edit File Ref</li>
+                <li><a href='' class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addSubjModal"> Edit Subject Matter</a></li>
+                <li class="dropdown-item editBtn" data-bs-toggle='modal' data-bs-target='#editInfoModal' data-current='Current Client Code : {{account.client_code}}' data-label='New Client Code:' data-name='code'>Edit Client Code</li>
+                <li class="dropdown-item editBtn" data-bs-toggle='modal' data-bs-target='#editInfoModal' data-current="Current Name : {{account.name}}" data-label='New Name:' data-name='name'>Edit Name</li>
+                <li class="dropdown-item editBtn" data-bs-toggle='modal' data-bs-target='#editInfoModal' data-current="Current File Ref: {{account.file_no}}" data-label='New File Ref:' data-name='ref'>Edit File Ref</li>
               </ul>
         </div>
         
@@ -255,49 +254,29 @@
     </div>
 </div>
 <!-- Editing other user info modal -->
-<div class="modal fade" id="editInfoModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+<div class="modal fade" id="editInfoModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title" id="modalLabel">Subject Matter Adding/Changing</h5>
+            <h5 class="modal-title" id="editModalLabel">Editing</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <div class="dropdown mb-3 d-flex justify-content-center">
-                <button class="btn btn-outline-primary dropdown-toggle" type="button" id="subjDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    Action
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="subjDropdown">
-                  <li><button id='addSubj' class="dropdown-item">Add Subject Matter</button></li>
-                  <li><button id='editSubj' class="dropdown-item">Edit Subject Matter Spelling</button></li>
-                  <li><button id='changeSubj' class="dropdown-item">Change Default Subject Matter</button></li>
-                </ul>
-            </div>
-            <p>
-                <ul>Default Subject Matter : {{account.subject_matter}}</ul>
-            </p>
-            <p>
-                {% if subj_list %}
-                    <ul>
-                    Other Subject Matters :
-                        {% for each in subj_list %}
-                        <li>
-                            {{each}}
-                        </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <span style="color:grey;">No other subject matters</span>
-                {% endif %}
-            </p>
-            <form id='subjForm' action="{% url 'ledger:subj_matter' account.id %}" method="POST" class="mt-2 ms-1">
+            <form id='editForm' action="{% url 'ledger:edit_info' account.id %}" method="POST" class="mt-2 ms-1 mb-3">
                 {%csrf_token%}
-                <div id='subjFormDiv'></div>
+                <p id='currentP'>
+                </p>
+                <label class='form-label' for="editInp" id='editInpLabel'></label>
+                <input type="text" name=""  class='form-control' id="editInp">
+                <div id='editFormDiv'></div>
             </form>
+            <p>
+                Changes made here will reflect when viewing and printing vouchers and receipts prior to the change.
+            </p>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" id='subBtn' class="btn btn-primary">Save changes</button>
+            <button type="button" id='editSubBtn' class="btn btn-primary">Save changes</button>
         </div>
         </div>
     </div>
@@ -366,7 +345,15 @@
             `)
         })
         $('#subBtn').click(()=>{
-            subjForm.submit()
+            subjForm.submit();
+        })
+        $('.editBtn').click((e)=>{
+            $('#currentP').text($(e.target).attr('data-current'));
+            $('#editInpLabel').text($(e.target).attr('data-label'));
+            $('#editInp').attr('name', $(e.target).attr('data-name'))
+        })
+        $('#editSubBtn').click(()=>{
+            $('#editForm').submit();
         })
     })
 </script>

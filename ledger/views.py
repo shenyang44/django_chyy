@@ -238,7 +238,22 @@ def show_acc(request, acc_id):
     return render(request, 'ledger/show-acc.html', context=context)
 
 def edit_info(request, acc_id):
-    return redirect(reverse('ledger:show_acc', args=(acc_id,)))
+    if request.method == "POST":
+        new_name = request.POST.get('name')
+        new_code = request.POST.get('code')
+        new_ref = request.POST.get('ref')
+        account = Account.objects.get(pk = acc_id)
+        if new_name:
+            account.name = new_name
+        elif new_code:
+            account.client_code = new_code
+        elif new_ref:
+            account.file_no = new_ref
+        else:
+            messages.error(request, 'No information was received in edit_info function.')
+        account.save()
+        return redirect(reverse('ledger:show_acc', args=(acc_id,)))
+
 def subj_matter(request, acc_id):
     if request.method == 'POST':
         new_subj = request.POST.get('new_subj')
