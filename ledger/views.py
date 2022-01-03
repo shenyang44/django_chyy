@@ -237,6 +237,8 @@ def show_acc(request, acc_id):
     }
     return render(request, 'ledger/show-acc.html', context=context)
 
+def edit_info(request, acc_id):
+    return redirect(reverse('ledger:show_acc', args=(acc_id,)))
 def subj_matter(request, acc_id):
     if request.method == 'POST':
         new_subj = request.POST.get('new_subj')
