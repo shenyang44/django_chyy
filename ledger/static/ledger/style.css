@@ -102,3 +102,7 @@ tr input{
 #add-img:hover{
     cursor: pointer;
 }
+
+.editBtn:hover{
+    cursor: pointer;
+}
