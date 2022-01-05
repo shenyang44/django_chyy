@@ -118,7 +118,7 @@ $(()=>{
     const ADAT = ('{{adat}}'=='True') ? true : false;
     let transBtn = $('#transBtn');
     let otherParty = $('#otherParty');
-    // if other is selected then input is added for account name.
+    // Label and input change for other party depending on what was selected.
     otherParty.change((e)=>{
         let currVal = $(e.target).val()
         $('#otherInput').remove()
