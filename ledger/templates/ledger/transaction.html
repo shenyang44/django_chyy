@@ -1,6 +1,5 @@
 {% extends 'ledger/layout.html' %}
 {% block title %}New Transaction{% endblock %}
-
 {% block body %}
 <div class="fluid-container">
     <div class="row mt-4">
@@ -214,7 +213,7 @@ $(()=>{
                 </tr>
             `)
             } else{
-                let optTxt = '<option value = ""></option>';
+                let optTxt = '';
                 for (i = 0; i < options.length; i++){
                     optTxt += `<option value="${options[i]}">${options[i]}</option>`
                 }
@@ -231,7 +230,8 @@ $(()=>{
                     </tr>
                 `)   
             }
-            btnUpdate()
+            $('.typeCode').select2();
+            btnUpdate();
         }
     })
 
