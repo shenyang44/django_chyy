@@ -106,3 +106,7 @@ tr input{
 .editBtn:hover{
     cursor: pointer;
 }
+
+.typeCode{
+    width: 100%!important;
+}

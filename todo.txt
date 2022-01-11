@@ -1,2 +1,3 @@
-subj matter saving for transactions
+saving just the code for office transactions
+
 make date times tz aware
