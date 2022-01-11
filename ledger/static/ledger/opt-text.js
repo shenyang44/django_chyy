@@ -1,4 +1,4 @@
-off_codes = {
+let offCodesObj = {
     '0501': 'RETAINED PROFIT & LOSS',
     '1019': 'PBB - OFFICE A/C',
     '6001':'OPENING STOCK',
@@ -172,4 +172,10 @@ off_codes = {
     'EXP89':'ANNUAL DINNER',
     'EXP90':'SPONSORSHIP',
     'INC6':'OTHER INCOME',
+}
+function offCodes(){
+    return(Object.keys(offCodesObj))
+}
+function offDescs(){
+    return(Object.values(offCodesObj))
 }
