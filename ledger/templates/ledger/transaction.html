@@ -190,21 +190,8 @@ $(()=>{
         }
     }
     }
-    
-    // Fill category col based on selected typecode
-    if (!isOffice){
-        $('body').on('select2:select', (e)=>{
-            let cat;
-            let typeCode = e.params.data.text
-            if (typeCode == 'RFDG'){
-                cat = 'RO'
-            } else{
-                cat = typeCode.slice(0, 2)
-            }    
-            $(e.target).parent().next().text(cat);
-    })
-    }
-    
+
+    // checks if all select fields are filled.
     btnUpdate = () =>{
         let btnValid = true;
         $('select').each((i, e)=>{
@@ -220,6 +207,25 @@ $(()=>{
         }
     }
 
+    
+    // Fill category col based on selected typecode
+   
+        $('body').on('select2:select', (e)=>{
+            if (!isOffice){
+                let cat;
+                let typeCode = e.params.data.text
+                if (typeCode == 'RFDG'){
+                    cat = 'RO'
+                } else{
+                    cat = typeCode.slice(0, 2)
+                }    
+                $(e.target).parent().next().text(cat);
+                
+            }
+            btnUpdate()
+    })
+    
+    
     // 2 buttons to add or remove input rows.
     const addBtn = $('#addBtn')
     addBtn.click(()=>{
