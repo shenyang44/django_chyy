@@ -118,7 +118,7 @@
                 </div>
             </form>
         </div>
-        {% if account.is_office %}
+        {% if account.is_office or adat %}
         <div class="col"></div>
         {% else %}
         <div class="col-xl"></div>
@@ -191,18 +191,20 @@ $(()=>{
     }
     }
     
-    
     // Fill category col based on selected typecode
-    $('table').on('click', '.typeCode', (e)=>{
-        let typeCode = $(e.target).val()
-        let cat;
-        if (typeCode == 'RFDG'){
-            cat = 'RO'
-        } else{
-            cat = typeCode.slice(0, 2)
-        }
-        $(e.target).parent().next().text(cat)
+    if (!isOffice){
+        $('body').on('select2:select', (e)=>{
+            let cat;
+            let typeCode = e.params.data.text
+            if (typeCode == 'RFDG'){
+                cat = 'RO'
+            } else{
+                cat = typeCode.slice(0, 2)
+            }    
+            $(e.target).parent().next().text(cat);
     })
+    }
+    
     btnUpdate = () =>{
         let btnValid = true;
         $('select').each((i, e)=>{
@@ -232,7 +234,7 @@ $(()=>{
                             <option value="AT">AT</option>
                         </select>
                     </td>
-                    <td class='bordered'></td>
+                    <td class='bordered cat-td'></td>
                     <td class="bordered"><input maxlength='55' type="text" class="descript" id=""></td>
                     <td class="bordered"><input type="text" class="amount" id=""></td>
                 </tr>
@@ -258,7 +260,7 @@ $(()=>{
                                 ${optTxt}
                             </select>
                         </td>
-                        <td class='bordered'></td>
+                        <td class='bordered cat-td'></td>
                         <td class="bordered"><input maxlength='55' type="text" class="descript" id=""></td>
                         <td class="bordered"><input type="text" class="amount" id=""></td>
                     </tr>
