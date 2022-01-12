@@ -131,7 +131,7 @@
                     <td class="text-center">{{entry.type_code}}</td>
                     <td class="text-end border-end">{{trans.id}}</td>
                     <td>
-                        {% if trans.category == 'AD' or trans.category == 'AT' %}
+                        {% if entry.type_code == 'AD' or trans.type_code == 'AT' %}
                             {{entry.description}}
                         {% else %}
                             {% if trans.payee.name != off_acc.name %}
