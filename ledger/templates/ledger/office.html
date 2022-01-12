@@ -131,14 +131,18 @@
                     <td class="text-center">{{entry.type_code}}</td>
                     <td class="text-end border-end">{{trans.id}}</td>
                     <td>
-                        {% if trans.payee.name != off_acc.name %}
-                            {{trans.payee.name}}
+                        {% if trans.category == 'AD' or trans.category == 'AT' %}
+                            {{entry.description}}
                         {% else %}
-                            <a href="{% url 'ledger:voucher' trans.id %}" class="hidden-links" id='vouch{{trans.id}}'></a>
-                            {{trans.receiver.name}}
-                        {% endif %}
-                        &nbsp;-&nbsp;
-                        {{entry.description}}
+                            {% if trans.payee.name != off_acc.name %}
+                                {{trans.payee.name}}
+                            {% else %}
+                                <a href="{% url 'ledger:voucher' trans.id %}" class="hidden-links" id='vouch{{trans.id}}'></a>
+                                {{trans.receiver.name}}
+                            {% endif %}
+                            &nbsp;-&nbsp;
+                            {{entry.description}}
+                        {%endif%}
                     </td>
                     <td class="text-center">{% if trans.payee.file_no == off_acc.file_no %}{{entry.amount}} {% endif %}</td>
                     <td class="text-center">{% if trans.receiver.file_no == off_acc.file_no %}{{entry.amount}}{% endif %}</td>
