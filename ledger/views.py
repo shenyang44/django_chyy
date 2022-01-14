@@ -430,8 +430,6 @@ def create_trans(request, acc_id, trans_type):
             payee = curr_account
             receiver = other_party
 
-        # auto_outgoing_list = []
-        # auto_outgoing_total = 0
         total = 0
         adv_trans = False
 
@@ -440,14 +438,6 @@ def create_trans(request, acc_id, trans_type):
         for each in table_list_cpy:
             if each['amount']:
                 total += Decimal(each['amount'])
-            # if each['type_code'] in ['RF', 'RS']:
-            #     if each['type_code'] == 'RF':
-            #         each['type_code'] = 'PF'
-            #     else:
-            #         each['type_code'] = 'PS'
-            #     auto_outgoing_list.append(each)
-            #     auto_outgoing_total += Decimal(each['amount']) !!! add an exception if it is an empty string!!!
-            # !!!! NEED TO MAKE BELOW AN ELIF !!!!
             if each['type_code'] in ['AD', 'AT']:
                 adv_trans = True
                 each['description'] = f"{curr_account.client_code} | {each['description']}"
@@ -500,29 +490,6 @@ def create_trans(request, acc_id, trans_type):
                 receiver_rb.save()
         except:
             return trans_save_err(request, curr_account.id)
-
-        # if auto_outgoing_list:
-        #     curr_account.balance += auto_outgoing_total
-        #     off_acc = Account.objects.filter(file_no__startswith='OFFICE')
-        #     off_acc = off_acc[0]
-        #     off_acc.balance += auto_outgoing_total
-        #     messages.warning(request, 'currently the office account being credited for the auto transaction is fixed')
-        #     auto_trans = Transaction(payee=curr_account, receiver=off_acc, table_list=json.dumps(auto_outgoing_list), total = auto_outgoing_total, cheque_text="Auto outgoing transaction")
-        #     try:
-        #         auto_trans.save()
-        #         off_acc.save()
-        #         curr_account.save()
-        #     except:
-        #         return trans_save_err(request, curr_account.id)
-            
-        #     off_rb = Running_Balance(account = off_acc, transaction = auto_trans, value = off_acc.balance)
-        #     curr_rb = Running_Balance(account = curr_account, transaction = auto_trans, value = curr_account.balance)
-
-        #     try:
-        #         off_rb.save()
-        #         curr_rb.save()
-        #     except:
-        #         return trans_save_err(request, curr_account.id)
 
         if curr_account == payee:
             return redirect(reverse('ledger:voucher', args=(new_trans.id,)))
@@ -783,7 +750,7 @@ def resolve(request, trans_id):
         try:
             auth_acc = Account.objects.get(file_no='EXTERNAL_auth_acc')
         except:
-            auth_acc= Account(name='Account for Pre Auth Debit', file_no='EXTERNAL_auth_acc', balance=0)
+            auth_acc= Account(name='Account for Pre-auth Debit', file_no='EXTERNAL_auth_acc', balance=0)
             auth_acc.save()
         pre_auth_debit = Transaction(payee=auth_acc, receiver=acc, table_list=json.dumps(table_list), total=total, cheque_text='customisable')
         trans.resolved = True
@@ -805,7 +772,6 @@ def resolve(request, trans_id):
         rb1.save()
         rb2.save()
         messages.success(request, 'Successfully resolved.')
-        messages.warning(request, 'Finalise account to debit for preauth.')
         return redirect(reverse('ledger:adat_index'))
 
 def custom_receipt(request, acc_id):
