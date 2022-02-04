@@ -89,4 +89,5 @@ class Type_Code(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     code = models.CharField(max_length=10, unique=True)
     description = models.TextField()
+    for_office = models.BooleanField()
     
