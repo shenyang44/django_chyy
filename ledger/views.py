@@ -364,7 +364,12 @@ def trans_cont(acc_id):
         return redirect(reverse('ledger:index'))
     
     cli_accs = Client_Account.objects.all()
-    type_codes = Type_Code.objects.all()
+    if account.is_office():
+        type_codes = Type_Code.objects.filter(for_office=True)
+        print(type_codes)
+    else:
+        type_codes = Type_Code.objects.filter(for_office=False)
+
     tc_dict = {}
     for each in type_codes:
         tc_dict[each.code] = each.description
@@ -668,7 +673,7 @@ def create_tc(request):
         code = request.POST['code']
         description = request.POST['description']
         for_office = request.POST.get('for_office')
-        if for_office:
+        if for_office == 'yes':
             for_office = True
         else:
             for_office = False
