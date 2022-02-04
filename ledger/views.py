@@ -663,7 +663,6 @@ def create_tc(request):
         for each in type_codes:
             if each.code in tc_list:
                 each.delete()
-            tc_list.append(each.code)
 
         context = {
             'type_codes': type_codes,
