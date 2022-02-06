@@ -1,31 +1,48 @@
 {% extends 'ledger/layout.html' %}
 {% block title %}Admin Options{% endblock %}
 {% block body %}
+{% load static %}
+<script src="{% static 'ledger/opt-text.js' %}"></script>
 <div class="d-flex m-2">
-    <div class="w-50">
-        {% if not type_codes %}
-        <p>No addtional type codes added yet.</p>
-        {% else %}
-        <div class="w-75">
-            <h5>Current additional type codes:</h5>
-            {% for each in type_codes %}
-            <a href="{% url 'ledger:remove_tc' each.id %}" id='a{{each.id}}' class="hidden-links"></a>
-            <div class="d-flex mt-2 justify-content-between px-4">
-                {{each.code}} : {{each.description}} 
-                <button class="btn btn-danger delBtn p-1" data-id='{{each.id}}' data-code='{{each.code}}'>Delete</button>
+    <div class="w-50 px-4">
+        <h5>View type codes:</h5>
+        <div class="mb-3">
+            <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" data-id='additional' checked>
+                <label class="btn btn-outline-primary" for="btnradio1">Additional</label>
+            
+                <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" data-id='client'>
+                <label class="btn btn-outline-primary" for="btnradio2">Default Client</label>
+            
+                <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off" data-id='office'>
+                <label class="btn btn-outline-primary" for="btnradio3">Default Office</label>
             </div>
-            {% endfor %}
         </div>
-        
-        {% endif %}
-        
+        <section class="d-none tcSect" id="tc-additional">
+            {% if not type_codes %}
+            <p>No addtional type codes added yet.</p>
+            {% else %}
+            <div class="w-75">
+                {% for each in type_codes %}
+                <a href="{% url 'ledger:remove_tc' each.id %}" id='a{{each.id}}' class="hidden-links"></a>
+                <div class="d-flex mt-2 justify-content-between">
+                    {{each.code}} : {{each.description}} 
+                    <button class="btn btn-danger delBtn p-1" data-id='{{each.id}}' data-code='{{each.code}}'>Delete</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </section>
+        <section class="d-none w-75 tcSect" id="tc-client"></section>
+        <section class="d-none w-75 tcSect" id="tc-office"></section>
     </div>
     <form action="{% url 'ledger:create_tc' %}" method="post" class="w-50">
+        <h5 class="my-4">Add New Type Code</h5>
         {% csrf_token %}
         <section class="d-flex w-100">
             <div class="w-50">
                 <label class="form-label" for="code_inp">Type Code(shortform):</label>
-                <input class="form-control" type="text" name="code" id="code_inp">
+                <input class="form-control w-50" type="text" name="code" id="code_inp">
             </div>
             <div class="w-50 ms-5">
                 <label class="form-label">For Office:</label>
@@ -70,6 +87,39 @@
             if(confirm(`Delete typecode: ${tc}`)){
                 $(`#a${tcID}`)[0].click()
             }
+        })
+        // Checking which sections to display
+        radBtns = $('.btn-check');
+        radBtns.each((i,e)=>{
+            if (e.checked){
+                let id = $(e).attr('data-id');
+                $(`#tc-${id}`).removeClass('d-none');
+            }
+        })
+        radBtns.click((e)=>{
+            let id = $(e.target).attr('data-id');
+            $('.tcSect').not(`#tc-${id}`).addClass('d-none');
+            $(`#tc-${id}`).removeClass('d-none');
+        })
+
+        // Populating default sections
+        let cliCodes = debCodes().concat(credCodes());
+        let cliDescripts = debDescripts().concat(credDescripts());
+        let offTC = offCodes();
+        let offTCD = offDescs();
+        cliCodes.forEach((e,i)=>{
+            $('#tc-client').append(`
+                <div class="d-flex mt-2">
+                    ${e} : ${cliDescripts[i]} 
+                </div>
+            `)
+        })
+        offTC.forEach((e, i)=>{
+            $('#tc-office').append(`
+                <div class="d-flex mt-2">
+                    ${e} : ${offTCD[i]} 
+                </div>
+            `)
         })
     })
 </script>

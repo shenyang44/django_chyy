@@ -4,3 +4,4 @@
 /ledger/migrations/__pycache__/
 /ledger/todo.txt
 .env
+*.dump

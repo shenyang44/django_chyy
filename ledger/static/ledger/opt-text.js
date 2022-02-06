@@ -1,3 +1,11 @@
+let credCodesArr = ['RD', 'RD1', 'RD2', 'RD3', 'RD4', 'RD5', 'RD6', 'RD7', 'RD8', 'RD11', 'RD14', 'RD15', 'RD17', 'RF', 'RI', 'RO', 'RFDG', 'RS', 'RT', 'RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'RT6', 'RT7', 'RT8', 'RT9', 'RT10', 'RT11', 'RT12', 'RT13'];
+
+let credDescArr = ['Disbursement received', 'Affirmation', 'Stamping', 'Printing & photostat charges', 'Regist. fees', 'Transport & despatch', 'Searches', 'Filing', 'Stamp Duty', 'Accommodation charges', 'Prior year adj', 'Deposit for close file to OA', 'CTC', 'Fees Received', 'F.D. interest received', 'Miscellaneous received', 'Fees, disbursements & GST', 'Service tax received', 'Trust received', 'R P G T', 'Diff. sum', 'Balance of purchase price', 'Redemption sum', 'Late payment interest', 'Settlement sum/judgement sum', 'Costs', 'Progressive payment', 'Earnest money', 'Administrative charges', 'Deposit', 'Stakeholder', 'Assessment & quit rent'];
+
+let debCodeArr = ['PD', 'PD1', 'PD2', 'PD3', 'PD4', 'PD5', 'PD6', 'PD7', 'PD8', 'PD9', 'PD10', 'PD11', 'PD12', 'PD13', 'PD14', 'PD15', 'PD16', 'PD17', 'PD18', 'PF', 'PI', 'PO', 'PS', 'PT', 'PT1', 'PT2', 'PT3', 'PT4', 'PT5', 'PT6', 'PT7', 'PT8', 'PT9', 'PT10', 'PT11', 'PT12', 'PT13'];
+
+let debDescArr =  ['Disbursement payments', 'Affirmation', 'Stamping', 'Printing & photostat charges', 'Regist. fees', 'Transport & Despatch', 'Searches', 'Filing', 'Stamp duty', 'Adjudication', 'Subsitence allowance', 'Accommodation', 'Refund of fees & disbursements', 'Maintenance fees', 'Prior year adj', 'Disbursements for close files to OA', 'Bank charges', 'CTC', 'Documentation charges', 'Fees payments/transfer', 'F.D. interest payments', 'Miscellaneous payments', 'Service tax payments', 'Trust payments', 'R P G T', 'Diff. sum', 'Balance of purchase price', 'Redemption sum', 'Late payment interest', 'Settlement sum/Judgement sum', 'Costs', 'Progessive Payment', 'Earnest money', 'Administrative Charges', 'Deposit', 'Stakeholder', 'Assessment & quit rent'];
+
 let offCodesObj = {
     '0501': 'RETAINED PROFIT & LOSS',
     '1019': 'PBB - OFFICE A/C',
@@ -179,3 +187,16 @@ function offCodes(){
 function offDescs(){
     return(Object.values(offCodesObj))
 }
+function debCodes(){
+    return debCodeArr;
+}
+function debDescripts(){
+    return debDescArr;
+}
+function credCodes(){
+    return credCodesArr;
+}
+credDescripts = () => {
+    return credDescArr;
+}
+

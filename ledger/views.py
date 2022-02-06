@@ -498,6 +498,8 @@ def create_trans(request, acc_id, trans_type):
         if curr_account == payee:
             return redirect(reverse('ledger:voucher', args=(new_trans.id,)))
         else:
+            if curr_account.is_office():
+                return redirect(reverse('ledger:show_off', args=(curr_account.id,)))
             return redirect(reverse('ledger:receipt', args=(new_trans.id,)))
         
     else:
