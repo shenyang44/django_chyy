@@ -140,15 +140,16 @@
             <tr class="transRow" data-id="{{trans.id}}">
                 <td class="text-center">
                     {% if forloop.first %}
+                    <!-- Cancellation modal -->
                     <div class="modal fade" id="delMod{{trans.id}}" tabindex="-1" aria-labelledby="delModLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="delModLabel">Delete Transaction</h5>
+                                    <h5 class="modal-title" id="delModLabel">Cancel Transaction</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p>Confirm deletion for:</p>
+                                    <p>Confirm cancellation of:</p>
                                     <p>
                                     {{entry.description}} | total : {{trans.total}}
                                     </p>
@@ -173,29 +174,40 @@
                 {% if account == trans.payee %}
                     <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
                     <td class="refCell">
-                        {% if forloop.first %}
-                        PV{{trans.id|stringformat:"05d"}}
+                        {% if trans.cheque_text == 'cancellation' %}
+                            null
+                        {% elif forloop.first %}
+                            PV{{trans.id|stringformat:"05d"}}
                         {% endif %}
                     </td>
                 {% else %}
                     <a href="{% url 'ledger:receipt' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
                     <td class="refCell">
-                        {% if forloop.first %}
-                        RC{{trans.id|stringformat:"05d"}}
+                        {% if trans.cheque_text == 'cancellation' %}
+                            null
+                        {% elif forloop.first %}
+                            RC{{trans.id|stringformat:"05d"}}
                         {% endif %}
                     </td>
                 {% endif %}
-                <td>
-                    {% if forloop.first %}{{trans.created_at|date:"d/m/Y"}}{% endif %}</td>
+                <td>{% if forloop.first %}{{trans.created_at|date:"d/m/Y"}}{% endif %}</td>
                 <td>{{entry.type_code}}</td>
                 <td>{{trans.cli_acc.name}}</td>
                 <td>
                     <div class="d-flex justify-content-between">
-                        {{entry.description}}
+                        {% if trans.cheque_text == 'cancellation' %}
+                            {% if trans.payee == account %}
+                                Cancellation of RC{{entry.description|add:"0"|stringformat:"05d"}}
+                            {%else%}
+                                Cancellation of PV{{entry.description|add:"0"|stringformat:"05d"}}
+                            {%endif%}
+                        {% else %}
+                            {{entry.description}}
+                        {% endif %}
                     </div>
                 </td>
-                <td class="text-center">{% if trans.payee.file_no == account.file_no %}{{entry.amount}} {% endif %}</td>
-                <td class="text-center">{% if trans.receiver.file_no == account.file_no %}{{entry.amount}}{% endif %}</td>
+                <td class="text-center">{% if trans.payee == account %}{{entry.amount}} {% endif %}</td>
+                <td class="text-center">{% if trans.receiver == account %}{{entry.amount}}{% endif %}</td>
                 <td class="text-center">{% if forloop.last %}{{rb}}{% endif %}</td>
             </tr>
         {% endfor %}
@@ -203,7 +215,11 @@
     </tbody>
 </table>
 <footer class="print-n text-center">
-    Current balance : RM {{balance}}
+    Current balance : RM {{balance}}&nbsp;
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+        <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+    </svg>
+    
 </footer>
 <!-- subject matter modal -->
 <div class="modal fade" id="addSubjModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
