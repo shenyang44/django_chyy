@@ -371,17 +371,6 @@ $(()=>{
             return;
         }
         if (cli_acc_check()){
-            let acc_bal = (Number('{{account.balance}}')*100)
-            if(isOffice){
-                if (total>acc_bal && debCred == 'deb'){
-                    alert("The amount being deducted exceeds the account's current balance, please click on AD/AT instead.")
-                    return;
-                }
-            }else if (-total<acc_bal && debCred == 'deb' && !ADAT ){
-                alert("The amount being deducted exceeds the account's current balance, please click on AD/AT instead.")
-                return;
-            }
-            
             let tableData = []; 
             for (let i = 0; i < amounts.length; i++){
                 tableData.push({

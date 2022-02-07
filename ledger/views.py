@@ -436,7 +436,7 @@ def create_trans(request, acc_id, trans_type):
         total = 0
         adv_trans = False
 
-        # iterates over each dict adding decimal vals to total and checking if trans is service tax/fees or advanced transfer.
+        # iterates over each dict adding decimal vals to total and checking if trans is advanced transfer.
         table_list_cpy = copy.deepcopy(table_list)
         for each in table_list_cpy:
             if each['amount']:
@@ -447,7 +447,6 @@ def create_trans(request, acc_id, trans_type):
         
         # handling for advance disbursements.
         if adv_trans:
-            resolved = False
             off_id = request.POST['off_id']
             off_acc = Account.objects.get(id = off_id)
             off_trans = Transaction(payee=off_acc, receiver=receiver, table_list=json.dumps(table_list_cpy), total=total, cheque_text=cheque_text, resolved=False)
@@ -524,7 +523,7 @@ def counter_trans(request):
         total = trans.total
         cleared = trans.cleared
         entry = [{
-            'description':f'Cancellation of transaction {trans_id}',
+            'description':trans_id,
             'amount':str(total),
             'type_code':'NA'
         }]
@@ -536,15 +535,9 @@ def counter_trans(request):
             cancel_acc.save()
 
         if not cleared:
-            if payee.is_office():
-                payee = cancel_acc
-                receiver.balance += total
-            else:
-                receiver = cancel_acc
-                payee.balance -= total
-
-            new_trans = Transaction(total=total, receiver=payee, payee=receiver, table_list=json.dumps(entry), category='NA', cli_acc=trans.cli_acc, cleared=True)
-            trans.payee = payee
+            receiver = cancel_acc
+            payee.balance -= total
+            new_trans = Transaction(total=total, receiver=payee, payee=receiver, table_list=json.dumps(entry), category='NA', cli_acc=trans.cli_acc, cleared=True, cheque_text='cancellation')
             trans.receiver = receiver
         else:
             if payee.is_office():
@@ -555,8 +548,7 @@ def counter_trans(request):
                 receiver.balance -= total
             else:
                 receiver.balance += total
-
-            new_trans = Transaction(total=total, receiver=payee, payee=receiver, table_list=json.dumps(entry), category='NA', cli_acc=trans.cli_acc, cleared=True)
+            new_trans = Transaction(total=total, receiver=payee, payee=receiver, table_list=json.dumps(entry), category='NA', cli_acc=trans.cli_acc, cleared=True, cheque_text='cancellation')
         
         try:
             trans.save()

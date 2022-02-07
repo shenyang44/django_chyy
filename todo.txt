@@ -1,7 +1,5 @@
-! make vouchers regardless of balance
-! ref no of anti-trans follows ref no. of ori trans, and description should be "deletion of PV no.XXXX."
 ! able to edit client file balance
-
+! disallow transactions with 0 sum
 make date times tz aware
 
 ask if prefer redirect to clearing page or off ledger upon off receipt
