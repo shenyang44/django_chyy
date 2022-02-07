@@ -1,3 +1,5 @@
 make date times tz aware
 
 ask if prefer redirect to clearing page or off ledger upon off receipt
+
+warn user if client file no is duplicate

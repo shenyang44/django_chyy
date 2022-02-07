@@ -152,13 +152,12 @@ def create_acc(request):
         client_acc_id = request.POST['client']
         subject_matter = request.POST['subject_matter']
         client_code = request.POST['client_code']
-
+        subj_list = json.dumps([subject_matter])
         if owing == 'no':
             balance = -(Decimal(balance))
         else:
             balance = Decimal(balance)
-        subject_matters = [subject_matter]
-        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=True, client_code=client_code, subject_list=json.dumps(subject_matters), subject_matter=subject_matter)
+        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=True, client_code=client_code, subj_list=subj_list, subject_matter=subject_matter)
         try:
             new_acc.save()
         except:
