@@ -26,5 +26,6 @@ urlpatterns = [
     path('uncleared-credits/', views.uncleared, name='uncleared'),
     path('counter_trans/', views.counter_trans, name='counter_trans'),
     path('<int:acc_id>/subj_matter/', views.subj_matter, name='subj_matter'),
-    path('<int:acc_id>/edit-info/', views.edit_info, name='edit_info')
+    path('<int:acc_id>/edit-info/', views.edit_info, name='edit_info'),
+    path('balance-edit/', views.balance_edit, name='balance_edit')
 ]

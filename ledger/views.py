@@ -1,4 +1,5 @@
 from abc import get_cache_token
+import re
 from typing import Type
 from django.db.models.fields import NullBooleanField
 import ledger
@@ -253,6 +254,22 @@ def edit_info(request, acc_id):
         account.save()
         return redirect(reverse('ledger:show_acc', args=(acc_id,)))
 
+def balance_edit(request):
+    if request.method == 'POST':
+        acc_id = request.POST['acc_id']
+        new_balance = Decimal(request.POST['new_balance'])
+        owing_us = request.POST['owing_us']
+        acc = Account.objects.get(pk=acc_id)
+        if owing_us == 'yes':
+            acc.balance = new_balance
+        else:
+            acc.balance = -new_balance
+        try:
+            acc.save()
+            return(JsonResponse({'balance':brace_num(acc.balance), 'status':'success'}))
+        except:
+            return(JsonResponse({'status':'error'}))
+        
 def subj_matter(request, acc_id):
     if request.method == 'POST':
         new_subj = request.POST.get('new_subj')
