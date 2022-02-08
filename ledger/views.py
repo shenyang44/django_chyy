@@ -1,11 +1,5 @@
-from abc import get_cache_token
-import re
-from typing import Type
-from django.db.models.fields import NullBooleanField
-import ledger
 from django.http.response import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls.base import resolve
 from .models import Account, Transaction, Client_Account, Running_Balance, Type_Code
 from django.urls import reverse
 from django.utils import timezone
@@ -160,12 +154,25 @@ def create_acc(request):
             balance = Decimal(balance)
         new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=True, client_code=client_code, subj_list=subj_list, subject_matter=subject_matter)
         try:
+            ext_acc = Account.objects.get(file_no='EXTERNAL_balance_b/f')
+        except:
+            ext_acc = Account(name='Balance b/f', file_no='EXTERNAL_balance_b/f', balance=0.00)
+            ext_acc.save()
+        if owing == 'no':
+            receiver = new_acc
+            payee = ext_acc
+        else:
+            receiver = ext_acc
+            payee = new_acc
+        first_trans = Transaction(receiver=receiver, payee=payee, table_list=json.dumps([{'description':'Balance brought forward.', 'amount':'','type_code':''}]), total=abs(balance), category='NA')
+        try:
             new_acc.save()
+            first_trans.save()
         except:
             messages.error(request, 'Error encountered in saving the account.')
             return render(request, 'ledger/create-acc.html')
         
-        new_rb = Running_Balance(account=new_acc, value=balance)
+        new_rb = Running_Balance(account=new_acc, value=balance, transaction=first_trans)
         try:
             new_rb.save()
         except:
