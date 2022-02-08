@@ -169,6 +169,7 @@ $(()=>{
     let debCred = '{{trans_type|escapejs}}';
     let options, meanings;
     var optTxt = '<option value = ""></option>';
+    // populate optTxt based on whether current acc is office, if not whether ADAT or not.
     if (isOffice){
         options = offCodes().concat(Object.keys(extraTypeCodes));
         meanings = offDescs().concat(Object.values(extraTypeCodes));
@@ -209,9 +210,7 @@ $(()=>{
         }
     }
 
-    
     // Fill category col based on selected typecode
-   
     $('body').on('select2:select', (e)=>{
         if (!isOffice){
             let cat;
@@ -222,12 +221,10 @@ $(()=>{
                 cat = typeCode.slice(0, 2)
             }    
             $(e.target).parent().next().text(cat);
-            
         }
         btnUpdate()
     })
-    
-    
+     
     // 2 buttons to add or remove input rows.
     const addBtn = $('#addBtn')
     addBtn.click(()=>{
@@ -285,7 +282,7 @@ $(()=>{
         }
         btnUpdate()
     })
-    // adds the first row
+    // adding first row
     addBtn.click()
     
     // Button is disabled if select input val is empty on either element.
@@ -333,6 +330,9 @@ $(()=>{
             } else{
                 y=false;
             }
+            if (total==0){
+                y=false;
+            }
         })
         return y;
     }
@@ -363,7 +363,7 @@ $(()=>{
             return;
         } 
         if (!amountCheck()){
-            alert('The transaction amount must be a positive number with 2 decimal places OR empty.');
+            alert('Each amount must be a positive number with 2 decimal places OR empty. And the total cannot be 0.00');
             return;
         }
         if (!otherPartyCheck()){
