@@ -1,5 +1,5 @@
-! disallow transactions with 0 sum
-make date times tz aware
+
+make the index an alphabetical list. or something. 1 line per person?
 
 ask if prefer redirect to clearing page or off ledger upon off receipt
 
@@ -7,4 +7,4 @@ warn user if client file no is duplicate
 
 cancellation can only be called once.
 
-make the index an alphabetical list. or something. 1 line per person?
+make date times tz aware
