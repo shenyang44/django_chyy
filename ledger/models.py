@@ -37,6 +37,9 @@ class Account(models.Model):
     client_account = models.BooleanField(default=False)
     subject_matter = models.TextField(null=True)
     subj_list = models.TextField(null=True)
+    opening_date = models.DateField(null=True)
+    closing_date = models.DateField(null=True)
+    closing_no = models.TextField(null=True)
 
     def __str__(self):
         return self.name
