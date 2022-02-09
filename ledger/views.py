@@ -306,6 +306,35 @@ def subj_matter(request, acc_id):
         account.save()
         return redirect(reverse('ledger:show_acc', args=(acc_id,)))
 
+# saves client file opening and closing dates, along with file closing no.
+def opening_closing(request):
+    if request.method == 'POST':
+        opening_date = request.POST.get('opening_input')
+        closing_date = request.POST.get('closing_input')
+        closing_no = request.POST.get('closing_file_no')
+        acc_id = request.POST['acc_id']
+        curr_acc = Account.objects.get(pk = acc_id)
+
+        if opening_date:
+            opening_date = datetime.strptime(opening_date, '%Y/%m/%d')
+            curr_acc.opening_date = opening_date
+            error = 'opening date'
+        elif closing_date and closing_no:
+            closing_date = datetime.strptime(closing_date, '%Y/%m/%d')
+            curr_acc.closing_date = closing_date
+            curr_acc.closing_no = closing_no
+            error = 'closing date'
+        else:
+            messages.error(request, 'Server did not receive opening/closing date/closing no.')
+            return redirect(reverse('ledger:show_acc', args=(curr_acc.id,)))
+
+        try:
+            curr_acc.save()
+        except:
+            messages.error(request, f'Could not save client file {error}.')
+
+        return redirect(reverse('ledger:show_acc',  args=(curr_acc.id,)))
+
 def tax(request, acc_id):
     if request.method == 'POST':
         date_from_inp = request.POST['date_from']
