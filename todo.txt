@@ -1,4 +1,4 @@
-! date of opening file and closing file(both only changeable once) and upon closing, request and store "closing file no"
+
 ! file ref, description, payment, payee and debit account cols should be editable in receipts and vouchers entries in ledger
 ! after AD is payed back, generate receipt for client. ref no is the office account voucher no., description is "payment reimbursement from clients account for PV:00000" type AT. 
 ! check how much advance payment made on behalf of clients, and how much has been reimbursed. 
@@ -9,6 +9,6 @@ ask if prefer redirect to clearing page or off ledger upon off receipt
 
 warn user if client file no is duplicate
 
-cancellation can only be called once.
+trans cancellation can only be called once.
 
 make date times tz aware
