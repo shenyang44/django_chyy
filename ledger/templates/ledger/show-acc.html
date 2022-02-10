@@ -264,13 +264,13 @@
                     <div data-bs-toggle="modal" data-bs-target="#delMod{{trans.id}}" class="red-x" data-id="{{trans.id}}">X</div> 
                     {% endif %}
                 </td>
-                {% if account == trans.payee %}
+                {% if trans.voucher_no %}
                     <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
                     <td class="refCell">
                         {% if trans.cheque_text == 'cancellation' %}
                             null
                         {% elif forloop.first %}
-                            PV{{trans.id|stringformat:"05d"}}
+                            PV{{trans.voucher_no}}
                         {% endif %}
                     </td>
                 {% else %}
@@ -279,7 +279,7 @@
                         {% if trans.cheque_text == 'cancellation' %}
                             null
                         {% elif forloop.first %}
-                            RC{{trans.id|stringformat:"05d"}}
+                            RC{{trans.receipt_no}}
                         {% endif %}
                     </td>
                 {% endif %}

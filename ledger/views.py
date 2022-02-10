@@ -18,6 +18,16 @@ def brace_num(x):
         return x
 
 def index(request):
+    all_trans = Transaction.objects.all().order_by('created_at')
+    for trans in all_trans:
+        if trans.payee.client_account and not trans.voucher_no:
+            trans.voucher_no = trans.next_voucher_no()
+        elif trans.payee.is_office() and not trans.off_voucher_no:
+            trans.off_voucher_no = trans.next_off_voucher_no()
+        elif trans.receiver.client_account and not trans.receipt_no:
+            trans.receipt_no = trans.next_receipt_no()
+        trans.save()
+
     accounts =  Account.objects.filter(created_at__lte=timezone.now()).exclude(file_no__startswith='EXTERNAL').exclude(file_no__startswith='OFFICE')
     if len(accounts) > 0:
         balance = [brace_num(acc.balance) for acc in accounts]
@@ -502,7 +512,7 @@ def create_trans(request, acc_id, trans_type):
         if adv_trans:
             off_id = request.POST['off_id']
             off_acc = Account.objects.get(id = off_id)
-            off_trans = Transaction(payee=off_acc, receiver=receiver, table_list=json.dumps(table_list_cpy), total=total, cheque_text=cheque_text, resolved=False)
+            off_trans = Transaction(payee=off_acc, receiver=receiver, table_list=json.dumps(table_list_cpy), total=total, cheque_text=cheque_text, resolved=False, off_voucher_no=Transaction.next_off_voucher_no(None))
             off_acc.balance -= total
             try:
                 off_acc.save()
@@ -516,20 +526,26 @@ def create_trans(request, acc_id, trans_type):
             except:
                 return trans_save_err(request, curr_account.id)
 
+        v_no = None
+        r_no = None
+        off_v_no = None
         if payee.is_office():
             payee.balance -= total
-        else:
+            off_v_no = Transaction.next_off_voucher_no(None)
+        elif payee.client_account:
             payee.balance += total
+            v_no = Transaction.next_voucher_no(None)
 
         # if receiver is office acc, not credited yet, waiting to be cleared from the off acc page.
         cleared = True
-        if not receiver.is_office():
+        if receiver.client_account:
             receiver.balance -= total
+            r_no = Transaction.next_receipt_no(None)
         else:
             cleared = False
 
-        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc=cli_acc, cleared=cleared, subj_matter=subject_matter)
-        
+        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc=cli_acc, cleared=cleared, subj_matter=subject_matter, receipt_no = r_no, voucher_no=v_no, off_voucher_no=off_v_no)
+            
         try:
             new_trans.save()
             payee.save()

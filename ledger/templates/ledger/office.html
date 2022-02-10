@@ -129,7 +129,11 @@
                     </td>
                     <td class="text-center"> {% if forloop.first %}{{trans.created_at|date:"d/m/Y"}}{% endif %}&nbsp;</td>
                     <td class="text-center">{{entry.type_code}}</td>
-                    <td class="text-end border-end">{{trans.id}}</td>
+                    <td class="text-end border-end">
+                        {% if trans.off_voucher_no %}
+                            PV{{trans.off_voucher_no}}
+                        {%endif%}
+                    </td>
                     <td>
                         {% if entry.type_code == 'AD' or trans.type_code == 'AT' %}
                             {{entry.description}}
