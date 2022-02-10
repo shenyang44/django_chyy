@@ -1,3 +1,7 @@
+!Pls amend voucher and receipt no. as follows:-
+1. Voucher no for clients account - start with 43001 (my last book no is 43000)
+2. Receipt for clients account - start with 30501 (my last book no is 30500)
+3. Office account voucher - start with 21001 (my last book no is 21000)
 
 ! file ref, description, payment, payee and debit account cols should be editable in receipts and vouchers entries in ledger
 ! after AD is payed back, generate receipt for client. ref no is the office account voucher no., description is "payment reimbursement from clients account for PV:00000" type AT. 
