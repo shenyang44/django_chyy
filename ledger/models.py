@@ -1,8 +1,9 @@
-from django.contrib.messages import default_app_config
+from django.core.validators import MinValueValidator
 from django.db import models
 import datetime
 from django.utils import timezone
 import json
+
 
 class Question(models.Model):
     question_text = models.CharField(max_length=200)
@@ -76,12 +77,26 @@ class Transaction(models.Model):
     ad_link = models.ForeignKey('self', related_name='cli_ad_link', null=True, on_delete=models.CASCADE)
     checked = models.BooleanField(default=False)
     subj_matter = models.TextField(null=True)
+    voucher_no = models.IntegerField(null=True, unique=True, validators=[MinValueValidator(43001)])
+    receipt_no = models.IntegerField(null=True, unique=True, validators=[MinValueValidator(30501)])
+    off_voucher_no = models.IntegerField(null=True, unique=True, validators=[MinValueValidator(21001)])
 
     def __str__(self):
         entries = json.loads(self.table_list)
         return(entries[0]['description'])
+    
+    def next_voucher_no(self):
+        count = len(Transaction.objects.filter(voucher_no__isnull=False)) + 43001
+        return count
 
-
+    def next_receipt_no(self):
+        count = len(Transaction.objects.filter(receipt_no__isnull=False)) + 30501
+        return count
+    
+    def next_off_voucher_no(self):
+        count=len(Transaction.objects.filter(off_voucher_no__isnull=False)) + 21001
+        return count
+        
 class Running_Balance(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)

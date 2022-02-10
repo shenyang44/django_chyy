@@ -130,7 +130,7 @@
                             <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
                             <td class="refCell">
                                 {% if forloop.first %}
-                                    PV{{trans.id|stringformat:"05d"}}
+                                    PV{{trans.voucher_no}}
                                 {% endif %}
                             </td>
                         <td>
@@ -150,7 +150,7 @@
                         <a href="{% url 'ledger:receipt' trans.id %}" id = a{{trans.id}}dupe class="hidden-links"></a>
                         <td class="refCell">
                             {% if forloop.first %}
-                                RC{{trans.id|stringformat:"05d"}}
+                                RC{{trans.receipt_no}}
                             {% endif %}
                         </td>
                         <td>
@@ -172,14 +172,14 @@
                             <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
                             <td class="refCell">
                                 {% if forloop.first %}
-                                PV{{trans.id|stringformat:"05d"}}
+                                PV{{trans.voucher_no}}
                                 {% endif %}
                             </td>
                         {% else %}
                             <a href="{% url 'ledger:receipt' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
                             <td class="refCell">
                                 {% if forloop.first %}
-                                RC{{trans.id|stringformat:"05d"}}
+                                RC{{trans.receipt_no}}
                                 {% endif %}
                             </td>
                         {% endif %}
