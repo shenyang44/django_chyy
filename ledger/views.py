@@ -18,16 +18,6 @@ def brace_num(x):
         return x
 
 def index(request):
-    all_trans = Transaction.objects.all().order_by('created_at')
-    for trans in all_trans:
-        if trans.payee.client_account and not trans.voucher_no:
-            trans.voucher_no = trans.next_voucher_no()
-        elif trans.payee.is_office() and not trans.off_voucher_no:
-            trans.off_voucher_no = trans.next_off_voucher_no()
-        elif trans.receiver.client_account and not trans.receipt_no:
-            trans.receipt_no = trans.next_receipt_no()
-        trans.save()
-
     accounts =  Account.objects.filter(created_at__lte=timezone.now()).exclude(file_no__startswith='EXTERNAL').exclude(file_no__startswith='OFFICE')
     if len(accounts) > 0:
         balance = [brace_num(acc.balance) for acc in accounts]

@@ -1,5 +1,3 @@
-!remove initialisation in index. 
-
 ! file ref, description, payment, payee and debit account cols should be editable in receipts and vouchers entries in ledger
 ! after AD is payed back, generate receipt for client. ref no is the office account voucher no., description is "payment reimbursement from clients account for PV:00000" type AT. 
 ! check how much advance payment made on behalf of clients, and how much has been reimbursed. 
