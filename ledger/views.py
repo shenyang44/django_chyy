@@ -745,13 +745,6 @@ def remove_tc(request, tc_id):
             messages.error(request, 'There was an issue in attempting to delete type code.')
         
         return redirect(reverse('ledger:create_tc'))
-        
-def search(request):
-    if request.method == "POST":
-        search_q = request.POST['search_q']
-        # an OR query to see if either NAME or FILE_NO field contain the searched string (case insensitive)
-        accounts = Account.objects.filter(Q(file_no__icontains = search_q) | Q(name__icontains = search_q) | Q(client_code__icontains = search_q)).exclude(file_no__startswith = 'EXTERNAL')
-        return render(request, 'ledger/search.html', {'accs':accounts, 'search_q':search_q,})
 
 def adat_index(request):
     if request.method == "GET":
@@ -800,22 +793,24 @@ def resolve(request, trans_id):
             return redirect(reverse('ledger:adat_index'))
         
         total = trans.total
-        updated_tbl_list = json.loads(trans.table_list)
-        for each in updated_tbl_list:
-            each['type_code'] = 'AT'
-        
-        new_trans = Transaction(payee=acc, receiver=off_acc, table_list=json.dumps(updated_tbl_list), total=total, cheque_text='customisable')
         table_list=[{
-            "description": "Pre-authorized credit for AD/AT",
+            'description':f'Payment reimbursement from clients account for office PV{off_trans.off_voucher_no}',
+            'amount': f'{trans.total}',
+            'type_code':'AT'
+        }]
+        
+        new_trans = Transaction(payee=acc, receiver=off_acc, table_list=json.dumps(table_list), total=total, cheque_text='customisable', voucher_no=Transaction.next_voucher_no(None))
+        table_list=[{
+            "description": f"Payment reimbursement from clients account for PV{trans.voucher_no}",
             "amount":f"{trans.total}",
-            "type_code":"NA"
+            "type_code":"AT"
         }]
         try:
             auth_acc = Account.objects.get(file_no='EXTERNAL_auth_acc')
         except:
             auth_acc= Account(name='Account for Pre-auth Debit', file_no='EXTERNAL_auth_acc', balance=0)
             auth_acc.save()
-        pre_auth_debit = Transaction(payee=auth_acc, receiver=acc, table_list=json.dumps(table_list), total=total, cheque_text='customisable')
+        pre_auth_debit = Transaction(payee=auth_acc, receiver=acc, table_list=json.dumps(table_list), total=total, cheque_text='customisable', receipt_no= Transaction.next_receipt_no(None), receipt_ref=f'Office account voucher no.{off_trans.off_voucher_no}')
         trans.resolved = True
         off_trans.resolved = True
         off_acc.balance += total
@@ -887,3 +882,11 @@ def uncleared(request):
             return redirect(reverse('ledger:uncleared'))
         
         return redirect(reverse('ledger:uncleared'))
+
+# search func on file no, name and client code.
+def search(request):
+    if request.method == "POST":
+        search_q = request.POST['search_q']
+        # an OR query to see if either NAME or FILE_NO field contain the searched string (case insensitive)
+        accounts = Account.objects.filter(Q(file_no__icontains = search_q) | Q(name__icontains = search_q) | Q(client_code__icontains = search_q)).filter(client_account = True)
+        return render(request, 'ledger/search.html', {'accs':accounts, 'search_q':search_q,})

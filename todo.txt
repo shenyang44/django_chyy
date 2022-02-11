@@ -1,10 +1,10 @@
 ! file ref, description, payment, payee and debit account cols should be editable in receipts and vouchers entries in ledger
-! after AD is payed back, generate receipt for client. ref no is the office account voucher no., description is "payment reimbursement from clients account for PV:00000" type AT. 
 ! check how much advance payment made on behalf of clients, and how much has been reimbursed. 
 
 make the index an alphabetical list. or something. 1 line per person?
 
 ask if prefer redirect to clearing page or off ledger upon off receipt
+ask ref no on off vouchers for ads to external. 
 
 warn user if client file no is duplicate
 

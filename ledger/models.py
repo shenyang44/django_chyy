@@ -80,6 +80,8 @@ class Transaction(models.Model):
     voucher_no = models.IntegerField(null=True, unique=True, validators=[MinValueValidator(43001)])
     receipt_no = models.IntegerField(null=True, unique=True, validators=[MinValueValidator(30501)])
     off_voucher_no = models.IntegerField(null=True, unique=True, validators=[MinValueValidator(21001)])
+    voucher_ref = models.TextField(null=True)
+    receipt_ref = models.TextField(null=True)
 
     def __str__(self):
         entries = json.loads(self.table_list)
