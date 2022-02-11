@@ -48,13 +48,13 @@ tr input{
     border-bottom: 1px dotted black;
 }
 
-.index-cols{
-    margin-top: 2em;
+.index-row{
+    margin-top: 1em;
     box-sizing: border-box;
     border: 1px solid black;
-    z-index: 5;
+    z-index: 1;
 }
-.index-cols:hover{
+.index-row:hover{
     cursor: pointer;
     background-color: rgb(245, 245, 245);
 }

@@ -3,17 +3,23 @@
 {% block body %}
     {% if zipped %} 
         <div class="container">
-            <div class="row align-items-center d-flex">
-                {% for account, balance in zipped %}
-                    <div data-id = '{{account.id}}' class="col-lg-3 col-4 index-cols">
-                        <div class="mb-1"><span class="fw-bold">Name:</span> {{account.name}}</div>
-                        <div class="mb-1"><span class="fw-bold">File No.:</span> {{account.file_no}}</div>
-                        <div class="mb-1"><span class="fw-bold">Current balance:</span> {{balance}}</div>
+            {% for account, balance in zipped %}
+            <div data-id = '{{account.id}}' class="row d-flex index-row p-1">
+                    <div class="col-3 text-truncate">
+                        <span class="fw-bold">Name:</span> {{account.name}}
                     </div>
-                    <div class="col-1"></div>
+                    <div class="col-3 text-truncate">
+                        <span class="fw-bold">File No.:</span> {{account.file_no}}
+                    </div>
+                    <div class="col-3 text-truncate">
+                        <strong>Client Code: </strong>{{account.client_code}}
+                    </div>
+                    <div class="col-3 text-truncate">
+                        <span class="fw-bold">Current balance:</span> {{balance}}
+                    </div>
                     <a id='a{{account.id}}' href="{% url 'ledger:show_acc' account.id %}" style="visibility: hidden; width: 0px; padding: 0px;"></a>
-                {% endfor %}
             </div>
+            {% endfor %}
         </div>
     {% else %}
         <p class="text-center fs-4">No client files are available.</p>
