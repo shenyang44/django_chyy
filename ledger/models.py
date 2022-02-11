@@ -4,7 +4,6 @@ import datetime
 from django.utils import timezone
 import json
 
-
 class Question(models.Model):
     question_text = models.CharField(max_length=200)
     pub_date = models.DateTimeField('date published')
@@ -88,16 +87,25 @@ class Transaction(models.Model):
         return(entries[0]['description'])
     
     def next_voucher_no(self):
-        count = len(Transaction.objects.filter(voucher_no__isnull=False)) + 43001
-        return count
+        latest = Transaction.objects.filter(voucher_no__isnull=False).order_by('-voucher_no')[0]
+        if latest:
+            return (latest.voucher_no + 1)
+        else:
+            return 43001
 
     def next_receipt_no(self):
-        count = len(Transaction.objects.filter(receipt_no__isnull=False)) + 30501
-        return count
-    
+        latest = Transaction.objects.filter(receipt_no__isnull=False).order_by('-receipt_no')[0]
+        if latest:
+            return (latest.receipt_no + 1)
+        else:
+            return 30501
+        
     def next_off_voucher_no(self):
-        count=len(Transaction.objects.filter(off_voucher_no__isnull=False)) + 21001
-        return count
+        latest = Transaction.objects.filter(off_voucher_no__isnull=False).order_by('-off_voucher_no')[0]
+        if latest:
+            return (latest.off_voucher_no + 1)
+        else:
+            return 21001
         
 class Running_Balance(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
