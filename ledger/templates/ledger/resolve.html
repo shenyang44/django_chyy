@@ -38,7 +38,7 @@
                 <input type="hidden" name="off_trans_id" id=""  value="{{off_trans.id}}">
                 <input type="hidden" name="off_acc_id" value="{{off_acc.id}}">
                 <input type="hidden" name="acc_id" value="{{acc.id}}">
-                <summary>This transaction will debit the aforementioned client account({{acc.client_code}}) whilst crediting the stated office account.</summary>
+                <summary>This transaction will debit the aforementioned client file({{acc.client_code}}) whilst crediting the stated office account.</summary>
                 <div class="text-end">
                     <a href="{% url 'ledger:adat_index' %}" class="btn btn-secondary">Cancel</a>
                     <button id='transBtn' type='submit' class="btn btn-primary">Confirm</button>
@@ -49,8 +49,4 @@
         </div>
     </div>
 </div>
-<script charset="utf-8">
-$(()=>{
-    let transBtn = $('#transBtn');
-</script>
 {% endblock %}
