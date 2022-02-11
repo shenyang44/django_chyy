@@ -18,7 +18,7 @@ def brace_num(x):
         return x
 
 def index(request):
-    accounts =  Account.objects.filter(created_at__lte=timezone.now()).exclude(file_no__startswith='EXTERNAL').exclude(file_no__startswith='OFFICE')
+    accounts =  Account.objects.filter(created_at__lte=timezone.now()).filter(client_account=True).order_by('-updated_at')
     if len(accounts) > 0:
         balance = [brace_num(acc.balance) for acc in accounts]
         zipped = zip(accounts, balance)
