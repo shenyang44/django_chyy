@@ -147,8 +147,6 @@ def create_acc(request):
         client_acc_id = request.POST['client']
         subject_matter = request.POST['subject_matter']
         client_code = request.POST['client_code']
-        custom_receipt_no = request.POST.get('custom_vou_no')
-        custom_voucher_no = request.POST.get('custom_rec_no')
         subj_list = json.dumps([subject_matter])
         if owing == 'no':
             balance = -(Decimal(balance))
@@ -459,6 +457,8 @@ def create_trans(request, acc_id, trans_type):
         other_name = request.POST['other_name']
         curr_account = get_object_or_404(Account, pk=acc_id)
         subject_matter = request.POST.get('subject_matter')
+        custom_receipt_no = request.POST.get('custom_rec_no')
+        custom_voucher_no = request.POST.get('custom_vouch_no')
         resolved = True
         # model self ref prop is none unless it is an advance disburse, in which case, it links to the transaction made on the Off Acc.
         ad_link = None
@@ -523,16 +523,25 @@ def create_trans(request, acc_id, trans_type):
         off_v_no = None
         if payee.is_office():
             payee.balance -= total
-            off_v_no = Transaction.next_off_voucher_no(None)
+            if custom_voucher_no:
+                off_v_no = custom_voucher_no
+            else:
+                off_v_no = Transaction.next_off_voucher_no(None)
         elif payee.client_account:
             payee.balance += total
-            v_no = Transaction.next_voucher_no(None)
+            if custom_voucher_no:
+                v_no = custom_voucher_no
+            else:
+                v_no = Transaction.next_voucher_no(None)
 
         # if receiver is office acc, not credited yet, waiting to be cleared from the off acc page.
         cleared = True
         if receiver.client_account:
             receiver.balance -= total
-            r_no = Transaction.next_receipt_no(None)
+            if custom_receipt_no:
+                r_no = custom_receipt_no
+            else:
+                r_no = Transaction.next_receipt_no(None)
         else:
             cleared = False
 

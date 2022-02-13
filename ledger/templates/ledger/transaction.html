@@ -45,7 +45,9 @@
                         {% endif %}
                     </div>
                     <div class="text-end w-50">
+                        {%if not adat%}
                          <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#customNoModal">Custom PV/Rec No.</button>
+                        {%endif%}
                     </div>
                 </div>
                 {% endif %}
@@ -170,11 +172,11 @@ $(()=>{
             <div class="mb-3 d-flex" id='customNoDiv'>
                 <div class='w-50'>
                     <label class="form-label">Receipt No.</label>
-                    <input name='custom_rec_no' type="text" class="customNo form-control w-25" maxlength='5'>
+                    <input name='custom_rec_no' type="text" class="customNo form-control w-25" maxlength='5' value=''>
                 </div>
                 <div class='w-50'> 
                     <label class="form-label">Voucher No.</label>
-                    <input name='custom_vouch_no' type="text" class="customNo form-control w-25" maxlength='5'>
+                    <input name='custom_vouch_no' type="text" class="customNo form-control w-25" maxlength='5' value=''>
                 </div>
             </div>
         `)

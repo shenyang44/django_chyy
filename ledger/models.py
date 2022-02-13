@@ -76,9 +76,9 @@ class Transaction(models.Model):
     ad_link = models.ForeignKey('self', related_name='cli_ad_link', null=True, on_delete=models.CASCADE)
     checked = models.BooleanField(default=False)
     subj_matter = models.TextField(null=True)
-    voucher_no = models.IntegerField(null=True, unique=True, validators=[MinValueValidator(43001)])
-    receipt_no = models.IntegerField(null=True, unique=True, validators=[MinValueValidator(30501)])
-    off_voucher_no = models.IntegerField(null=True, unique=True, validators=[MinValueValidator(21001)])
+    voucher_no = models.IntegerField(null=True, unique=True,)
+    receipt_no = models.IntegerField(null=True, unique=True,)
+    off_voucher_no = models.IntegerField(null=True, unique=True,)
     voucher_ref = models.TextField(null=True)
     receipt_ref = models.TextField(null=True)
 
