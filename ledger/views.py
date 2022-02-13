@@ -147,6 +147,8 @@ def create_acc(request):
         client_acc_id = request.POST['client']
         subject_matter = request.POST['subject_matter']
         client_code = request.POST['client_code']
+        custom_receipt_no = request.POST.get('custom_vou_no')
+        custom_voucher_no = request.POST.get('custom_rec_no')
         subj_list = json.dumps([subject_matter])
         if owing == 'no':
             balance = -(Decimal(balance))

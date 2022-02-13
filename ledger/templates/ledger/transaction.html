@@ -18,7 +18,7 @@
             <div class="col"></div>
         {% endif %}
         <div class="col-8 col-xxl-7">
-            <h3 class="text-center mb-4">New {% if adat %} Advance Disbursement {% elif trans_type == 'cre' %}Receipt{%else%}Voucher{% endif %}</h3>
+            <h3 class="text-center mb-4">New {% if adat %}Advance Disbursement{% elif trans_type == 'cre' %}Receipt{%else%}Voucher{% endif %}</h3>
             <form id='transForm' action="{% url 'ledger:create_trans' account.id trans_type %}" method="post" class="mt-3">
                 {% csrf_token %}
                 <div class="mb-4 d-flex justify-content-around fs-5">
@@ -29,19 +29,24 @@
                     <div>Balance : {{balance}}</div>
                 </div>
                 {% if not account.is_office %}
-                <div class="mb-4 d-flex fs-5">
-                    <div>Subject Matter :</div>
-                    {% if subj_list %}
-                    <select class="form-select w-75 ms-2" name='subject_matter'aria-label="subject matter selector">
-                        <option selected value="{{account.subject_matter}}">{{account.subject_matter}}</option>
-                        {% for each in subj_list %}
-                            <option value="{{each}}">{{each}}</option>
-                        {% endfor %}
-                    </select>
-                    {% else %}
-                        <div class="ms-2">{{account.subject_matter}}</div>
-                        <input type="hidden" name="subject_matter" value="{{account.subject_matter}}">
-                    {% endif %}
+                <div class="mb-4 d-flex">
+                    <div class="w-50 d-flex fs-5">
+                        Subject Matter :
+                        {% if subj_list %}
+                        <select class="form-select ms-2 w-50" name='subject_matter'aria-label="subject matter selector">
+                            <option selected value="{{account.subject_matter}}">{{account.subject_matter}}</option>
+                            {% for each in subj_list %}
+                                <option value="{{each}}">{{each}}</option>
+                            {% endfor %}
+                        </select>
+                        {% else %}
+                            <div class="ms-2">{{account.subject_matter}}</div>
+                            <input type="hidden" name="subject_matter" value="{{account.subject_matter}}">
+                        {% endif %}
+                    </div>
+                    <div class="text-end w-50">
+                         <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#customNoModal">Custom PV/Rec No.</button>
+                    </div>
                 </div>
                 {% endif %}
                 <hr>
@@ -110,7 +115,7 @@
                 <div class="d-flex justify-content-evenly"><button id='addBtn' type="button">+ New Row</button> <button id='rmvBtn' type="button">- Remove Row</button></div> 
                 <input hidden name='table_data' id='tableData' type="text">
                 <label class="form-label" for="chequeText">Cheque No.</label>
-                <input class="formInput form-control" type="text" name="cheque_text" id="chequeText">
+                <input class="form-control" type="text" name="cheque_text" id="chequeText">
                 <br>
                 <div class="d-flex justify-content-between">
                     <button id='transBtn' disabled type='button' class="btn btn-primary">Confirm</button>
@@ -124,18 +129,62 @@
         <div class="col-xl"></div>
         {%endif%}
     </div>
+    <!-- Warning modal for manual ID input -->
+    <div class="modal fade" id="customNoModal" tabindex="-1" aria-labelledby="customNoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="customNoModalLabel">Custom Receipt/Voucher ID no.</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="fw-bold">
+                    This is only necessary if you wish to issue vouchers/receipts which do not follow the current sequence of numbers. By default, receipts and vouchers submitted will have automatically generated unique IDs.
+                </p>
+                <p>
+                    If the transaction will generate another voucher/receipt that needs to be stored, for example: <br>
+                    <em>From one client file to another client file, or from office account to the client file.</em><br>
+                    And you would like to have custom ID numbers for both entries, be sure to fill up both input fields presented.
+                </p>
+                <p>
+                    If you understand this and wish to continue, click on the "Understood" button below, otherwise you may close this pop-up.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="customConfirm" type="button" class="btn btn-primary" data-bs-dismiss="modal">Understood</button>
+            </div>
+            </div>
+        </div>
+    </div>
 </div>
 <script charset="utf-8">
 $(()=>{
     const ADAT = ('{{adat}}'=='True') ? true : false;
     const isOffice = ('{{account.is_office}}' == 'True') ? true : false;
+    const otherDiv = $('#otherDiv');
+    // putting 2 xtra input fields if user confirms custom ID nos.
+    $('#customConfirm').click(()=>{
+        $('#customNoDiv').remove()
+        otherDiv.before(`
+            <div class="mb-3 d-flex" id='customNoDiv'>
+                <div class='w-50'>
+                    <label class="form-label">Receipt No.</label>
+                    <input name='custom_rec_no' type="text" class="customNo form-control w-25" maxlength='5'>
+                </div>
+                <div class='w-50'> 
+                    <label class="form-label">Voucher No.</label>
+                    <input name='custom_vouch_no' type="text" class="customNo form-control w-25" maxlength='5'>
+                </div>
+            </div>
+        `)
+    })
     let transBtn = $('#transBtn');
     let otherParty = $('#otherParty');
     // Label and input change for other party depending on what was selected.
     otherParty.change((e)=>{
         let currVal = $(e.target).val()
         $('#otherInput').remove()
-        let otherDiv = $('#otherDiv')
         if (currVal == 'other'){
                 otherDiv.after(`
                     <div id='otherInput' class="mb-3">
@@ -312,7 +361,7 @@ $(()=>{
                 typeCodes[i] = typeCode;
             }
         })
-        return x;
+        return(x ? x : alert('No cells under the "For" header can be left empty.'));
     }
 
     // checks if all .amount inputs are positive numbs with 2 decimal places OR empty.
@@ -334,16 +383,16 @@ $(()=>{
                 y=false;
             }
         })
-        return y;
+        return (y?y:alert('Each amount must be a positive number with 2 decimal places OR empty. And the total cannot be 0.00'));
     }
 
     let fileNoList = JSON.parse('{{ file_no_list|escapejs }}')
-    cli_acc_check = () =>{
+    cliAccCheck = () =>{
         if ($("#otherCli").length < 1){
             return true;
         }
         if (!fileNoList.includes($('#otherCli').val())){
-            return false;
+            alert('The client file number provided does not exist.');
         } else{
             return true;
         }
@@ -354,23 +403,22 @@ $(()=>{
             return true;
         }
         let nonEmpty = /\S/;
-        return nonEmpty.test(otherName.val());
+        return (nonEmpty.test(otherName.val())?true:alert("Other party's name cannot be empty."))
     }
-    // runs the 3 functions above, and submits form if all are true.
+    
+    customNoCheck = () =>{
+        let x = true;
+        $('.customNo').each((i,e)=>{
+            let custNum = $(e).val();
+            if (!/^\d{5}$/.test(custNum) && custNum){
+                x = false;
+            }
+        })
+        return(x?x:alert('Custom receipt/voucher no. must either be a 5 digit number or blank.'))
+    }
+    // runs the functions above, and submits form if all are true.
     transBtn.click(()=>{
-        if (!emptyCheck()){
-            alert('No cells under the "For" header can be left empty.');
-            return;
-        } 
-        if (!amountCheck()){
-            alert('Each amount must be a positive number with 2 decimal places OR empty. And the total cannot be 0.00');
-            return;
-        }
-        if (!otherPartyCheck()){
-            alert("Other party's name cannot be empty.")
-            return;
-        }
-        if (cli_acc_check()){
+        if (emptyCheck() && amountCheck() && otherPartyCheck() && cliAccCheck() && customNoCheck()){
             let tableData = []; 
             for (let i = 0; i < amounts.length; i++){
                 tableData.push({
@@ -381,8 +429,6 @@ $(()=>{
             }
             $('#tableData').val(JSON.stringify(tableData));
             $('#transForm').submit();
-        } else{
-            alert('The client file number provided does not exist.')
         }
     })
 })
