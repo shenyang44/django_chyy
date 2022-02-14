@@ -21,13 +21,6 @@ def brace_num(x):
         return x
 
 def index(request):
-    prob_acc = Account.objects.get(name='YEOH CHOO HOR, PHOONG LI YAN & PHOONG LI SHAN')
-    prob_trans = Transaction.objects.get(payee=prob_acc, receiver=prob_acc)
-    ext_acc = new_external('YEOH CHOO HOR, PHOONG LI YAN & PHOONG LI SHAN')
-    ext_acc.save()
-    prob_trans.payee = ext_acc
-    prob_trans.save()
-
     accounts =  Account.objects.filter(created_at__lte=timezone.now()).filter(client_account=True).order_by('-updated_at')
     if len(accounts) > 0:
         balance = [brace_num(acc.balance) for acc in accounts]
