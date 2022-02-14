@@ -1,3 +1,4 @@
+from http import client
 from django.http.response import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Account, Transaction, Client_Account, Running_Balance, Type_Code
@@ -10,6 +11,7 @@ from decimal import Decimal
 from django.contrib import messages
 from datetime import date, datetime, time, timedelta
 import math, copy
+from .utils import new_external
 
 def brace_num(x):
     if x < 0:
@@ -407,7 +409,7 @@ def total_tax(request):
 
 def trans_cont(acc_id):
     account = get_object_or_404(Account, pk=acc_id)
-    other_cli_accs = Account.objects.filter(client_account__isnull=False).exclude(id = account.id)
+    other_cli_accs = Account.objects.filter(client_account=True).exclude(id=acc_id)
         
     file_no_list = [acc.file_no for acc in other_cli_accs]
 
@@ -473,14 +475,16 @@ def create_trans(request, acc_id, trans_type):
         elif other_party == 'client':
             other_party = get_object_or_404(Account, file_no=other_name )
         else:
-            try:
-                other_party = Account.objects.get(name=other_name)
-            except:
-                count = 0
-                count += len(Account.objects.filter(file_no__startswith='EXTERNAL'))
-                other_party = Account(name=other_name, file_no=f"EXTERNAL{count}", balance=0)
-                other_party.save()
-    
+            name_matches = Account.objects.filter(name=other_name)
+            if name_matches:
+                for each in name_matches:
+                    if each.is_external():
+                        other_party=new_external(other_name)
+                        break
+                other_party=new_external(other_name)
+            else:
+                other_party=new_external(other_name)
+                
         if trans_type == 'cre':
             payee = other_party
             receiver = curr_account
