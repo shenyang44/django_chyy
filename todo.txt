@@ -1,10 +1,13 @@
 ! file ref, description, payment, payee and debit account cols should be editable in receipts and vouchers entries in ledger
 ! check how much advance payment made on behalf of clients, and how much has been reimbursed. 
+    ^ done but need to have the datepicker ALSO totals for respective tabs
 
 make the index an alphabetical list. or something. 1 line per person?
 
 ask if prefer redirect to clearing page or off ledger upon off receipt
-ask ref no on off vouchers for ads to external. 
+ask ref no on off vouchers for ads to external.
+ask what to be in cheque text, for AT and the auto credit
+ask what does she want in the ref no. column for reimbursed AD
 
 warn user if client file no is duplicate
 
