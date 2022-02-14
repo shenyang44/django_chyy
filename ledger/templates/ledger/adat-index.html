@@ -2,83 +2,95 @@
 {% block title %}Outstanding AD/AT{% endblock %}
 
 {% block body %}
-<div class="print-n">
-    <div class='btn-cluster'>
-        <a class="btn btn-outline-secondary" href="{% url 'ledger:show_off' %}">View Full Ledger</a>
+<ul class="nav nav-tabs print-n mb-3" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="outstanding-tab" data-bs-toggle="tab" data-bs-target="#outstanding" type="button" role="tab" aria-controls="outstanding" aria-selected="true">Outstanding</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Total Payed Out</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">Reimbursed</button>
+    </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="outstanding" role="tabpanel" aria-labelledby="outstanding-tab">
+            <table class="table print-sm">
+                <colgroup>
+                    <col style="width: 8%;">
+                    <col style="width:10%;">
+                    <col style="width: 5%;">
+                    <col style="width: 30%;">
+                    <col style="width: 15%;">
+                    <col style="width:10%">
+                    <col style="width: 7%;">
+                </colgroup>
+                <thead>
+                    <tr style="border:none">
+                        <th colspan="7">
+                            <header class="fs-5 text-center mb-3">
+                                <div>MESSRS C.H.YEOH & YIEW</div>
+                                <div>Outstanding Advance Disbursements</div>
+                            </header>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="col">Ref No</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Recipient</th>
+                        <th class="text-center" scope="col">Amount</th>
+                        <th class="text-center" scope="col">Resolve</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for trans, entries in trans_zipped %}
+                    {% for each in entries %}
+                    <tr class="transRow" data-id="{{trans.id}}">
+                        <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
+                        <td class="refCell">
+                            {% if forloop.first %}
+                            PV{{trans.off_voucher_no}}
+                            {% endif %}
+                        </td>
+                        <td class="dateCell">
+                            {% if forloop.first %}
+                            {{trans.created_at|date:"d/m/Y"}}
+                            {% endif %}
+                        </td>
+                        <td>{{each.type_code}}</td>
+                        <td>
+                            {{each.description}}
+                        </td>
+                        <td>
+                            {{trans.receiver}}
+                        </td>
+                        <td class="text-center">{{each.amount}}</td>
+                        <td class="text-center">
+                            {% if forloop.last%}
+                            <a class="btn btn-outline-success" style="padding: 0px;" href="{% url 'ledger:resolve' trans.id %}">click</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+                    <tr class="transRow" data-id="{{each.id}}">
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="text-end fw-bold">Total</td>
+                        <td class="text-center fw-bold">{{total}}</td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
+        <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
     </div>
-    <hr>
-</div>
-<table class="table print-sm">
-    <colgroup>
-        <col style="width: 8%;">
-        <col style="width:10%;">
-        <col style="width: 5%;">
-        <col style="width: 30%;">
-        <col style="width: 15%;">
-        <col style="width:10%">
-        <col style="width: 7%;">
-    </colgroup>
-    <thead>
-        <tr style="border:none">
-            <th colspan="7">
-                <header class="fs-5 text-center mb-3">
-                    <div>MESSRS C.H.YEOH & YIEW</div>
-                    <div>Outstanding Advance Disbursements</div>
-                </header>
-            </td>
-        </tr>
-        <tr>
-            <th scope="col">Ref No</th>
-            <th scope="col">Date</th>
-            <th scope="col">Type</th>
-            <th scope="col">Description</th>
-            <th scope="col">Recipient</th>
-            <th class="text-center" scope="col">Amount</th>
-            <th class="text-center" scope="col">Resolve</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for trans, entries in trans_zipped %}
-        {% for each in entries %}
-        <tr class="transRow" data-id="{{trans.id}}">
-            <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
-            <td class="refCell">
-                {% if forloop.first %}
-                PV{{trans.off_voucher_no}}
-                {% endif %}
-            </td>
-            <td class="dateCell">
-                {% if forloop.first %}
-                {{trans.created_at|date:"d/m/Y"}}
-                {% endif %}
-            </td>
-            <td>{{each.type_code}}</td>
-            <td>
-                {{each.description}}
-            </td>
-            <td>
-                {{trans.receiver}}
-            </td>
-            <td class="text-center">{{each.amount}}</td>
-            <td class="text-center">
-                {% if forloop.last%}
-                <a class="btn btn-outline-success" style="padding: 0px;" href="{% url 'ledger:resolve' trans.id %}">click</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    {% endfor %}
-        <tr class="transRow" data-id="{{each.id}}">
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td class="text-end fw-bold">Total</td>
-            <td class="text-center fw-bold">{{total}}</td>
-            <td></td>
-        </tr>
-    </tbody>
-</table>
+
 <script charset="utf-8">
     $(()=>{
         $('.transRow').dblclick((e)=>{  

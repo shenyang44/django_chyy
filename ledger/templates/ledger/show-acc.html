@@ -264,24 +264,22 @@
                     <div data-bs-toggle="modal" data-bs-target="#delMod{{trans.id}}" class="red-x" data-id="{{trans.id}}">X</div> 
                     {% endif %}
                 </td>
-                {% if trans.voucher_no %}
+                {% if trans.payee == account and trans.voucher_no %}
                     <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
                     <td class="refCell">
-                        {% if trans.cheque_text == 'cancellation' %}
-                            null
-                        {% elif forloop.first %}
+                        {% if forloop.first %}
                             PV{{trans.voucher_no}}
                         {% endif %}
                     </td>
-                {% else %}
+                {% elif trans.receiver == account and trans.receipt_no %}
                     <a href="{% url 'ledger:receipt' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
                     <td class="refCell">
-                        {% if trans.cheque_text == 'cancellation' %}
-                            null
-                        {% elif forloop.first %}
+                        {% if forloop.first %}
                             RC{{trans.receipt_no}}
                         {% endif %}
                     </td>
+                {%else%}
+                    <td class="refCell"></td>
                 {% endif %}
                 <td>{% if forloop.first %}{{trans.created_at|date:"d/m/Y"}}{% endif %}</td>
                 <td>{{entry.type_code}}</td>
