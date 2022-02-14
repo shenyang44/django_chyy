@@ -1,5 +1,3 @@
-from http import client
-from django.dispatch import receiver
 from django.http.response import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Account, Transaction, Client_Account, Running_Balance, Type_Code
@@ -509,7 +507,7 @@ def create_trans(request, acc_id, trans_type):
         if adv_trans:
             off_id = request.POST['off_id']
             off_acc = Account.objects.get(id = off_id)
-            off_trans = Transaction(payee=off_acc, receiver=receiver, table_list=json.dumps(table_list_cpy), total=total, cheque_text=cheque_text, resolved=False, off_voucher_no=Transaction.next_off_voucher_no(None))
+            off_trans = Transaction(payee=off_acc, receiver=receiver, table_list=json.dumps(table_list_cpy), total=total, cheque_text=cheque_text, resolved=False, off_voucher_no=Transaction.next_off_voucher_no(None), category='AD')
             off_acc.balance -= total
             try:
                 off_acc.save()
@@ -654,6 +652,77 @@ def create_ad(request, acc_id):
     })
     return render(request, 'ledger/transaction.html', context=context )
 
+def resolve(request, trans_id):
+    if request.method == "GET":
+        try:
+            trans = Transaction.objects.get(pk=trans_id)
+        except:
+            messages.error(request,'Transaction that was attempted to be cleared could not be retrieved.')
+            return redirect(reverse('ledger:adat_index'))
+        cli_trans = trans.cli_ad_link.get()
+        curr_acc = cli_trans.payee
+        off_acc = trans.payee
+        balance = brace_num(curr_acc.balance)
+        context= receipt_voucher_retriever(cli_trans.id)
+            
+        context.update({
+            'acc':curr_acc,
+            'off_acc':off_acc,
+            'balance': balance,
+            'off_trans':trans
+        })
+        return render(request, 'ledger/resolve.html', context=context)
+
+    else:
+        try:
+            trans = Transaction.objects.get(pk=request.POST['trans_id'])
+            off_trans = Transaction.objects.get(pk=request.POST['off_trans_id'])
+            acc = Account.objects.get(pk=request.POST['acc_id'])
+            off_acc = Account.objects.get(pk=request.POST['off_acc_id'])
+        except:
+            messages.error(request, 'Advance disbursement resolution failed, could not retrieved transaction/account object(s).')
+            return redirect(reverse('ledger:adat_index'))
+        
+        total = trans.total
+        table_list=[{
+            'description':f'Payment reimbursement from clients account for office PV{off_trans.off_voucher_no}',
+            'amount': f'{trans.total}',
+            'type_code':'AT'
+        }]
+        
+        new_trans = Transaction(payee=acc, receiver=off_acc, table_list=json.dumps(table_list), total=total, voucher_no=Transaction.next_voucher_no(None), category='AT')
+        table_list=[{
+            "description": f"Payment reimbursement from clients account for PV{trans.voucher_no}",
+            "amount":f"{trans.total}",
+            "type_code":"AT"
+        }]
+        try:
+            auth_acc = Account.objects.get(file_no='EXTERNAL_auth_acc')
+        except:
+            auth_acc= Account(name='Account for Pre-auth Debit', file_no='EXTERNAL_auth_acc', balance=0)
+            auth_acc.save()
+        pre_auth_debit = Transaction(payee=auth_acc, receiver=acc, table_list=json.dumps(table_list), total=total, receipt_no= Transaction.next_receipt_no(None), receipt_ref=f'Office account voucher no.{off_trans.off_voucher_no}')
+        trans.resolved = True
+        off_trans.resolved = True
+        off_acc.balance += total
+        try:
+            pre_auth_debit.save()
+            trans.save()
+            off_trans.save()
+            off_acc.save()
+            new_trans.save()
+        except:
+            messages.error(request, 'An error occured saving resolved and new transactions.')
+            return redirect(reverse('ledger:resolve'))
+        rb = Running_Balance(account=off_acc, transaction=new_trans, value=off_acc.balance)
+        rb1 = Running_Balance(account=acc, transaction=pre_auth_debit, value=acc.balance-total)
+        rb2 = Running_Balance(account=acc, transaction=new_trans, value=acc.balance)
+        rb.save()
+        rb1.save()
+        rb2.save()
+        messages.success(request, 'Successfully resolved.')
+        return redirect(reverse('ledger:adat_index'))
+
 def receipt_voucher_retriever(trans_id):
     transaction = get_object_or_404(Transaction, pk = trans_id)
     table_list = json.loads(transaction.table_list)
@@ -770,83 +839,20 @@ def adat_index(request):
         for trans in unresolved_trans:
             total += trans.total
             entries_list.append(json.loads(trans.table_list))
-            
+                
+        total_payed = [x for x in Transaction.objects.filter(category='AD') if x.payee.is_office()]
+        payed_entry_list = [json.loads(x.table_list) for x in total_payed]
+
+        reimbursed = [y for y in Transaction.objects.filter(category='AT') if y.receiver.is_office()]
+        reimbursed_table_list = [json.loads(y.table_list) for y in reimbursed]
+
         context = {
             'total': total,
             'trans_zipped': zip(unresolved_trans, entries_list),
+            'total_zipped' : zip(total_payed,payed_entry_list),
+            'reimbursed_zipped' : zip(reimbursed, reimbursed_table_list)
         }
         return render(request, 'ledger/adat-index.html', context=context)
-
-def resolve(request, trans_id):
-    if request.method == "GET":
-        try:
-            trans = Transaction.objects.get(pk=trans_id)
-        except:
-            messages.error(request,'Transaction that was attempted to be cleared could not be retrieved.')
-            return redirect(reverse('ledger:adat_index'))
-        cli_trans = trans.cli_ad_link.get()
-        curr_acc = cli_trans.payee
-        off_acc = trans.payee
-        balance = brace_num(curr_acc.balance)
-        context= receipt_voucher_retriever(cli_trans.id)
-            
-        context.update({
-            'acc':curr_acc,
-            'off_acc':off_acc,
-            'balance': balance,
-            'off_trans':trans
-        })
-        return render(request, 'ledger/resolve.html', context=context)
-
-    else:
-        try:
-            trans = Transaction.objects.get(pk=request.POST['trans_id'])
-            off_trans = Transaction.objects.get(pk=request.POST['off_trans_id'])
-            acc = Account.objects.get(pk=request.POST['acc_id'])
-            off_acc = Account.objects.get(pk=request.POST['off_acc_id'])
-        except:
-            messages.error(request, 'Advance disbursement resolution failed, could not retrieved transaction/account object(s).')
-            return redirect(reverse('ledger:adat_index'))
-        
-        total = trans.total
-        table_list=[{
-            'description':f'Payment reimbursement from clients account for office PV{off_trans.off_voucher_no}',
-            'amount': f'{trans.total}',
-            'type_code':'AT'
-        }]
-        
-        new_trans = Transaction(payee=acc, receiver=off_acc, table_list=json.dumps(table_list), total=total, cheque_text='customisable', voucher_no=Transaction.next_voucher_no(None))
-        table_list=[{
-            "description": f"Payment reimbursement from clients account for PV{trans.voucher_no}",
-            "amount":f"{trans.total}",
-            "type_code":"AT"
-        }]
-        try:
-            auth_acc = Account.objects.get(file_no='EXTERNAL_auth_acc')
-        except:
-            auth_acc= Account(name='Account for Pre-auth Debit', file_no='EXTERNAL_auth_acc', balance=0)
-            auth_acc.save()
-        pre_auth_debit = Transaction(payee=auth_acc, receiver=acc, table_list=json.dumps(table_list), total=total, cheque_text='customisable', receipt_no= Transaction.next_receipt_no(None), receipt_ref=f'Office account voucher no.{off_trans.off_voucher_no}')
-        trans.resolved = True
-        off_trans.resolved = True
-        off_acc.balance += total
-        try:
-            pre_auth_debit.save()
-            trans.save()
-            off_trans.save()
-            off_acc.save()
-            new_trans.save()
-        except:
-            messages.error(request, 'An error occured saving resolved and new transactions.')
-            return redirect(reverse('ledger:resolve'))
-        rb = Running_Balance(account=off_acc, transaction=new_trans, value=off_acc.balance)
-        rb1 = Running_Balance(account=acc, transaction=pre_auth_debit, value=acc.balance-total)
-        rb2 = Running_Balance(account=acc, transaction=new_trans, value=acc.balance)
-        rb.save()
-        rb1.save()
-        rb2.save()
-        messages.success(request, 'Successfully resolved.')
-        return redirect(reverse('ledger:adat_index'))
 
 def custom_receipt(request, acc_id):
     if request.method == 'GET':

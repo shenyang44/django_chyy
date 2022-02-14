@@ -7,10 +7,10 @@
         <button class="nav-link active" id="outstanding-tab" data-bs-toggle="tab" data-bs-target="#outstanding" type="button" role="tab" aria-controls="outstanding" aria-selected="true">Outstanding</button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Total Payed Out</button>
+        <button class="nav-link" id="total-tab" data-bs-toggle="tab" data-bs-target="#total" type="button" role="tab" aria-controls="total" aria-selected="false">Total Payed Out</button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">Reimbursed</button>
+        <button class="nav-link" id="reimbursed-tab" data-bs-toggle="tab" data-bs-target="#reimbursed" type="button" role="tab" aria-controls="reimbursed" aria-selected="false">Reimbursed</button>
     </li>
     </ul>
     <div class="tab-content" id="myTabContent">
@@ -41,7 +41,6 @@
                         <th scope="col">Description</th>
                         <th scope="col">Recipient</th>
                         <th class="text-center" scope="col">Amount</th>
-                        <th class="text-center" scope="col">Resolve</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,8 +86,133 @@
                 </tbody>
             </table>
         </div>
-        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
-        <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
+        <div class="tab-pane fade" id="total" role="tabpanel" aria-labelledby="total-tab">
+            <table class="table print-sm">
+                <colgroup>
+                    <col style="width: 8%;">
+                    <col style="width:10%;">
+                    <col style="width: 5%;">
+                    <col style="width: 30%;">
+                    <col style="width: 15%;">
+                    <col style="width:10%">
+                </colgroup>
+                <thead>
+                    <tr style="border:none">
+                        <th colspan="7">
+                            <header class="fs-5 text-center mb-3">
+                                <div>MESSRS C.H.YEOH & YIEW</div>
+                                <div>Total Advance Disbursements Payed Out</div>
+                            </header>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="col">Ref No</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Recipient</th>
+                        <th class="text-center" scope="col">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trans, entries in total_zipped %}
+                        {% for each in entries %}
+                        <tr class="transRow" data-id="{{trans.id}}">
+                            <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
+                            <td class="refCell">
+                                {% if forloop.first %}
+                                PV{{trans.off_voucher_no}}
+                                {% endif %}
+                            </td>
+                            <td class="dateCell">
+                                {% if forloop.first %}
+                                {{trans.created_at|date:"d/m/Y"}}
+                                {% endif %}
+                            </td>
+                            <td>{{trans.category}}</td>
+                            <td>
+                                {{each.description}}
+                            </td>
+                            <td>
+                                {{trans.receiver}}
+                            </td>
+                            <td class="text-center">{{each.amount}}</td>
+                        </tr>
+                        {% endfor %}
+                    {% endfor %}
+                    <tr class="transRow" data-id="{{each.id}}">
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="text-end fw-bold">Total</td>
+                        <td class="text-center fw-bold"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="tab-pane fade" id="reimbursed" role="tabpanel" aria-labelledby="reimbursed-tab">
+            <table class="table print-sm">
+                <colgroup>
+                    <col style="width: 8%;">
+                    <col style="width:10%;">
+                    <col style="width: 5%;">
+                    <col style="width: 30%;">
+                    <col style="width: 15%;">
+                    <col style="width:10%">
+                </colgroup>
+                <thead>
+                    <tr style="border:none">
+                        <th colspan="7">
+                            <header class="fs-5 text-center mb-3">
+                                <div>MESSRS C.H.YEOH & YIEW</div>
+                                <div>Reimbursed AD</div>
+                            </header>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="col">Ref No</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Recipient</th>
+                        <th class="text-center" scope="col">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trans, entries in reimbursed_zipped %}
+                        {% for each in entries %}
+                        <tr class="transRow" data-id="{{trans.id}}">
+                            <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
+                            <td class="refCell">
+                            </td>
+                            <td class="dateCell">
+                                {% if forloop.first %}
+                                {{trans.created_at|date:"d/m/Y"}}
+                                {% endif %}
+                            </td>
+                            <td>{{trans.category}}</td>
+                            <td>
+                                {{each.description}}
+                            </td>
+                            <td>
+                                {{trans.receiver}}
+                            </td>
+                            <td class="text-center">{{each.amount}}</td>
+                        </tr>
+                        {% endfor %}
+                    {% endfor %}
+                    <tr class="transRow" data-id="{{each.id}}">
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="text-end fw-bold">Total</td>
+                        <td class="text-center fw-bold"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
 <script charset="utf-8">
