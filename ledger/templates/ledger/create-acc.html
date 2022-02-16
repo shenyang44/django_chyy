@@ -11,7 +11,7 @@
             <form id='newAccForm' action="{% url 'ledger:create_acc' %}" method="post">
                 {% csrf_token %}
                 <div class="mb-3 w-75">
-                    <label for="nameInput" class="form-label">File Owner's Name</label>
+                    <label for="nameInput" class="form-label">Client's Name</label>
                     <input name='name' type="text" class="formInput form-control" id="nameInput">
                 </div>
                 <div class="d-flex justify-content-between mb-3">
