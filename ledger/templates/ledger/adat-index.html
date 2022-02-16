@@ -2,6 +2,15 @@
 {% block title %}Outstanding AD/AT{% endblock %}
 
 {% block body %}
+<div class="d-flex mb-3">
+    <div class="me-3">
+        Date from:&nbsp;<input name='date_from' class="datepicker text-center" type="text" id="datepickerFrom" value="" autocomplete="off">
+    </div>
+    <div class="me-3">
+        Date to:&nbsp;<input name='date_to' class='datepicker text-center' type="text" id="datepickerTo" value="{% now 'd/m/Y' %}" autocomplete="off">
+    </div>
+    <button id="dateUpdate">Update</button>
+</div>
 <ul class="nav nav-tabs print-n mb-3" id="myTab" role="tablist">
     <li class="nav-item" role="presentation">
         <button class="nav-link active" id="outstanding-tab" data-bs-toggle="tab" data-bs-target="#outstanding" type="button" role="tab" aria-controls="outstanding" aria-selected="true">Outstanding</button>
@@ -179,48 +188,70 @@
                         <th class="text-center" scope="col">Amount</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for trans, entries in reimbursed_zipped %}
-                        {% for each in entries %}
-                        <tr class="transRow" data-id="{{trans.id}}">
-                            <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
-                            <td class="refCell">
-                            </td>
-                            <td class="dateCell">
-                                {% if forloop.first %}
-                                {{trans.created_at|date:"d/m/Y"}}
-                                {% endif %}
-                            </td>
-                            <td>{{trans.category}}</td>
-                            <td>
-                                {{each.description}}
-                            </td>
-                            <td>
-                                {{trans.receiver}}
-                            </td>
-                            <td class="text-center">{{each.amount}}</td>
-                        </tr>
-                        {% endfor %}
-                    {% endfor %}
-                    <tr class="transRow" data-id="{{each.id}}">
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="text-end fw-bold">Total</td>
-                        <td class="text-center fw-bold"></td>
-                    </tr>
+                <tbody id="reimbursedBody">
                 </tbody>
             </table>
         </div>
     </div>
 
 <script charset="utf-8">
-    $(()=>{
-        $('.transRow').dblclick((e)=>{  
-            id = $(e.currentTarget).attr('data-id');
-            $(`#a${id}`)[0].click()           
-        })
+$(()=>{
+    $('.transRow').dblclick((e)=>{  
+        id = $(e.currentTarget).attr('data-id');
+        $(`#a${id}`)[0].click()           
     })
+    // jquery date picker
+    $(".datepicker").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: 'dd/mm/yy'
+    });
+    $('#dateUpdate').click(()=>{
+        let dateFrom=$('#datepickerFrom').val();
+        let dateTo = $('#datepickerTo').val();
+        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dateFrom) || !/^\d{2}\/\d{2}\/\d{4}$/.test(dateTo)){
+           alert('Both "Date from" and "Date to" have to be filled up, following\ndd/mm/yyyy format.')
+        } else{
+            let sliDateFrom = dateFrom.slice(-4) + dateFrom.slice(3,5) + dateFrom.slice(0,2)
+            let sliDateTo =  dateTo.slice(-4) + dateTo.slice(3,5) + dateTo.slice(0,2)
+            console.log(sliDateFrom )
+            if (sliDateTo<sliDateFrom){
+                alert('"Date to" needs to be after "Date from".')
+            }
+        }
+    })
+    let reimbursed = JSON.parse("{{reimbursed_list|escapejs}}");
+    for (const [i, trans] of reimbursed.entries()){
+        for (const each of trans.table_list){
+            $('#reimbursedBody').append(
+                `<tr class="transRow">
+                <td class="refCell">
+                </td>
+                <td class="dateCell">
+                    ${trans.created_at}
+                </td>
+                <td>${trans.category}</td>
+                <td>
+                    ${each.description}
+                </td>
+                <td>
+                    ${trans.receiver}
+                </td>
+                <td class="text-center">${each.amount}</td>
+            </tr>`
+            )
+        }
+    }
+    $('#reimbursedBody').append(`
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td class="text-end fw-bold">Total</td>
+        <td class="text-center fw-bold"></td>
+    </tr>
+    `)
+})
 </script>
 {% endblock %}
