@@ -1,4 +1,7 @@
+from django.shortcuts import get_object_or_404, redirect
 from .models import Account
+from django.urls import reverse
+
 def new_external(name):
     count = 0
     count += len(Account.objects.filter(file_no__startswith='EXTERNAL'))
@@ -14,3 +17,10 @@ def categorize_ad():
         if tbl_list[0]['type_code'] == 'AD':
             each.category = 'AD'
             each.save()
+
+def redirect_to(acc_id):
+    acc = get_object_or_404(Account, pk=acc_id)
+    if acc.is_office():
+        return redirect(reverse('ledger:show_off', args=(acc_id,)))
+    else:
+        return redirect(reverse('ledger:show_acc', args=(acc_id,)))

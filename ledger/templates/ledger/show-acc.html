@@ -232,7 +232,7 @@
         {% for entry in entries %}
             <tr class="transRow" data-id="{{trans.id}}">
                 <td class="text-center">
-                    {% if forloop.first %}
+                    {% if forloop.first and trans.cheque_text != 'cancellation' %}
                     <!-- Cancellation modal -->
                     <div class="modal fade" id="delMod{{trans.id}}" tabindex="-1" aria-labelledby="delModLabel" aria-hidden="true">
                         <div class="modal-dialog">
@@ -285,16 +285,8 @@
                 <td>{{entry.type_code}}</td>
                 <td>{{trans.cli_acc.name}}</td>
                 <td>
-                    <div class="d-flex justify-content-between">
-                        {% if trans.cheque_text == 'cancellation' %}
-                            {% if trans.payee == account %}
-                                Cancellation of RC{{entry.description|add:"0"|stringformat:"05d"}}
-                            {%else%}
-                                Cancellation of PV{{entry.description|add:"0"|stringformat:"05d"}}
-                            {%endif%}
-                        {% else %}
-                            {{entry.description}}
-                        {% endif %}
+                    <div class="d-flex justify-content-between">  
+                        {{entry.description}}
                     </div>
                 </td>
                 <td class="text-center">{% if trans.payee == account %}{{entry.amount}} {% endif %}</td>

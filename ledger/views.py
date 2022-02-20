@@ -10,7 +10,7 @@ from decimal import Decimal
 from django.contrib import messages
 from datetime import date, datetime, time, timedelta
 import math, copy
-from .utils import new_external
+from .utils import new_external, redirect_to
 from django.core.serializers.json import DjangoJSONEncoder
 
 def brace_num(x):
@@ -588,31 +588,38 @@ def counter_trans(request):
         acc_id = int(request.POST['acc_id'])
         try:
             trans = Transaction.objects.get(pk=trans_id)
+            if trans.cheque_text == 'cancellation':
+                messages.warning(request, 'That transaction has already been cancelled.')
+                return redirect_to(acc_id)
             acc = Account.objects.get(pk=acc_id)
         except:
             messages.error(request, 'Could not retrieve the transaction or account.')
             return redirect(reverse('ledger:index'))
-        payee = trans.payee
-        receiver = trans.receiver
-        total = trans.total
-        cleared = trans.cleared
-        entry = [{
-            'description':trans_id,
-            'amount':str(total),
-            'type_code':'NA'
-        }]
-
+        
         try:
             cancel_acc = Account.objects.get(file_no='EXTERNAL_cancel_acc')
         except:
             cancel_acc= Account(name='Transaction Cancellation acc', file_no='EXTERNAL_cancel_acc', balance=0)
             cancel_acc.save()
 
+        payee = trans.payee
+        receiver = trans.receiver
+        total = trans.total
+        cleared = trans.cleared
+        
+        ori_p_entry = [{
+            'description':f'Cancellation of PV{trans.voucher_no}',
+            'amount':str(total),
+            'type_code':'NA',
+        }]
+        ori_r_entry = [{
+            'description':f'Cancellation of RC{trans.receipt_no}',
+            'amouint':str(total),
+            'type_code':'NA'
+        }]
+
         if not cleared:
-            receiver = cancel_acc
             payee.balance -= total
-            new_trans = Transaction(total=total, receiver=payee, payee=receiver, table_list=json.dumps(entry), category='NA', cli_acc=trans.cli_acc, cleared=True, cheque_text='cancellation')
-            trans.receiver = receiver
         else:
             if payee.is_office():
                 payee.balance += total
@@ -622,24 +629,24 @@ def counter_trans(request):
                 receiver.balance -= total
             else:
                 receiver.balance += total
-            new_trans = Transaction(total=total, receiver=payee, payee=receiver, table_list=json.dumps(entry), category='NA', cli_acc=trans.cli_acc, cleared=True, cheque_text='cancellation')
-        
+            
+        ori_payee_trans = Transaction(total=total, receiver=payee, payee=cancel_acc, table_list=json.dumps(ori_p_entry), category='NA', cli_acc=trans.cli_acc, cleared=True, cheque_text='cancellation')
+        ori_receiver_trans = Transaction(total=total, receiver=cancel_acc, payee=receiver, table_list=json.dumps(ori_r_entry), category='NA', cli_acc=trans.cli_acc, cleared=True, cheque_text='cancellation')
+        trans.cheque_text = 'cancellation'
         try:
+            ori_payee_trans.save()
+            ori_receiver_trans.save()
             trans.save()
-            new_trans.save()
             payee.save()
             receiver.save()
-            rb_p = Running_Balance(account=payee, transaction=new_trans, value=payee.balance)
-            rb_r = Running_Balance(account=receiver, transaction=new_trans, value=receiver.balance)
+            rb_p = Running_Balance(account=payee, transaction=ori_payee_trans, value=payee.balance)
+            rb_r = Running_Balance(account=receiver, transaction=ori_receiver_trans, value=receiver.balance)
             rb_p.save()
             rb_r.save()
         except:
             messages.error(request, 'Error occurred while saving counter transaction.')
 
-        if acc.is_office():
-            return redirect(reverse('ledger:show_off', args=(acc_id,)))
-        else:
-            return redirect(reverse('ledger:show_acc', args=(acc_id,)))
+        return redirect_to(acc_id)
 
 def create_ad(request, acc_id):
     curr_acc = get_object_or_404(Account, pk = acc_id)
