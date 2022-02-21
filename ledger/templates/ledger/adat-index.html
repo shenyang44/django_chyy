@@ -1,7 +1,7 @@
 {% extends 'ledger/layout.html' %}
 {% block title %}Outstanding AD/AT{% endblock %}
-
 {% block body %}
+{% load static %}
 <div class="d-flex mb-3">
     <div class="me-3">
         Date from:&nbsp;<input name='date_from' class="datepicker text-center" type="text" id="datepickerFrom" value="" autocomplete="off">
@@ -193,7 +193,7 @@
             </table>
         </div>
     </div>
-
+<script src="{% static 'ledger/utils.js' %}"></script>
 <script charset="utf-8">
 $(()=>{
     $('.transRow').dblclick((e)=>{  
@@ -211,16 +211,12 @@ $(()=>{
         let dateTo = $('#datepickerTo').val();
         if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dateFrom) || !/^\d{2}\/\d{2}\/\d{4}$/.test(dateTo)){
            alert('Both "Date from" and "Date to" have to be filled up, following\ndd/mm/yyyy format.')
-        } else{
-            let sliDateFrom = dateFrom.slice(-4) + dateFrom.slice(3,5) + dateFrom.slice(0,2)
-            let sliDateTo =  dateTo.slice(-4) + dateTo.slice(3,5) + dateTo.slice(0,2)
-            console.log(sliDateFrom )
-            if (sliDateTo<sliDateFrom){
-                alert('"Date to" needs to be after "Date from".')
-            }
+        } else if (dateTo_lt_dateFrom(dateTo,dateFrom)){
+            alert('"Date to" needs to be after "Date from".')
         }
     })
     let reimbursed = JSON.parse("{{reimbursed_list|escapejs}}");
+    let reimbursedTotal = '{{reimbursed_total}}'
     for (const [i, trans] of reimbursed.entries()){
         for (const each of trans.table_list){
             $('#reimbursedBody').append(
@@ -249,7 +245,7 @@ $(()=>{
         <td></td>
         <td></td>
         <td class="text-end fw-bold">Total</td>
-        <td class="text-center fw-bold"></td>
+        <td class="text-center fw-bold">${reimbursedTotal}</td>
     </tr>
     `)
 })

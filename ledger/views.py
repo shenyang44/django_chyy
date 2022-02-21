@@ -853,6 +853,7 @@ def adat_index(request):
 
         reimbursed = [y for y in Transaction.objects.filter(category='AT') if y.receiver.is_office()]
         reimbursed_list=[]
+        reimbursed_total = Decimal(0.00)
         for each in reimbursed:
             reimbursed_list.append({
                 'id':each.id,
@@ -863,12 +864,14 @@ def adat_index(request):
                 'total' : str(each.total),
                 'category': each.category,
             })
+            reimbursed_total += each.total
 
         context = {
             'total': total,
             'trans_zipped': zip(unresolved_trans, entries_list),
             'total_zipped' : zip(total_payed,payed_entry_list),
             'reimbursed_list' : json.dumps(reimbursed_list),
+            'reimbursed_total' : reimbursed_total,
         }
         return render(request, 'ledger/adat-index.html', context=context)
 
