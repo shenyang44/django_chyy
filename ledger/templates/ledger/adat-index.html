@@ -139,10 +139,10 @@ $(()=>{
         let dateTo = $('#datepickerTo').val();
         if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dateFrom) || !/^\d{2}\/\d{2}\/\d{4}$/.test(dateTo)){
            alert('Both "Date from" and "Date to" have to be filled up, following\ndd/mm/yyyy format.')
-        } else if (date1_lt_date2(dateTo,dateFrom)){
-            alert('"Date to" needs to be after "Date from".')
+        } else if (!date1_lte_date2(dateFrom,dateTo)){
+            alert('"Date to" needs to be after "Date from".(same date accepted)')
         } else{
-            updateTabs(dateFrom, dateTo, JSON.parse('{{reimbursed_list|escapejs}}'), JSON.parse('{{total_payed|escapejs}}'),JSON.parse('{{outstanding|escapejs}}'))
+            updateTabs(dateFrom, dateTo, JSON.parse('{{reimbursed_list|escapejs}}'), JSON.parse('{{total_payed|escapejs}}'),JSON.parse('{{outstanding|escapejs}}'));
         }
     })
     $('#dateUpdate').click()
