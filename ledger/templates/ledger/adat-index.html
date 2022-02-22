@@ -50,49 +50,10 @@
                         <th scope="col">Description</th>
                         <th scope="col">Recipient</th>
                         <th class="text-center" scope="col">Amount</th>
+                        <th scope="col" class="text-center">Resolve</th>
                     </tr>
                 </thead>
-                <tbody>
-                {% for trans, entries in trans_zipped %}
-                    {% for each in entries %}
-                    <tr class="transRow" data-id="{{trans.id}}">
-                        <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
-                        <td class="refCell">
-                            {% if forloop.first %}
-                            PV{{trans.off_voucher_no}}
-                            {% endif %}
-                        </td>
-                        <td class="dateCell">
-                            {% if forloop.first %}
-                            {{trans.created_at|date:"d/m/Y"}}
-                            {% endif %}
-                        </td>
-                        <td>{{each.type_code}}</td>
-                        <td>
-                            {{each.description}}
-                        </td>
-                        <td>
-                            {{trans.receiver}}
-                        </td>
-                        <td class="text-center">{{each.amount}}</td>
-                        <td class="text-center">
-                            {% if forloop.last%}
-                            <a class="btn btn-outline-success" style="padding: 0px;" href="{% url 'ledger:resolve' trans.id %}">click</a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                {% endfor %}
-                    <tr class="transRow" data-id="{{each.id}}">
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="text-end fw-bold">Total</td>
-                        <td class="text-center fw-bold">{{total}}</td>
-                        <td></td>
-                    </tr>
-                </tbody>
+                <tbody id="outstandingBody"></tbody>
             </table>
         </div>
         <div class="tab-pane fade" id="total" role="tabpanel" aria-labelledby="total-tab">
@@ -123,41 +84,7 @@
                         <th class="text-center" scope="col">Amount</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for trans, entries in total_zipped %}
-                        {% for each in entries %}
-                        <tr class="transRow" data-id="{{trans.id}}">
-                            <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
-                            <td class="refCell">
-                                {% if forloop.first %}
-                                PV{{trans.off_voucher_no}}
-                                {% endif %}
-                            </td>
-                            <td class="dateCell">
-                                {% if forloop.first %}
-                                {{trans.created_at|date:"d/m/Y"}}
-                                {% endif %}
-                            </td>
-                            <td>{{trans.category}}</td>
-                            <td>
-                                {{each.description}}
-                            </td>
-                            <td>
-                                {{trans.receiver}}
-                            </td>
-                            <td class="text-center">{{each.amount}}</td>
-                        </tr>
-                        {% endfor %}
-                    {% endfor %}
-                    <tr class="transRow" data-id="{{each.id}}">
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="text-end fw-bold">Total</td>
-                        <td class="text-center fw-bold"></td>
-                    </tr>
-                </tbody>
+                <tbody id="totalPayedBody"></tbody>
             </table>
         </div>
         <div class="tab-pane fade" id="reimbursed" role="tabpanel" aria-labelledby="reimbursed-tab">
@@ -215,7 +142,7 @@ $(()=>{
         } else if (date1_lt_date2(dateTo,dateFrom)){
             alert('"Date to" needs to be after "Date from".')
         } else{
-            updateTabs(dateFrom, dateTo, JSON.parse('{{reimbursed_list|escapejs}}'))
+            updateTabs(dateFrom, dateTo, JSON.parse('{{reimbursed_list|escapejs}}'), JSON.parse('{{total_payed|escapejs}}'),JSON.parse('{{outstanding|escapejs}}'))
         }
     })
     $('#dateUpdate').click()

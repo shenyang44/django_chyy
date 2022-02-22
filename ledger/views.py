@@ -10,7 +10,7 @@ from decimal import Decimal
 from django.contrib import messages
 from datetime import date, datetime, time, timedelta
 import math, copy
-from .utils import new_external, redirect_to
+from .utils import json_prep, new_external, redirect_to
 from django.core.serializers.json import DjangoJSONEncoder
 
 def brace_num(x):
@@ -841,37 +841,19 @@ def remove_tc(request, tc_id):
 
 def adat_index(request):
     if request.method == "GET":
-        unresolved_trans = Transaction.objects.filter(resolved = False, ad_link__isnull = True)
-        total = 0
-        entries_list=[]
-        for trans in unresolved_trans:
-            total += trans.total
-            entries_list.append(json.loads(trans.table_list))
+        unresolved = Transaction.objects.filter(resolved = False, ad_link__isnull = True).order_by('created_at')
+        unresolved_list = json_prep(unresolved)
                 
-        total_payed = [x for x in Transaction.objects.filter(category='AD') if x.payee.is_office()]
-        payed_entry_list = [json.loads(x.table_list) for x in total_payed]
+        total_payed = [x for x in Transaction.objects.filter(category='AD').order_by('created_at') if x.payee.is_office()]
+        total_payed_list = json_prep(total_payed)
 
-        reimbursed = [y for y in Transaction.objects.filter(category='AT') if y.receiver.is_office()]
-        reimbursed_list=[]
-        reimbursed_total = Decimal(0.00)
-        for each in reimbursed:
-            reimbursed_list.append({
-                'id':each.id,
-                'created_at':each.created_at.strftime('%d/%m/%Y'),
-                'receiver':each.receiver.name,
-                'payee':each.payee.name,
-                'table_list': json.loads(each.table_list),
-                'total' : str(each.total),
-                'category': each.category,
-            })
-            reimbursed_total += each.total
+        reimbursed = [y for y in Transaction.objects.filter(category='AT').order_by('created_at') if y.receiver.is_office()]
+        reimbursed_list = json_prep(reimbursed)
 
         context = {
-            'total': total,
-            'trans_zipped': zip(unresolved_trans, entries_list),
-            'total_zipped' : zip(total_payed,payed_entry_list),
-            'reimbursed_list' : json.dumps(reimbursed_list),
-            'reimbursed_total' : reimbursed_total,
+            'outstanding': unresolved_list,
+            'total_payed' : total_payed_list,
+            'reimbursed_list' : reimbursed_list,
         }
         return render(request, 'ledger/adat-index.html', context=context)
 

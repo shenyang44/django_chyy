@@ -1,6 +1,6 @@
-! file ref, description, payment, payee and debit account cols should be editable in receipts and vouchers entries in ledger
-! check how much advance payment made on behalf of clients, and how much has been reimbursed. 
-    ^ done but need to have the datepicker ALSO totals for respective tabs
+
+!add voucher links in ad tabs and resovle button for outstanding
+<a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
 
 ask if prefer redirect to clearing page or off ledger upon off receipt
 ask ref no on off vouchers for ads to external.
@@ -8,7 +8,6 @@ ask what to be in cheque text, for AT and the auto credit
 ask what does she want in the ref no. column for reimbursed AD
 
 warn user if client file no is duplicate
-
 
 make all datepickers use dd/mm/yyyy format
 make date times tz aware
