@@ -4,7 +4,7 @@
 {% load static %}
 <div class="d-flex mb-3">
     <div class="me-3">
-        Date from:&nbsp;<input name='date_from' class="datepicker text-center" type="text" id="datepickerFrom" value="" autocomplete="off">
+        Date from:&nbsp;<input name='date_from' class="datepicker text-center" type="text" id="datepickerFrom" value="01/01/2020" autocomplete="off">
     </div>
     <div class="me-3">
         Date to:&nbsp;<input name='date_to' class='datepicker text-center' type="text" id="datepickerTo" value="{% now 'd/m/Y' %}" autocomplete="off">
@@ -163,10 +163,10 @@
         <div class="tab-pane fade" id="reimbursed" role="tabpanel" aria-labelledby="reimbursed-tab">
             <table class="table print-sm">
                 <colgroup>
+                    <col style="width: 7%;">
                     <col style="width: 8%;">
-                    <col style="width:10%;">
                     <col style="width: 5%;">
-                    <col style="width: 30%;">
+                    <col style="width: 55%;">
                     <col style="width: 15%;">
                     <col style="width:10%">
                 </colgroup>
@@ -185,7 +185,7 @@
                         <th scope="col">Type</th>
                         <th scope="col">Description</th>
                         <th scope="col">Recipient</th>
-                        <th class="text-center" scope="col">Amount</th>
+                        <th class="text-end" scope="col">Amount</th>
                     </tr>
                 </thead>
                 <tbody id="reimbursedBody">
@@ -206,48 +206,20 @@ $(()=>{
         changeYear: true,
         dateFormat: 'dd/mm/yy'
     });
+    
     $('#dateUpdate').click(()=>{
         let dateFrom=$('#datepickerFrom').val();
         let dateTo = $('#datepickerTo').val();
         if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dateFrom) || !/^\d{2}\/\d{2}\/\d{4}$/.test(dateTo)){
            alert('Both "Date from" and "Date to" have to be filled up, following\ndd/mm/yyyy format.')
-        } else if (dateTo_lt_dateFrom(dateTo,dateFrom)){
+        } else if (date1_lt_date2(dateTo,dateFrom)){
             alert('"Date to" needs to be after "Date from".')
+        } else{
+            updateTabs(dateFrom, dateTo, JSON.parse('{{reimbursed_list|escapejs}}'))
         }
     })
-    let reimbursed = JSON.parse("{{reimbursed_list|escapejs}}");
-    let reimbursedTotal = '{{reimbursed_total}}'
-    for (const [i, trans] of reimbursed.entries()){
-        for (const each of trans.table_list){
-            $('#reimbursedBody').append(
-                `<tr class="transRow">
-                <td class="refCell">
-                </td>
-                <td class="dateCell">
-                    ${trans.created_at}
-                </td>
-                <td>${trans.category}</td>
-                <td>
-                    ${each.description}
-                </td>
-                <td>
-                    ${trans.receiver}
-                </td>
-                <td class="text-center">${each.amount}</td>
-            </tr>`
-            )
-        }
-    }
-    $('#reimbursedBody').append(`
-    <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td class="text-end fw-bold">Total</td>
-        <td class="text-center fw-bold">${reimbursedTotal}</td>
-    </tr>
-    `)
+    $('#dateUpdate').click()
+    
 })
 </script>
 {% endblock %}
