@@ -1,7 +1,7 @@
-date1_lt_date2 = (date1,date2) => {
+date1_lte_date2 = (date1,date2) => {
     let slidate2 = date2.slice(-4) + date2.slice(3,5) + date2.slice(0,2)
     let slidate1 =  date1.slice(-4) + date1.slice(3,5) + date1.slice(0,2)
-    if (slidate1<slidate2){
+    if (slidate1<=slidate2){
         return true
     } else{
         return false
@@ -13,7 +13,7 @@ updateTabs = (dateFrom, dateTo, reimbursed, payed, outstanding) =>{
     let reimbursedContent = ''
     for (const [i, trans] of reimbursed.entries()){
         const transDate = trans.created_at
-        if (date1_lt_date2(transDate,dateTo) && date1_lt_date2(dateFrom,transDate)){
+        if (date1_lte_date2(transDate,dateTo) && date1_lte_date2(dateFrom,transDate)){
             for (const each of trans.table_list){
                 reimbursedTotal+= Number(each.amount)
                 reimbursedContent+= 
@@ -50,7 +50,7 @@ updateTabs = (dateFrom, dateTo, reimbursed, payed, outstanding) =>{
     let payedTotal=0
     for (const [i, trans] of payed.entries()){
         const transDate = trans.created_at
-        if (date1_lt_date2(transDate,dateTo) && date1_lt_date2(dateFrom,transDate)){
+        if (date1_lte_date2(transDate,dateTo) && date1_lte_date2(dateFrom,transDate)){
             for (const [j,each] of trans.table_list.entries()){
                 let voucherNo = '';
                 if (j==0){
@@ -93,11 +93,13 @@ updateTabs = (dateFrom, dateTo, reimbursed, payed, outstanding) =>{
     if (outstanding.length>0){
         for (const [i, trans] of outstanding.entries()){
             const transDate = trans.created_at
-            if (date1_lt_date2(transDate,dateTo) && date1_lt_date2(dateFrom,transDate)){
+            if (date1_lte_date2(transDate,dateTo) && date1_lte_date2(dateFrom,transDate)){
                 for (const [j,each] of trans.table_list.entries()){
                     let voucherNo = '';
+                    let resolveBtnHTML = '';
                     if (j==0){
                         voucherNo = `PV${trans.voucher_no}`;
+                        resolveBtnHTML = `<a data-id='${trans.id}' class="btn btn-outline-success py-0 resolveBtn" href='../${trans.id}/resolve-adat/' >yes</a>`;
                     }
                     outstandingTotal+= Number(each.amount)
                     outstandingContent+= 
@@ -116,6 +118,7 @@ updateTabs = (dateFrom, dateTo, reimbursed, payed, outstanding) =>{
                                 ${trans.receiver}
                             </td>
                             <td class="text-end">${each.amount}</td>
+                            <td>${resolveBtnHTML}</td>
                         </tr>`        
                 }
             }
@@ -130,6 +133,7 @@ updateTabs = (dateFrom, dateTo, reimbursed, payed, outstanding) =>{
             <td></td>
             <td class="text-end fw-bold">Total</td>
             <td class="text-end fw-bold">${outstandingTotal.toFixed(2)}</td>
+            <td></td>
         </tr>`
     $('#outstandingBody').html(outstandingContent)
 }
