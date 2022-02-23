@@ -845,6 +845,7 @@ def adat_index(request):
         unresolved_list = json_prep(unresolved)
                 
         total_payed = [x for x in Transaction.objects.filter(category='AD').order_by('created_at') if x.payee.is_office()]
+        ids = [z.id for z in total_payed]
         total_payed_list = json_prep(total_payed)
 
         reimbursed = [y for y in Transaction.objects.filter(category='AT').order_by('created_at') if y.receiver.is_office()]
@@ -854,6 +855,7 @@ def adat_index(request):
             'outstanding': unresolved_list,
             'total_payed' : total_payed_list,
             'reimbursed_list' : reimbursed_list,
+            'ids' : ids
         }
         return render(request, 'ledger/adat-index.html', context=context)
 
