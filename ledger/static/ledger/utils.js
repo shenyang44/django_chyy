@@ -1,3 +1,5 @@
+//  
+
 date1_lte_date2 = (date1,date2) => {
     let slidate2 = date2.slice(-4) + date2.slice(3,5) + date2.slice(0,2)
     let slidate1 =  date1.slice(-4) + date1.slice(3,5) + date1.slice(0,2)
@@ -58,7 +60,7 @@ updateTabs = (dateFrom, dateTo, reimbursed, payed, outstanding) =>{
                 }
                 payedTotal+= Number(each.amount)
                 payedContent+= 
-                    `<tr class="transRow">
+                    `<tr class="transRow" data-id='${trans.id}'>
                         <td class="refCell">
                             ${voucherNo}
                         </td>
@@ -103,7 +105,7 @@ updateTabs = (dateFrom, dateTo, reimbursed, payed, outstanding) =>{
                     }
                     outstandingTotal+= Number(each.amount)
                     outstandingContent+= 
-                        `<tr class="transRow">
+                        `<tr class="transRow" data-id='${trans.id}'>
                             <td class="refCell">
                                 ${voucherNo}
                             </td>
