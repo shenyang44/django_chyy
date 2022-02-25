@@ -40,6 +40,7 @@ class Account(models.Model):
     opening_date = models.DateField(null=True)
     closing_date = models.DateField(null=True)
     closing_no = models.TextField(null=True)
+    other_list = models.TextField(null=True)
 
     def __str__(self):
         return self.name
