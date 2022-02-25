@@ -6,14 +6,14 @@
 <div class="fluid-container">
     <div class="row mt-4">
         {% if not adat and not account.is_office %}
-        <div class="col-xl-3 col-4">
-            <table id='legend'>
-                <tr>
-                  <th class="bordered">Code&nbsp;</th>
-                  <th class="ps-1 bordered">Meaning</th>
-                </tr>
-              </table>
-        </div> 
+            <div class="col-xl-3 col-4">
+                <table id='legend'>
+                    <tr>
+                    <th class="bordered">Code&nbsp;</th>
+                    <th class="ps-1 bordered">Meaning</th>
+                    </tr>
+                </table>
+            </div> 
         {% else %}
             <div class="col"></div>
         {% endif %}
@@ -59,8 +59,10 @@
                             <option value="" selected></option>
                             {% if not account.is_office and not adat %}
                                 <option value="office">Office</option>
-                            {% endif %}
-                            <option value="other">3rd Party</option>
+                                {%if other_list %}
+                                    <option value="other">Added Other Parties</option>
+                                {%endif%}
+                            {% endif %}         
                             <option value="client">
                                 {% if account.is_office %}
                                     Client File
@@ -68,6 +70,7 @@
                                     Transfer between files
                                 {% endif %}
                             </option>
+                            <option value="external">Others</option>
                         </select>
                     </div>
                     <div class="w-50">
@@ -126,9 +129,9 @@
             </form>
         </div>
         {% if account.is_office or adat %}
-        <div class="col"></div>
+            <div class="col"></div>
         {% else %}
-        <div class="col-xl"></div>
+            <div class="col-xl"></div>
         {%endif%}
     </div>
     <!-- Warning modal for manual ID input -->
@@ -187,7 +190,7 @@ $(()=>{
     otherParty.change((e)=>{
         let currVal = $(e.target).val()
         $('#otherInput').remove()
-        if (currVal == 'other'){
+        if (currVal == 'external'){
                 otherDiv.after(`
                     <div id='otherInput' class="mb-3">
                         <label for="otherName" class="form-label">Other Party's Name:</label>
@@ -213,6 +216,17 @@ $(()=>{
                     <input name='other_name' type="text" class="formInput form-control w-75" id="otherCli">
                 </div>
             `)
+        } else if (currVal == 'other'){
+            otherDiv.after(`
+                    <div id='otherInput' class="mb-3">
+                        <select name='other_name' class="form-select w-75" aria-label="commonOtherSelect" id='addedOtherSelect'>
+                            <option value="" selected></option>
+                            {% for each in other_list %}
+                                <option value="{{each}}">{{each}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                `)
         }
     })
     // initialising

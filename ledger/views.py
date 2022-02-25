@@ -434,6 +434,9 @@ def trans_cont(acc_id):
     other_cli_accs = Account.objects.filter(client_account=True).exclude(id=acc_id)
         
     file_no_list = [acc.file_no for acc in other_cli_accs]
+    other_list = account.other_list
+    if other_list:
+        other_list = json.loads(other_list)
 
     off_accs = Account.objects.filter(file_no__startswith='OFFICE').order_by('created_at')
     if account.is_external():
@@ -464,6 +467,7 @@ def trans_cont(acc_id):
         'cli_accs': cli_accs,
         'tc_dict': json.dumps(tc_dict),
         'subj_list': subj_list,
+        'other_list': other_list
     }
     return context
 
