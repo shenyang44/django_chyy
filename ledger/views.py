@@ -150,11 +150,12 @@ def create_acc(request):
         subject_matter = request.POST['subject_matter']
         client_code = request.POST['client_code']
         subj_list = json.dumps([subject_matter])
+        other_parties = request.POST.get('other_parties')
         if owing == 'no':
             balance = -(Decimal(balance))
         else:
             balance = Decimal(balance)
-        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=True, client_code=client_code, subj_list=subj_list, subject_matter=subject_matter)
+        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=True, client_code=client_code, subj_list=subj_list, subject_matter=subject_matter, other_parties=other_parties)
         try:
             ext_acc = Account.objects.get(file_no='EXTERNAL_balance_b/f')
         except:
@@ -235,6 +236,10 @@ def show_acc(request, acc_id):
         else:
             json_subj_list = '[]'
 
+    other_list = account.other_list
+    if not other_list:
+        other_list = json.dumps([])
+
     context={
         'account':account,
         'trans_zipped': zip(transactions, entries_list, rb_list),
@@ -243,6 +248,7 @@ def show_acc(request, acc_id):
         'date_to': date_to.strftime('%Y/%m/%d'),
         'subj_list': subj_list,
         'json_subj_list' : json_subj_list,
+        'other_list' : other_list,
     }
     return render(request, 'ledger/show-acc.html', context=context)
 

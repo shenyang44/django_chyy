@@ -3,16 +3,23 @@
 
 {%  block body %}
 <div class="container">
-    <div class="row justify-content-center fs-4 m-4">Create a New File</div>
     <div class="row">
-        <div class="col-sm">
-        </div>
-        <div class="col-lg-6">
+        <div class="col-8">
+            <div class="text-center fs-3 m-4">Create a New File</div>
             <form id='newAccForm' action="{% url 'ledger:create_acc' %}" method="post">
                 {% csrf_token %}
-                <div class="mb-3 w-75">
-                    <label for="nameInput" class="form-label">Client's Name</label>
-                    <input name='name' type="text" class="formInput form-control" id="nameInput">
+                <div class="mb-3 d-flex">
+                    <div class='w-50 me-5'>
+                        <label for="nameInput" class="form-label">Client's Name</label>
+                        <input name='name' type="text" class="formInput form-control" id="nameInput">
+                    </div>
+                    <div class="w-50">
+                            <label for="nameInput" class="form-label">Other Parties</label>
+                            <div class="input-group mb-3">
+                                <input id='otherInput' name="other_parties" type="text" class="form-control" placeholder="Other party's name" aria-label="Other party's name" aria-describedby="button-addon2">
+                                <button class="btn btn-outline-secondary" type="button" id="otherAdd">+</button>
+                            </div>
+                    </div>
                 </div>
                 <div class="d-flex justify-content-between mb-3">
                     <div style="width: 65%;">
@@ -56,14 +63,18 @@
                 <button id='accBtn' type='button' disabled class="btn btn-primary">Submit</button>
             </form>
         </div>
-        <div class="col-sm">
+        <div class="col-4 ps-5 pt-5">
+            <h4>Other Parties</h4>
+           <ol id="otherList">
+               No other parties added.
+           </ol>
         </div>
     </div>
 </div>
 <script type='text/javascript' charset="utf-8">
 $(()=>{
     let accBtn = $('#accBtn')
-
+    let otherParties = [];
     // enables button if all inputs are filled, else disables.
     updateBtn = () =>{
         let inputChecks = true;
@@ -84,10 +95,37 @@ $(()=>{
     $('select').change((e)=>{
         updateBtn()
     })
+    updateOtherList = () =>{
+        if (otherParties.length>0){
+            let newOther = '';
+            for (const each of otherParties){
+            newOther += `<li class='d-flex justify-content-between mb-1'><span>${each}</span><button class='delOther' type='button'>x</button></li>`;
+            }
+            $('#otherList').html(newOther)
+        } else{
+            $('#otherList').text('No other parties added.')
+        }
+    }
+    $('#otherAdd').click(()=>{
+        let otherVal = $('#otherInput').val()
+        if (otherVal && !otherParties.includes(otherVal)){
+            otherParties.push(otherVal)
+        }
+        updateOtherList();
+    })
+    $('#otherList').on('click', '.delOther', (e) =>{
+        let curr = $(e.currentTarget);
+        let toDel = curr.prev().text();
+        let i = otherParties.indexOf(toDel);
+        otherParties.splice(i,1);
+        updateOtherList();
 
+    })
     accBtn.click(()=>{
         let balVal = $('#balanceInput').val()
         if (/^\d+\.\d{2}$/.test(balVal)){
+            let otherJson = JSON.stringify(otherParties)
+            $('#otherInput').val(otherJson)
             $('#newAccForm').submit()
         }
         else{
