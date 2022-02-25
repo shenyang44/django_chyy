@@ -269,6 +269,22 @@ def edit_info(request, acc_id):
         account.save()
         return redirect(reverse('ledger:show_acc', args=(acc_id,)))
 
+def update_other(request):
+    if request.method == 'POST':
+        acc_id = request.POST['acc_id']
+        new_list = request.POST['new_list']
+        acc = Account.objects.get(pk=acc_id)
+    else:
+        messages.warning(request, 'This address cannot be viewed!')
+        return redirect(reverse('ledger:index'))
+
+    try:
+        acc.other_list = new_list
+        acc.save()
+        return(JsonResponse({'list':acc.other_list, 'status':'success'}))
+    except:
+        return(JsonResponse({'status':'error'}))
+
 def balance_edit(request):
     if request.method == 'POST':
         acc_id = request.POST['acc_id']
@@ -418,6 +434,9 @@ def trans_cont(acc_id):
     other_cli_accs = Account.objects.filter(client_account=True).exclude(id=acc_id)
         
     file_no_list = [acc.file_no for acc in other_cli_accs]
+    other_list = account.other_list
+    if other_list:
+        other_list = json.loads(other_list)
 
     off_accs = Account.objects.filter(file_no__startswith='OFFICE').order_by('created_at')
     if account.is_external():
@@ -448,6 +467,7 @@ def trans_cont(acc_id):
         'cli_accs': cli_accs,
         'tc_dict': json.dumps(tc_dict),
         'subj_list': subj_list,
+        'other_list': other_list
     }
     return context
 
