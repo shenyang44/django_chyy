@@ -269,6 +269,22 @@ def edit_info(request, acc_id):
         account.save()
         return redirect(reverse('ledger:show_acc', args=(acc_id,)))
 
+def update_other(request):
+    if request.method == 'POST':
+        acc_id = request.POST['acc_id']
+        new_list = request.POST['new_list']
+        acc = Account.objects.get(pk=acc_id)
+    else:
+        messages.warning(request, 'This address cannot be viewed!')
+        return redirect(reverse('ledger:index'))
+
+    try:
+        acc.other_list = new_list
+        acc.save()
+        return(JsonResponse({'list':acc.other_list, 'status':'success'}))
+    except:
+        return(JsonResponse({'status':'error'}))
+
 def balance_edit(request):
     if request.method == 'POST':
         acc_id = request.POST['acc_id']

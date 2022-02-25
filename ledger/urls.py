@@ -29,4 +29,5 @@ urlpatterns = [
     path('<int:acc_id>/edit-info/', views.edit_info, name='edit_info'),
     path('balance-edit/', views.balance_edit, name='balance_edit'),
     path('opening-closing/', views.opening_closing, name='opening_closing'),
+    path('update-other/', views.update_other, name='update_other'),
 ]
