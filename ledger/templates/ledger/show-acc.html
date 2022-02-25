@@ -129,10 +129,11 @@
                 Edit Info
             </button>
             <ul class="dropdown-menu">
-                <li><a href='' class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addSubjModal"> Edit Subject Matter</a></li>
-                <li class="dropdown-item editBtn" data-bs-toggle='modal' data-bs-target='#editInfoModal' data-current='Current Client Code : {{account.client_code}}' data-label='New Client Code:' data-name='code'>Edit Client Code</li>
-                <li class="dropdown-item editBtn" data-bs-toggle='modal' data-bs-target='#editInfoModal' data-current="Current Name : {{account.name}}" data-label='New Name:' data-name='name'>Edit Name</li>
-                <li class="dropdown-item editBtn" data-bs-toggle='modal' data-bs-target='#editInfoModal' data-current="Current File Ref: {{account.file_no}}" data-label='New File Ref:' data-name='ref'>Edit File Ref</li>
+                <li><a href='' class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addSubjModal">Subject Matter</a></li>
+                <li class="dropdown-item editBtn" data-bs-toggle='modal' data-bs-target='#editInfoModal' data-current='Current Client Code : {{account.client_code}}' data-label='New Client Code:' data-name='code'>Client Code</li>
+                <li class="dropdown-item editBtn" data-bs-toggle='modal' data-bs-target='#editInfoModal' data-current="Current Name : {{account.name}}" data-label='New Name:' data-name='name'>Name</li>
+                <li class="dropdown-item editBtn" data-bs-toggle='modal' data-bs-target='#editInfoModal' data-current="Current File Ref: {{account.file_no}}" data-label='New File Ref:' data-name='ref'>File Ref</li>
+                <li class="dropdown-item" data-bs-toggle="modal" data-bs-target="#otherPartiesModal" type="button">Other Parties</li>
               </ul>
         </div>
         
@@ -415,135 +416,191 @@
         </div>
     </div>
 </div>
+<!-- Other parties modal -->
+    <div class="modal fade" id="otherPartiesModal" tabindex="-1" role="dialog" aria-labelledby="otherPartiesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="otherPartiesModalLabel">Editing Other Parties</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="w-50 mb-3">
+                    <label for="nameInput" class="form-label">New Addition:</label>
+                    <div class="input-group mb-3">
+                        <input id='otherInput' name="other_parties" type="text" class="form-control" placeholder="Other party's name" aria-label="Other party's name" aria-describedby="button-addon2">
+                        <button class="btn btn-outline-secondary" type="button" id="otherAdd">+</button>
+                    </div>
+                </div>
+                <div class="">
+                    <h6>Other Parties</h6>
+                    <ol id="otherList"></ol>
+                </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+        </div>
+    </div>
 <script charset="utf-8">
-    $(()=>{
-        $('.transRow').dblclick((e)=>{
-            id = $(e.currentTarget).attr('data-id');
-            $(`#a${id}`)[0].click()
-        })
-        $(".datepicker").datepicker({
-            changeMonth: true,
-            changeYear: true,
-            dateFormat: 'yy/mm/dd'
-        });
-        $('#upBtn').click((e)=>{
-            dateFrom = $('#datepickerFrom').val();
-            dateTo = $('#datepickerTo').val();
-            if (dateFrom && dateTo){
-                if (Date.parse(dateFrom) <= Date.parse(dateTo)){
-                $('#dateForm').submit();
-                } else{
-                    alert('The "Date To" selected is prior to the "Date From"');
-                }
-            } else{
-                alert('Both "Date From" and "Date To" must be selected.')
-            }
-        })
-        $('#openingSub').click(()=>{
-            if (/\d{4}\/\d{2}\/\d{2}/.test($('#openingInput').val())){
-                $('#openingForm').submit()
-            } else{
-                $('#openingInputHelp').animate({backgroundColor:'#FFB6C1'}, 1200, (()=>{
-                    $('#openingInputHelp').animate({backgroundColor:'white'},1200)
-                }))
-            }
-        })
-        $('#closingSub').click(()=>{
-            if (/\d{4}\/\d{2}\/\d{2}/.test($('#closingInput').val())){
-                if ($('#closingNoInput').val()){
-                    $('#closingForm').submit();
-                } else{
-                    alert('Closing File No. cannot be empty!');
-                }
-            } else{
-                $('#closingInputHelp').animate({backgroundColor:'#FFB6C1'}, 1200, (()=>{
-                    $('#closingInputHelp').animate({backgroundColor:'white'},1200);
-                }))
-            }
-        })
-
-        // Subject matter modal handling.
-        let subjForm = $('#subjForm');
-        let subjFormDiv = $('#subjFormDiv');
-        let subjList = JSON.parse('{{json_subj_list|escapejs}}');
-        $('#addSubj').click(()=>{
-            subjFormDiv.html(`
-                <div class="mb-3">
-                    <label for='newSubj' class='form-label'>New Subject Matter:</label>
-                    <input id='newSubj' class='form-control' type="text" name='new_subj' placeholder="new subject matter">
-                </div>
-            `)
-        })
-        let optText = '';
-        for(let i=0; i<subjList.length; i++){
-            optText+= `
-            <option value='${subjList[i]}'>${subjList[i]}</option>
-            `
-        }
-        $('#editSubj').click(()=>{
-            subjFormDiv.html(`
-                <label for='subjSelect' class='form-label'>Subject Matter to Edit:</label>
-                <select name="to_edit" id="subjSelect">
-                    ${optText}
-                </select>
-                <div class="mb-3">
-                    <label for='editName' class='form-label'>Correct Subject Matter:</label>
-                    <input id ='editName' class='form-control' type="text" name='edited_name'>
-                </div>
-            `)
-        })
-        $('#changeSubj').click(()=>{
-            subjFormDiv.html(`
-                <p>
-                    New Default Subject:
-                </p>
-                <select name="new_default" id="subjSelect">
-                    ${optText}
-                </select>
-            `)
-        })
-        $('#subBtn').click(()=>{
-            subjForm.submit();
-        })
-        $('.editBtn').click((e)=>{
-            $('#currentP').text($(e.target).attr('data-current'));
-            $('#editInpLabel').text($(e.target).attr('data-label'));
-            $('#editInp').attr('name', $(e.target).attr('data-name'))
-        })
-        $('#editSubBtn').click(()=>{
-            $('#editForm').submit();
-        })
-
-        // ajax calls for balance changing.
-        $('#editBalSubmit').click(()=>{
-            let newBalance = $('#editBalInput').val()
-            if (/^\d+\.\d{2}$/.test(newBalance)){
-                let csrftoken = '{{csrf_token}}';
-                let owingUs = $('.balRad:checked').val();
-                $.ajaxSetup({
-                    beforeSend: (xhr, settings)=>{
-                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                    }
-                })
-                $.post('{% url "ledger:balance_edit" %}', {acc_id:'{{account.id}}', new_balance:newBalance, owing_us:owingUs}, ((data, status)=>{
-                    if (status == 'success'){
-                        if (data.status == 'success'){
-                            $('#balanceSpan').text(data.balance);
-                            $('#balEditModal').modal('hide');
-                        } else{
-                            alert('Account details could not be saved!');
-                        }
-                    } else{
-                        alert('Server could not be contacted.');
-                    }
-                }))
-            } else{
-                $('#editBalHelp').animate({backgroundColor:'#FFB6C1'}, 1200, (()=>{
-                    $('#editBalHelp').animate({backgroundColor:'white'},1200)
-                }))
-            }
-        })
-        
+$(()=>{
+    $('.transRow').dblclick((e)=>{
+        id = $(e.currentTarget).attr('data-id');
+        $(`#a${id}`)[0].click()
     })
+    $(".datepicker").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: 'yy/mm/dd'
+    });
+    $('#upBtn').click((e)=>{
+        dateFrom = $('#datepickerFrom').val();
+        dateTo = $('#datepickerTo').val();
+        if (dateFrom && dateTo){
+            if (Date.parse(dateFrom) <= Date.parse(dateTo)){
+            $('#dateForm').submit();
+            } else{
+                alert('The "Date To" selected is prior to the "Date From"');
+            }
+        } else{
+            alert('Both "Date From" and "Date To" must be selected.')
+        }
+    })
+    $('#openingSub').click(()=>{
+        if (/\d{4}\/\d{2}\/\d{2}/.test($('#openingInput').val())){
+            $('#openingForm').submit()
+        } else{
+            $('#openingInputHelp').animate({backgroundColor:'#FFB6C1'}, 1200, (()=>{
+                $('#openingInputHelp').animate({backgroundColor:'white'},1200)
+            }))
+        }
+    })
+    $('#closingSub').click(()=>{
+        if (/\d{4}\/\d{2}\/\d{2}/.test($('#closingInput').val())){
+            if ($('#closingNoInput').val()){
+                $('#closingForm').submit();
+            } else{
+                alert('Closing File No. cannot be empty!');
+            }
+        } else{
+            $('#closingInputHelp').animate({backgroundColor:'#FFB6C1'}, 1200, (()=>{
+                $('#closingInputHelp').animate({backgroundColor:'white'},1200);
+            }))
+        }
+    })
+
+    // Subject matter modal handling.
+    let subjForm = $('#subjForm');
+    let subjFormDiv = $('#subjFormDiv');
+    let subjList = JSON.parse('{{json_subj_list|escapejs}}');
+    $('#addSubj').click(()=>{
+        subjFormDiv.html(`
+            <div class="mb-3">
+                <label for='newSubj' class='form-label'>New Subject Matter:</label>
+                <input id='newSubj' class='form-control' type="text" name='new_subj' placeholder="new subject matter">
+            </div>
+        `)
+    })
+    let optText = '';
+    for(let i=0; i<subjList.length; i++){
+        optText+= `
+        <option value='${subjList[i]}'>${subjList[i]}</option>
+        `
+    }
+    $('#editSubj').click(()=>{
+        subjFormDiv.html(`
+            <label for='subjSelect' class='form-label'>Subject Matter to Edit:</label>
+            <select name="to_edit" id="subjSelect">
+                ${optText}
+            </select>
+            <div class="mb-3">
+                <label for='editName' class='form-label'>Correct Subject Matter:</label>
+                <input id ='editName' class='form-control' type="text" name='edited_name'>
+            </div>
+        `)
+    })
+    $('#changeSubj').click(()=>{
+        subjFormDiv.html(`
+            <p>
+                New Default Subject:
+            </p>
+            <select name="new_default" id="subjSelect">
+                ${optText}
+            </select>
+        `)
+    })
+    $('#subBtn').click(()=>{
+        subjForm.submit();
+    })
+    $('.editBtn').click((e)=>{
+        $('#currentP').text($(e.target).attr('data-current'));
+        $('#editInpLabel').text($(e.target).attr('data-label'));
+        $('#editInp').attr('name', $(e.target).attr('data-name'))
+    })
+    $('#editSubBtn').click(()=>{
+        $('#editForm').submit();
+    })
+
+    // ajax calls for balance changing.
+    $('#editBalSubmit').click(()=>{
+        let newBalance = $('#editBalInput').val()
+        if (/^\d+\.\d{2}$/.test(newBalance)){
+            let csrftoken = '{{csrf_token}}';
+            let owingUs = $('.balRad:checked').val();
+            $.ajaxSetup({
+                beforeSend: (xhr, settings)=>{
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            })
+            $.post('{% url "ledger:balance_edit" %}', {acc_id:'{{account.id}}', new_balance:newBalance, owing_us:owingUs}, ((data, status)=>{
+                if (status == 'success'){
+                    if (data.status == 'success'){
+                        $('#balanceSpan').text(data.balance);
+                        $('#balEditModal').modal('hide');
+                    } else{
+                        alert('Account details could not be saved!');
+                    }
+                } else{
+                    alert('Server could not be contacted.');
+                }
+            }))
+        } else{
+            $('#editBalHelp').animate({backgroundColor:'#FFB6C1'}, 1200, (()=>{
+                $('#editBalHelp').animate({backgroundColor:'white'},1200)
+            }))
+        }
+    })
+    
+    // other party handling
+    let otherParties = JSON.parse('{{other_list|escapejs}}')
+    updateOtherList = () =>{
+        if (otherParties.length>0){
+            let newOther = '';
+            for (const each of otherParties){
+            newOther += `<li class='d-flex justify-content-between mb-1'><span>${each}</span><button class='delOther' type='button'>x</button></li>`;
+            }
+            $('#otherList').html(newOther)
+        } else{
+            $('#otherList').text('No other parties added.')
+        }
+    }
+    updateOtherList();
+    $('#otherAdd').click(()=>{
+        let otherVal = $('#otherInput').val()
+        if (otherVal && !otherParties.includes(otherVal)){
+            otherParties.push(otherVal)
+        }
+        updateOtherList();
+    })
+    $('#otherList').on('click', '.delOther', (e) =>{
+        let curr = $(e.currentTarget);
+        let toDel = curr.prev().text();
+        let i = otherParties.indexOf(toDel);
+        otherParties.splice(i,1);
+        updateOtherList();
+    })
+})
 </script>
 {% endblock %}
