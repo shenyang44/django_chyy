@@ -1,4 +1,4 @@
-
+! dont let visible other party input field change when submitting.(createacc
 ! make it possible to leave type codes empty
 ! credit and debit row for transactions so can "less" certain amounts, then restructure it to look more natural for rec/vou printing.
 ! remove balance editing capabilities.
