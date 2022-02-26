@@ -155,7 +155,7 @@ def create_acc(request):
             balance = -(Decimal(balance))
         else:
             balance = Decimal(balance)
-        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=True, client_code=client_code, subj_list=subj_list, subject_matter=subject_matter, other_parties=other_parties)
+        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=True, client_code=client_code, subj_list=subj_list, subject_matter=subject_matter, other_list=other_parties)
         try:
             ext_acc = Account.objects.get(file_no='EXTERNAL_balance_b/f')
         except:
