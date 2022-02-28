@@ -79,7 +79,7 @@ $(()=>{
     updateBtn = () =>{
         let inputChecks = true;
         $('.formInput').each((i, e)=>{
-            if (!$(e).val()){
+            if (!/\S/.test($(e).val())){
                 inputChecks = false
             }
             if (inputChecks){
