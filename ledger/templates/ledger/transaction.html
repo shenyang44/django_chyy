@@ -262,7 +262,7 @@ $(()=>{
     // checks if all select fields are filled.
     btnUpdate = () =>{
         let btnValid = true;
-        $('select').each((i, e)=>{
+        $('.form-select').each((i, e)=>{
             currVal = $(e).val()
             if (!currVal){
                 btnValid = false;
@@ -369,15 +369,16 @@ $(()=>{
                 descriptions[i] = desc;
             }
         })
+        // only 1 type code needs to be filled in.
+        let y = false;
         $('.typeCode').each((i,e)=>{
             let typeCode = $(e).val()
-            if (!typeCode){
-                x = false;
-            } else{
-                typeCodes[i] = typeCode;
+            typeCodes[i] = typeCode;
+            if (typeCode){
+                y = true;
             }
         })
-        return(x ? x : alert('No cells under the "For" header can be left empty.'));
+        return(x&&y ? x : alert('No cells under the "For" header can be left empty & at least one type code must be selected.'));
     }
 
     // checks if all .amount inputs are positive numbs with 2 decimal places OR empty.

@@ -176,7 +176,11 @@
                 </div>
                 <div style="width: 30%;"class="ms-3 d-flex flex-column fw-normal">
                     <div>
-                        {{account.client_code}}
+                        {% if account.client_code|cut:' ' %}
+                            {{account.client_code}}
+                        {% else %}
+                            No client code.
+                        {%endif%}
                     </div>
                     <div>
                         {{account.name}}
