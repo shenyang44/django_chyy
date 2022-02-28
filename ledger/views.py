@@ -286,6 +286,8 @@ def update_other(request):
         return(JsonResponse({'status':'error'}))
 
 def balance_edit(request):
+    messages.warning(request,'Balance editing is no longer permitted.')
+    return redirect(reverse('ledger:index'))
     if request.method == 'POST':
         acc_id = request.POST['acc_id']
         new_balance = Decimal(request.POST['new_balance'])
