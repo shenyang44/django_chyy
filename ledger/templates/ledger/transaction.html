@@ -121,6 +121,10 @@
                     </tr>
                 </table>
                 <br>
+                <div class="text-end px-2">
+                    <b>Current Total :</b><span id="currTotal" style="min-width: 10em; display: inline-block;"></span>                
+                </div>
+                <br>
                 <div class="d-flex justify-content-evenly"><button id='addBtn' type="button">+ New Row</button> <button id='rmvBtn' type="button">- Remove Row</button></div> 
                 <input hidden name='table_data' id='tableData' type="text">
                 <input type="hidden" name="total" id="totalInp">
@@ -309,8 +313,8 @@ $(()=>{
                     </td>
                     <td class='bordered cat-td'>AD</td>
                     <td class="bordered"><input maxlength='55' type="text" class="descript" id=""></td>
-                    <td class="bordered"><input type="text" class="less" id=""></td>
-                    <td class="bordered"><input type="text" class="amount" id=""></td>
+                    <td class="bordered"><input type="text" class="less amtField" id=""></td>
+                    <td class="bordered"><input type="text" class="amount amtField" id=""></td>
                 </tr>
             `)
             } else if(isOffice){
@@ -322,8 +326,8 @@ $(()=>{
                             </select>
                         </td>
                         <td class="bordered"><input maxlength='55' type="text" class="descript" id=""></td>
-                        <td class="bordered"><input type="text" class="less" id=""></td>
-                        <td class="bordered"><input type="text" class="amount" id=""></td>
+                        <td class="bordered"><input type="text" class="less amtField" id=""></td>
+                        <td class="bordered"><input type="text" class="amount amtField" id=""></td>
                     </tr>
                 `)
                 }
@@ -337,8 +341,8 @@ $(()=>{
                         </td>
                         <td class='bordered cat-td'></td>
                         <td class="bordered"><input maxlength='55' type="text" class="descript" id=""></td>
-                        <td class="bordered"><input type="text" class="less" id=""></td>
-                        <td class="bordered"><input type="text" class="amount" id=""></td>
+                        <td class="bordered"><input type="text" class="less amtField" id=""></td>
+                        <td class="bordered"><input type="text" class="amount amtField" id=""></td>
                     </tr>
                 `)   
             }
@@ -361,6 +365,22 @@ $(()=>{
     // Button is disabled if select input val is empty on either element.
     $('form').on('click', 'select', (e)=>{btnUpdate()});
 
+    $('form').on('keyup', '.amtField', (e)=>{
+        let currTotal = 0;
+        $('.less').each((i,e)=>{
+            let amt = $(e).val();
+            if (/^\d+\.\d{2}$/.test(amt)){
+                currTotal -=  Number(amt*100);
+            };
+        })
+        $('.amount').each((i,e)=>{
+            let amt = $(e).val();
+            if (/^\d+\.\d{2}$/.test(amt)){
+                currTotal +=  Number(amt*100);
+            }
+        })
+        $('#currTotal').text((currTotal/100).toFixed(2))
+    })
     // initialising arrays to pass to server.
     let descriptions,amounts,typeCodes,total;
     // checks if all descript class inputs are filled.
@@ -402,7 +422,6 @@ $(()=>{
                 descriptions[i] += ` : ${amt}`;
                 total -=  Number(amt*100);
             } else if (!/^$/.test(amt)){
-                console.log(amt)
                 y=false;
             }
         })
