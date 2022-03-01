@@ -103,22 +103,27 @@
                         <col style="width:5%;">
                         {% endif %}
                         <col style="width:65%">
-                        <col style="width:20%">
+                        <col style="width:10%">
+                        <col style="width:10%;">
                     </colgroup>
                     <tr>
                         {% if account.is_office %}
-                        <th class="bordered">&nbsp; Trans. Type</th>
+                        <th class="bordered">&nbsp; Type</th>
                         {% else %}
-                        <th class="bordered">&nbsp; Trans. Type</th>
+                        <th class="bordered">&nbsp; Type</th>
                         <th class="bordered">&nbsp; Cat.</th>
                         {% endif %}
                         <th class="bordered">&nbsp; For</th>
+                        <th class="bordered">
+                            &nbsp; Less
+                        </th>
                         <th class="bordered">&nbsp; RM</th>
                     </tr>
                 </table>
                 <br>
                 <div class="d-flex justify-content-evenly"><button id='addBtn' type="button">+ New Row</button> <button id='rmvBtn' type="button">- Remove Row</button></div> 
                 <input hidden name='table_data' id='tableData' type="text">
+                <input type="hidden" name="total" id="totalInp">
                 <label class="form-label" for="chequeText">Cheque No.</label>
                 <input class="form-control" type="text" name="cheque_text" id="chequeText">
                 <br>
@@ -304,6 +309,7 @@ $(()=>{
                     </td>
                     <td class='bordered cat-td'>AD</td>
                     <td class="bordered"><input maxlength='55' type="text" class="descript" id=""></td>
+                    <td class="bordered"><input type="text" class="less" id=""></td>
                     <td class="bordered"><input type="text" class="amount" id=""></td>
                 </tr>
             `)
@@ -316,6 +322,7 @@ $(()=>{
                             </select>
                         </td>
                         <td class="bordered"><input maxlength='55' type="text" class="descript" id=""></td>
+                        <td class="bordered"><input type="text" class="less" id=""></td>
                         <td class="bordered"><input type="text" class="amount" id=""></td>
                     </tr>
                 `)
@@ -330,6 +337,7 @@ $(()=>{
                         </td>
                         <td class='bordered cat-td'></td>
                         <td class="bordered"><input maxlength='55' type="text" class="descript" id=""></td>
+                        <td class="bordered"><input type="text" class="less" id=""></td>
                         <td class="bordered"><input type="text" class="amount" id=""></td>
                     </tr>
                 `)   
@@ -354,12 +362,11 @@ $(()=>{
     $('form').on('click', 'select', (e)=>{btnUpdate()});
 
     // initialising arrays to pass to server.
-    let descriptions = [];
-    let amounts;
-    let typeCodes = [];
-    let total;
+    let descriptions,amounts,typeCodes,total;
     // checks if all descript class inputs are filled.
     emptyCheck = () =>{
+        descriptions = [];
+        typeCodes = [];
         let x = true;
         $('.descript').each((i,e)=>{
             let desc = $(e).val()
@@ -386,21 +393,43 @@ $(()=>{
         amounts=[];
         total=0;
         let y = true;
+        let less = false;
+
+        $('.less').each((i,e)=>{
+            let amt = $(e).val();
+            if (/^\d+\.\d{2}$/.test(amt)){
+                less=true;
+                descriptions[i] += ` : ${amt}`;
+                total -=  Number(amt*100);
+            } else if (!/^$/.test(amt)){
+                console.log(amt)
+                y=false;
+            }
+        })
         $('.amount').each((i,e)=>{
             let amt = $(e).val();
             if (/^\d+\.\d{2}$/.test(amt)){
-                amounts[i] = amt;
+                if (less){
+                    descriptions[i] += ` : ${amt}`;
+                    amounts[i] = '';
+                } else{
+                    amounts[i] = amt;
+                }
                 total +=  Number(amt*100);
             } else if (/^$/.test(amt)){
                 amounts[i] = '';
             } else{
                 y=false;
             }
-            if (total==0){
-                y=false;
-            }
         })
-        return (y?y:alert('Each amount must be a positive number with 2 decimal places OR empty. And the total cannot be 0.00'));
+       
+        if (less){
+            amounts[0] = (total/100).toFixed(2);
+        }
+        if (total<=0){
+                y=false;
+        }
+        return (y ? total/100 : alert('Each amount must be a positive number with 2 decimal places OR empty. And the total cannot be less than 0.00'));
     }
 
     let fileNoList = JSON.parse('{{ file_no_list|escapejs }}')
@@ -446,6 +475,7 @@ $(()=>{
                 })
             }
             $('#tableData').val(JSON.stringify(tableData));
+            $('#totalInp').val(amountCheck().toFixed(2))
             $('#transForm').submit();
         }
     })

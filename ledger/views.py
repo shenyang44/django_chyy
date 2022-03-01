@@ -489,6 +489,7 @@ def create_trans(request, acc_id, trans_type):
         subject_matter = request.POST.get('subject_matter')
         custom_receipt_no = request.POST.get('custom_rec_no')
         custom_voucher_no = request.POST.get('custom_vouch_no')
+        total = Decimal(request.POST['total'])
         resolved = True
         # model self ref prop is none unless it is an advance disburse, in which case, it links to the transaction made on the Off Acc.
         ad_link = None
@@ -520,14 +521,11 @@ def create_trans(request, acc_id, trans_type):
             payee = curr_account
             receiver = other_party
 
-        total = 0
         adv_trans = False
 
         # iterates over each dict adding decimal vals to total and checking if trans is advanced transfer.
         table_list_cpy = copy.deepcopy(table_list)
         for each in table_list_cpy:
-            if each['amount']:
-                total += Decimal(each['amount'])
             if each['type_code'] in ['AD', 'AT']:
                 adv_trans = True
                 each['description'] = f"{curr_account.client_code} | {each['description']}"
