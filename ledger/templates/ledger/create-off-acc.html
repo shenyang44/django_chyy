@@ -32,11 +32,11 @@
     <div class="modal-dialog">
         <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title" id="newOffModalLabel">Read Carefully!</h5>
+            <h5 class="modal-title" id="newOffModalLabel">Office Account Creation</h5>
         </div>
         <div class="modal-body">
-            <p>This page does NOT create a new "account/ledger/file" entry for an individual client. It creates an entry for an Office bank account, for example: An office account which has not been registered should be created here.</p>
-            <p>If you intended to create a new file entry for a single client click on the "Redirect Me" button below.</p>
+            <p>This page does not create a new file for an individual client. It creates an Office bank account, only an office account which has not been registered should be created here.</p>
+            <p>If you intended to open a new file for a single client click on the "Redirect Me" button below.</p>
         </div>
         <div class="modal-footer">
             <a href="{% url 'ledger:create_acc' %}" class="btn btn-secondary">Redirect Me</a>
