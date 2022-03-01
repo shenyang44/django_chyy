@@ -1,4 +1,4 @@
-! credit and debit row for transactions so can "less" certain amounts, then restructure it to look more natural for rec/vou printing.
+add changing current total in transaction creating page.
 
 ask if prefer redirect to clearing page or off ledger upon off receipt
 ask ref no on off vouchers for ads to external.
