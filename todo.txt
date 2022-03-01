@@ -1,4 +1,3 @@
-! dont let visible other party input field change when submitting.(createacc
 ! credit and debit row for transactions so can "less" certain amounts, then restructure it to look more natural for rec/vou printing.
 
 ask if prefer redirect to clearing page or off ledger upon off receipt
