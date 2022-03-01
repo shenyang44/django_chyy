@@ -16,7 +16,8 @@
                     <div class="w-50">
                             <label for="nameInput" class="form-label">Other Parties</label>
                             <div class="input-group mb-3">
-                                <input id='otherInput' name="other_parties" type="text" class="form-control" placeholder="Other party's name" aria-label="Other party's name" aria-describedby="button-addon2">
+                                <input type="hidden" id='otherPartyPost' name="other_parties">
+                                <input id='otherInput' type="text" class="form-control" placeholder="Other party's name" aria-label="Other party's name" aria-describedby="button-addon2">
                                 <button class="btn btn-outline-secondary" type="button" id="otherAdd">+</button>
                             </div>
                     </div>
@@ -75,7 +76,7 @@
 $(()=>{
     let accBtn = $('#accBtn')
     let otherParties = [];
-    // enables button if all inputs are filled, else disables.
+    // enables button if all inputs are filled with at least 1 non-white space character, else disables.
     updateBtn = () =>{
         let inputChecks = true;
         $('.formInput').each((i, e)=>{
@@ -124,7 +125,7 @@ $(()=>{
         let balVal = $('#balanceInput').val()
         if (/^\d+\.\d{2}$/.test(balVal)){
             let otherJson = JSON.stringify(otherParties)
-            $('#otherInput').val(otherJson)
+            $('#otherPartyPost').val(otherJson)
             $('#newAccForm').submit()
         }
         else{
