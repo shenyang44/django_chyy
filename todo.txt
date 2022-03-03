@@ -1,4 +1,3 @@
-!sequence files by month-year then client code in client acc ledger
 !create separate client accounts and allow viewing of each independently. 
 !transaction page for client account.
 
