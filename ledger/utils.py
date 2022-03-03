@@ -3,6 +3,7 @@ from .models import Account, Transaction
 from django.urls import reverse
 import json
 from decimal import Decimal
+import re
 
 def new_external(name):
     count = 0
@@ -34,6 +35,18 @@ def json_prep(objects):
             'voucher_no': each.off_voucher_no,
         })
     return(json.dumps(new_list))
+
+
+# return key to sort on for date then code.
+def month_code_sort(acc):
+    split_str = re.split("/", acc.file_no)
+    split_date = re.split('-', split_str[1])
+    month = split_date[0]
+    if len(month) < 2:
+        month = '0'+month
+    str_date = f'{split_date[1]}{month}'
+    str_code = split_str[2].zfill(5)
+    return(str_date+str_code)
 
 # removed after 1 time use
 def categorize_ad():

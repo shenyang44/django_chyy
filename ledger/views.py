@@ -1,3 +1,5 @@
+from calendar import month
+from posixpath import split
 from django.http.response import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Account, Transaction, Client_Account, Running_Balance, Type_Code
@@ -10,8 +12,7 @@ from decimal import Decimal
 from django.contrib import messages
 from datetime import date, datetime, time, timedelta
 import math, copy
-from .utils import json_prep, new_external, redirect_to
-from django.core.serializers.json import DjangoJSONEncoder
+from .utils import json_prep, new_external, redirect_to, month_code_sort
 
 def brace_num(x):
     if x < 0:
@@ -105,6 +106,7 @@ def show_cli(request):
         date_to=timezone.localdate()
     
     accounts = Account.objects.filter(client_account=True, created_at__lte=date_to+timedelta(days=1))
+    acc_list = []
     rbs = []
     total = Decimal(0.00)
     for acc in accounts:
@@ -112,11 +114,13 @@ def show_cli(request):
             last_rb = Running_Balance.objects.filter(account_id=acc.id, created_at__lte=date_to+timedelta(days=1)).order_by('-created_at')[0].value
         except:
             last_rb = Decimal(0.00)
-            messages.error(request, f'File with client code: {acc.client_code} does not have any running balance prior to date selected')
+            messages.error(request, f'File with client code: {acc.client_code} does not have any running balance within the dates selected')
         total += last_rb
-        
         rbs.append(brace_num(last_rb))
+        acc_list.append(acc)
     
+    acc_list.sort(key=month_code_sort)
+        
     entries_list=[]
     dupe = []
     transactions = Transaction.objects.filter(Q(payee__client_account = True) | Q(receiver__client_account = True)).order_by('created_at')
@@ -130,7 +134,7 @@ def show_cli(request):
     trans_zip = zip(transactions, entries_list, dupe)
     total = brace_num(total)
     context = {
-        'accounts_data': zip(accounts,rbs),
+        'accounts_data': zip(acc_list,rbs),
         'total': total,
         'date_to' : date_to,
         'file_count' : len(accounts),
