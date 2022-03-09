@@ -3,7 +3,7 @@
 
 {% block body %}
 <div class="print-n">
-    <div class='d-flex justify-content-around'>
+    <div class='d-flex justify-content-around mb-4'>
         <form action="{% url 'ledger:show_cli' %}" method="POST" autocomplete="off">
             {% csrf_token %}
             Final View Date: <input name='date_to' type="text" id="datepicker">
@@ -15,75 +15,51 @@
     </div>
     <hr>
 </div>
-<table id='accsView' class="table print-sm">
-    <colgroup>
-        <col style="width: 30%;">
-        <col style="width: 20%;">
-        <col style="width: 20%;">
-        <col style="width: 30%;">
-    </colgroup>
-    <thead>
-        <tr style="border-bottom: 2px solid black;">
-            <th colspan="4">
-                <header class="fs-5 text-center mb-3">
-                    MESSRS C.H.YEOH & YIEW
-                </header>
-                <div class="container d-flex flex-wrap">
-                    <div style="width: 100%;" class="d-flex print-sm">
-                        <div class="w-25">
-                            Date From: &nbsp;<span class="fw-normal">01/01/2000</span> 
+<ul class="nav nav-tabs print-n mb-3" id="cliTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="full-tab" data-bs-toggle="tab" data-bs-target="#full" type="button" role="tab" aria-controls="full" aria-selected="true">Full Ledger</button>
+    </li>
+</ul>
+<div class="tab-content" id="cliTabContent">
+    <div class="tab-pane fade show active" id="full" role="tabpanel" aria-labelledby="full-tab">
+        <table id='accsView' class="table print-sm">
+            <colgroup>
+                <col style="width: 30%;">
+                <col style="width: 20%;">
+                <col style="width: 20%;">
+                <col style="width: 30%;">
+            </colgroup>
+            <thead>
+                <tr style="border-bottom: 2px solid black;">
+                    <th colspan="4">
+                        <header class="fs-5 text-center mb-3">
+                            MESSRS C.H.YEOH & YIEW
+                        </header>
+                        <div class="container d-flex flex-wrap">
+                            <div style="width: 100%;" class="d-flex print-sm">
+                                <div class="w-25">
+                                    Date From: &nbsp;<span class="fw-normal">01/01/2000</span> 
+                                </div>
+                                <div class="w-25"> 
+                                    Date To: &nbsp;<span class="fw-normal">{{ date_to|date:'d/m/Y' }}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="w-25"> 
-                            Date To: &nbsp;<span class="fw-normal">{{ date_to|date:'d/m/Y' }}</span>
-                        </div>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <th scope="col">Client/Name</th>
-            <th scope="col">File Ref</th>
-            <th class="text-center" scope="col">Date Range Balance</th>
-            <th scope="col"></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for acc, rb in accounts_data %}
-            <tr class="transRow {% if forloop.last %}border-bottom border-dark{% endif %}" data-id="{{acc.id}}">
-                <a href="{% url 'ledger:show_acc' acc.id %}" id = a{{acc.id}} class="hidden-links"></a>
-                <td class="refCell">
-                    <div>
-                        {{acc.client_code}}
-                    </div>
-                    <div>
-                        {{acc.name|upper}}
-                    </div>
-                </td>
-                <td>{{acc.file_no}}</td>
-                <td class="text-end">
-                    <br>
-                    {{rb}}
-                </td>
-                {% if forloop.last %}
-                    <td></td>
-                {% endif %}
-            </tr>
-          
-        {% endfor %}
-        <tr class="border-bottom border-dark fw-bold">
-            <td>
-                Total Clients: {{file_count}}
-            </td>
-            <td class="text-end">
-                Grand Total:
-            </td>
-            <td class="text-end">
-                {{total}}
-            </td>
-            <td></td>
-        </tr>
-    </tbody>
-</table>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="col">Client/Name</th>
+                    <th scope="col">File Ref</th>
+                    <th class="text-center" scope="col">Date Range Balance</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody id="fullBody">
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <table id='transView' class="table print-sm d-none">
     <colgroup>
         <col style="width: 10%;">
@@ -103,10 +79,10 @@
                 </header>
                 <div style="width: 100%;" class="d-flex print-sm">
                     <div class="w-25">
-                        Date From: &nbsp;<span class="fw-normal">{{date_from}}</span> 
+                        Date From: &nbsp;<span class="fw-normal">01/01/2000</span> 
                     </div>
                     <div class="w-25"> 
-                        Date To: &nbsp;<span class="fw-normal">{{date_to}}</span>
+                        Date To: &nbsp;<span class="fw-normal">{{date_to|date:'d/m/Y'}}</span>
                     </div>
                 </div>
             </td>
@@ -196,7 +172,6 @@
                 {% endfor %}
             {% endif %}
         {% endfor %}
-        <hr>
         <tr>
             <td></td>
             <td></td>
@@ -209,7 +184,6 @@
         </tr>
     </tbody>
 </table>
-
 
 <script charset="utf-8">
     $(()=>{
@@ -242,6 +216,56 @@
             aView.removeClass('d-none');
            
         })
+        
+        const accArr = JSON.parse('{{acc_list|escapejs}}')
+        if (accArr.length > 0){
+            for (const [i, acc] of accArr.entries()){
+                let lastClass = '';
+                let lastCell = '';
+                if (i == (accArr.length-1)){
+                    lastClass = 'border-bottom border-dark';
+                    lastCell = '<td></td>'
+                }
+                $('#fullBody').append(`
+                        <tr class="transRow ${lastClass}" data-id="${acc.id}">
+                            <a href="" id = a${acc.id} class="hidden-links"></a>
+                            <td class="refCell">
+                                <div>
+                                    ${acc.client_code}
+                                </div>
+                                <div>
+                                    ${acc.name.toUpperCase()}
+                                </div>
+                            </td>
+                            <td>${acc.file_no}</td>
+                            <td class="text-end">
+                                <br>
+                                ${acc.rb}
+                            </td>
+                            ${lastCell}
+                        </tr>
+                `)
+            }
+        }
+        $('#fullBody').append(`
+            <tr class="border-bottom border-dark fw-bold">
+                <td>
+                    Total Clients: {{file_count}}
+                </td>
+                <td class="text-end">
+                    Grand Total:
+                </td>
+                <td class="text-end">
+                    {{total}}
+                </td>
+                <td></td>
+            </tr>
+        `)
+        // $('#cliTab').append(`
+            //     <li class="nav-item" role="presentation">
+            //         <button class="nav-link" id="${each}-tab" data-bs-toggle="tab" data-bs-target="#${each}" type="button" role="tab" aria-controls="${each}" aria-selected="false">${each}</button>
+            //     </li>
+            // `)
     })
 </script>
 {% endblock %}

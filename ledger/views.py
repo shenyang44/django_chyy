@@ -18,7 +18,7 @@ def brace_num(x):
     if x < 0:
         return f'({str(abs(x))})'
     else:
-        return x
+        return str(x)
 
 def index(request):
     accounts =  Account.objects.filter(created_at__lte=timezone.now()).filter(client_account=True).order_by('-updated_at')
@@ -99,31 +99,41 @@ def show_off(request, off_id=None):
     return render(request, 'ledger/office.html', context=context)
 
 def show_cli(request):
+    date_input = None
     if request.method == 'POST':
-        date_input = request.POST['date_to']
-        date_to = datetime.strptime(date_input, "%d/%m/%Y")
-    else:
+        date_input = request.POST.get('date_to')
+    if not date_input:
         date_to=timezone.localdate()
+    else:
+        date_to = datetime.strptime(date_input, "%d/%m/%Y")
     
-    accounts = Account.objects.filter(client_account=True, created_at__lte=date_to+timedelta(days=1))
+    date_to += timedelta(days=1)
+    accounts = list(Account.objects.filter(client_account=True, created_at__lte=date_to))
     acc_list = []
-    rbs = []
     total = Decimal(0.00)
-    for acc in accounts:
-        try:
-            last_rb = Running_Balance.objects.filter(account_id=acc.id, created_at__lte=date_to+timedelta(days=1)).order_by('-created_at')[0].value
-        except:
-            last_rb = Decimal(0.00)
-            messages.error(request, f'File with client code: {acc.client_code} does not have any running balance within the dates selected')
-        total += last_rb
-        rbs.append(brace_num(last_rb))
-        acc_list.append(acc)
+    try:
+        accounts.sort(key=month_code_sort)
+    except:
+        pass
     
-    acc_list.sort(key=month_code_sort)
+    if accounts:
+        for acc in accounts:
+            try:
+                last_rb = Running_Balance.objects.filter(account_id=acc.id, created_at__lte=date_to).order_by('-created_at')[0].value
+            except:
+                last_rb = Decimal(0.00)
+            total += last_rb
+            acc_list.append({
+                'rb' : brace_num(last_rb),
+                'id' : acc.id,
+                'client_code' : acc.client_code,
+                'name' : acc.name,
+                'file_no' : acc.file_no,
+            })
         
     entries_list=[]
     dupe = []
-    transactions = Transaction.objects.filter(Q(payee__client_account = True) | Q(receiver__client_account = True)).order_by('created_at')
+    transactions = Transaction.objects.filter(Q(payee__client_account = True) | Q(receiver__client_account = True)).filter(created_at__lte=date_to).order_by('created_at')
     for trans in transactions:
         entries_list.append(json.loads(trans.table_list))
         if trans.payee.client_account == True and trans.receiver.client_account==True:
@@ -133,12 +143,13 @@ def show_cli(request):
 
     trans_zip = zip(transactions, entries_list, dupe)
     total = brace_num(total)
+    date_to -= timedelta(days=1)
     context = {
-        'accounts_data': zip(acc_list,rbs),
         'total': total,
         'date_to' : date_to,
         'file_count' : len(accounts),
         'trans_zip':trans_zip,
+        'acc_list': json.dumps(acc_list),
     }
     return render(request, 'ledger/client.html', context=context)
 

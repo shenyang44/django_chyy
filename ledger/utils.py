@@ -1,5 +1,6 @@
+from hashlib import new
 from django.shortcuts import get_object_or_404, redirect
-from .models import Account, Transaction
+from .models import Account, Transaction, Running_Balance
 from django.urls import reverse
 import json
 from decimal import Decimal
@@ -21,19 +22,24 @@ def redirect_to(acc_id):
         return redirect(reverse('ledger:show_acc', args=(acc_id,)))
 
 
-def json_prep(objects):
-    new_list=[]
-    for each in objects:
-        new_list.append({
-            'id':each.id,
-            'created_at':each.created_at.strftime('%d/%m/%Y'),
-            'receiver':each.receiver.name,
-            'payee':each.payee.name,
-            'table_list': json.loads(each.table_list),
-            'total' : str(each.total),
-            'category': each.category,
-            'voucher_no': each.off_voucher_no,
-        })
+def json_prep(objects, caller='adat'):
+    new_list = []
+    if caller == 'client':
+        for each in objects:
+            new_list.append({
+            })
+    else:
+        for each in objects:
+            new_list.append({
+                'id':each.id,
+                'created_at':each.created_at.strftime('%d/%m/%Y'),
+                'receiver':each.receiver.name,
+                'payee':each.payee.name,
+                'table_list': json.loads(each.table_list),
+                'total' : str(each.total),
+                'category': each.category,
+                'voucher_no': each.off_voucher_no,
+            })
     return(json.dumps(new_list))
 
 
