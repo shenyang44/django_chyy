@@ -10,14 +10,15 @@
             <button>Update</button>
         </form>
         <button id='printBtn' class="btn btn-secondary" type="button" onclick="window.print()">Print</button>
-        <a id='transBtn' class="btn btn-outline-secondary">View Transactions</a>
-        <a id='accsBtn' class="btn btn-outline-secondary d-none">View Ledger</a>
     </div>
     <hr>
 </div>
 <ul class="nav nav-tabs print-n mb-3" id="cliTab" role="tablist">
     <li class="nav-item" role="presentation">
         <button class="nav-link active" id="full-tab" data-bs-toggle="tab" data-bs-target="#full" type="button" role="tab" aria-controls="full" aria-selected="true">Full Ledger</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="trans-tab" data-bs-toggle="tab" data-bs-target="#trans" type="button" role="tab" aria-controls="full" aria-selected="false">Transactions Ledger</button>
     </li>
 </ul>
 <div class="tab-content" id="cliTabContent">
@@ -58,132 +59,133 @@
             </tbody>
         </table>
     </div>
+    <div class="tab-pane fade" id="trans" role="tabpanel" aria-labelledby="trans-tab">
+        <table id='transView' class="table print-sm">
+            <colgroup>
+                <col style="width: 10%;">
+                <col style="width:10%;">
+                <col style="width: 5%;">
+                <col style="width: 40%;">
+                <col style="width:10%">
+                <col style="width: 10%;">
+                <col style="width: 15%;">
+            </colgroup>
+            <thead>
+                <tr style="border:none">
+                    <th colspan="7">
+                        <header class="fs-5 text-center mb-3">
+                            <div>MESSRS C.H.YEOH & YIEW</div>
+                            <div>Transaction History</div>
+                        </header>
+                        <div style="width: 100%;" class="d-flex print-sm">
+                            <div class="w-25">
+                                Date From: &nbsp;<span class="fw-normal">01/01/2000</span> 
+                            </div>
+                            <div class="w-25"> 
+                                Date To: &nbsp;<span class="fw-normal">{{date_to|date:'d/m/Y'}}</span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="col">Ref No</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Description</th>
+                    <th class="text-center" scope="col">Debit</th>
+                    <th class="text-center" scope="col">Credit</th>
+                    <th class="text-center" scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trans, entries, dupe in trans_zip %}
+                    {% if dupe %}
+                        {% for entry in entries %}
+                            <tr class="transRow" data-id="{{trans.id}}">
+                                    <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
+                                    <td class="refCell">
+                                        {% if forloop.first %}
+                                            PV{{trans.voucher_no}}
+                                        {% endif %}
+                                    </td>
+                                <td>
+                                    {% if forloop.first %}{{trans.created_at|date:"d/m/Y"}}{% endif %}</td>
+                                <td>{{entry.type_code}}</td>
+                                <td>
+                                    <div class="d-flex justify-content-between">
+                                        {{entry.description}}
+                                    </div>
+                                </td>
+                                <td class="text-center">{% if trans.payee.file_no == account.file_no %}{{entry.amount}} {% endif %}</td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                        {% for entry in entries %}
+                            <tr class="transRow" data-id="{{trans.id}}dupe">
+                                <a href="{% url 'ledger:receipt' trans.id %}" id = a{{trans.id}}dupe class="hidden-links"></a>
+                                <td class="refCell">
+                                    {% if forloop.first %}
+                                        RC{{trans.receipt_no}}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if forloop.first %}{{trans.created_at|date:"d/m/Y"}}{% endif %}</td>
+                                <td>{{entry.type_code}}</td>
+                                <td>
+                                    <div class="d-flex justify-content-between">
+                                        {{entry.description}}
+                                    </div>
+                                </td>
+                                <td></td>
+                                <td class="text-center">{% if trans.receiver.file_no == account.file_no %}{{entry.amount}}{% endif %}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        {% for entry in entries %}
+                            <tr class="transRow" data-id="{{trans.id}}">
+                                {% if trans.payee.client_account %}
+                                    <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
+                                    <td class="refCell">
+                                        {% if forloop.first %}
+                                        PV{{trans.voucher_no}}
+                                        {% endif %}
+                                    </td>
+                                {% else %}
+                                    <a href="{% url 'ledger:receipt' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
+                                    <td class="refCell">
+                                        {% if forloop.first %}
+                                        RC{{trans.receipt_no}}
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
+                                <td>
+                                    {% if forloop.first %}{{trans.created_at|date:"d/m/Y"}}{% endif %}</td>
+                                <td>{{entry.type_code}}</td>
+                                <td>
+                                    <div class="d-flex justify-content-between">
+                                        {{entry.description}}
+                                    </div>
+                                </td>
+                                <td class="text-center">{% if trans.payee.client_account %}{{entry.amount}} {% endif %}</td>
+                                <td class="text-center">{% if trans.receiver.client_account %}{{entry.amount}}{% endif %}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td class="fw-bold text-end">Current balance :</td>
+                    <td class="text-center">
+                        {{total}}
+                    </td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
-
-<table id='transView' class="table print-sm d-none">
-    <colgroup>
-        <col style="width: 10%;">
-        <col style="width:10%;">
-        <col style="width: 5%;">
-        <col style="width: 40%;">
-        <col style="width:10%">
-        <col style="width: 10%;">
-        <col style="width: 15%;">
-    </colgroup>
-    <thead>
-        <tr style="border:none">
-            <th colspan="7">
-                <header class="fs-5 text-center mb-3">
-                    <div>MESSRS C.H.YEOH & YIEW</div>
-                    <div>Transaction History</div>
-                </header>
-                <div style="width: 100%;" class="d-flex print-sm">
-                    <div class="w-25">
-                        Date From: &nbsp;<span class="fw-normal">01/01/2000</span> 
-                    </div>
-                    <div class="w-25"> 
-                        Date To: &nbsp;<span class="fw-normal">{{date_to|date:'d/m/Y'}}</span>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <th scope="col">Ref No</th>
-            <th scope="col">Date</th>
-            <th scope="col">Type</th>
-            <th scope="col">Description</th>
-            <th class="text-center" scope="col">Debit</th>
-            <th class="text-center" scope="col">Credit</th>
-            <th class="text-center" scope="col"></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for trans, entries, dupe in trans_zip %}
-            {% if dupe %}
-                {% for entry in entries %}
-                    <tr class="transRow" data-id="{{trans.id}}">
-                            <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
-                            <td class="refCell">
-                                {% if forloop.first %}
-                                    PV{{trans.voucher_no}}
-                                {% endif %}
-                            </td>
-                        <td>
-                            {% if forloop.first %}{{trans.created_at|date:"d/m/Y"}}{% endif %}</td>
-                        <td>{{entry.type_code}}</td>
-                        <td>
-                            <div class="d-flex justify-content-between">
-                                {{entry.description}}
-                            </div>
-                        </td>
-                        <td class="text-center">{% if trans.payee.file_no == account.file_no %}{{entry.amount}} {% endif %}</td>
-                        <td></td>
-                    </tr>
-                {% endfor %}
-                {% for entry in entries %}
-                    <tr class="transRow" data-id="{{trans.id}}dupe">
-                        <a href="{% url 'ledger:receipt' trans.id %}" id = a{{trans.id}}dupe class="hidden-links"></a>
-                        <td class="refCell">
-                            {% if forloop.first %}
-                                RC{{trans.receipt_no}}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if forloop.first %}{{trans.created_at|date:"d/m/Y"}}{% endif %}</td>
-                        <td>{{entry.type_code}}</td>
-                        <td>
-                            <div class="d-flex justify-content-between">
-                                {{entry.description}}
-                            </div>
-                        </td>
-                        <td></td>
-                        <td class="text-center">{% if trans.receiver.file_no == account.file_no %}{{entry.amount}}{% endif %}</td>
-                    </tr>
-                {% endfor %}
-            {% else %}
-                {% for entry in entries %}
-                    <tr class="transRow" data-id="{{trans.id}}">
-                        {% if trans.payee.client_account %}
-                            <a href="{% url 'ledger:voucher' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
-                            <td class="refCell">
-                                {% if forloop.first %}
-                                PV{{trans.voucher_no}}
-                                {% endif %}
-                            </td>
-                        {% else %}
-                            <a href="{% url 'ledger:receipt' trans.id %}" id = a{{trans.id}} class="hidden-links"></a>
-                            <td class="refCell">
-                                {% if forloop.first %}
-                                RC{{trans.receipt_no}}
-                                {% endif %}
-                            </td>
-                        {% endif %}
-                        <td>
-                            {% if forloop.first %}{{trans.created_at|date:"d/m/Y"}}{% endif %}</td>
-                        <td>{{entry.type_code}}</td>
-                        <td>
-                            <div class="d-flex justify-content-between">
-                                {{entry.description}}
-                            </div>
-                        </td>
-                        <td class="text-center">{% if trans.payee.client_account %}{{entry.amount}} {% endif %}</td>
-                        <td class="text-center">{% if trans.receiver.client_account %}{{entry.amount}}{% endif %}</td>
-                    </tr>
-                {% endfor %}
-            {% endif %}
-        {% endfor %}
-        <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td class="fw-bold text-end">Current balance :</td>
-            <td class="text-center">
-                {{total}}
-            </td>
-            <td></td>
-        </tr>
-    </tbody>
-</table>
 
 <script charset="utf-8">
     $(()=>{
@@ -196,26 +198,6 @@
         changeYear: true,
         dateFormat: 'dd/mm/yy'
         });
-
-        // declaring variables for display management.
-        tBtn = $('#transBtn');
-        aBtn = $('#accsBtn');
-        tView = $('#transView');
-        aView = $('#accsView');
-        
-        tBtn.click((e)=>{
-            aView.addClass('d-none');
-            tBtn.addClass('d-none');
-            tView.removeClass('d-none');
-            aBtn.removeClass('d-none');
-        })
-        aBtn.click((e)=>{
-            aBtn.addClass('d-none');
-            tView.addClass('d-none');
-            tBtn.removeClass('d-none');
-            aView.removeClass('d-none');
-           
-        })
         
         const accArr = JSON.parse('{{acc_list|escapejs}}')
         if (accArr.length > 0){
