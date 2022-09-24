@@ -108,7 +108,10 @@ class Transaction(models.Model):
             return 30501
         
     def next_off_voucher_no(self):
-        latest = Transaction.objects.filter(off_voucher_no__isnull=False).order_by('-off_voucher_no')[0]
+        try:
+            latest = Transaction.objects.filter(off_voucher_no__isnull=False).order_by('-off_voucher_no')[0]
+        except:
+            latest = None
         if latest:
             return (latest.off_voucher_no + 1)
         else:
