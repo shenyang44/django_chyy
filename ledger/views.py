@@ -143,12 +143,14 @@ def show_cli(request):
     trans_zip = zip(transactions, entries_list, dupe)
     total = brace_num(total)
     date_to -= timedelta(days=1)
+    client_accounts = Client_Account.objects.all()
     context = {
         'total': total,
         'date_to' : date_to,
         'file_count' : len(accounts),
         'trans_zip':trans_zip,
         'acc_list': json.dumps(acc_list),
+        'client_accounts': client_accounts,
     }
     return render(request, 'ledger/client.html', context=context)
 

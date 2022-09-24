@@ -20,6 +20,13 @@
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="trans-tab" data-bs-toggle="tab" data-bs-target="#trans" type="button" role="tab" aria-controls="full" aria-selected="false">Transactions Ledger</button>
     </li>
+    {% if client_accounts %}
+        {% for each in client_accounts %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="cli-acc-{{each.id}}-tab" data-bs-toggle="tab" data-bs-target="#cli-acc-{{each.id}}" type="button" role="tab" aria-controls="full" aria-selected="false">{{each.name}}</button>
+        </li>
+        {% endfor %}
+    {% endif %}
 </ul>
 <div class="tab-content" id="cliTabContent">
     <div class="tab-pane fade show active" id="full" role="tabpanel" aria-labelledby="full-tab">
@@ -185,6 +192,13 @@
             </tbody>
         </table>
     </div>
+    {% if client_accounts %}
+        {% for each in client_accounts %}
+            <div class="tab-pane fade" id="cli-acc-{{each.id}}" role="tabpanel" aria-labelledby="cli-acc-{{each.id}}-tab">
+                hello
+            </div>
+        {% endfor %}
+    {% endif %}
 </div>
 
 <script charset="utf-8">

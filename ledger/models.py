@@ -88,14 +88,20 @@ class Transaction(models.Model):
         return(entries[0]['description'])
     
     def next_voucher_no(self):
-        latest = Transaction.objects.filter(voucher_no__isnull=False).order_by('-voucher_no')[0]
+        try:
+            latest = Transaction.objects.filter(voucher_no__isnull=False).order_by('-voucher_no')[0]
+        except:
+            latest = None
         if latest:
             return (latest.voucher_no + 1)
         else:
             return 43001
 
     def next_receipt_no(self):
-        latest = Transaction.objects.filter(receipt_no__isnull=False).order_by('-receipt_no')[0]
+        try:
+            latest = Transaction.objects.filter(receipt_no__isnull=False).order_by('-receipt_no')[0]
+        except:
+            latest = None
         if latest:
             return (latest.receipt_no + 1)
         else:
