@@ -524,7 +524,7 @@ def create_trans(request, acc_id, trans_type):
             if name_matches:
                 for each in name_matches:
                     if each.is_external():
-                        other_party=new_external(other_name)
+                        other_party=each
                         break
                 other_party=new_external(other_name)
             else:
@@ -588,7 +588,7 @@ def create_trans(request, acc_id, trans_type):
                 r_no = custom_receipt_no
             else:
                 r_no = Transaction.next_receipt_no(None)
-        else:
+        elif receiver.is_office():
             cleared = False
 
         new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc=cli_acc, cleared=cleared, subj_matter=subject_matter, receipt_no = r_no, voucher_no=v_no, off_voucher_no=off_v_no)
