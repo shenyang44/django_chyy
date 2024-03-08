@@ -1,3 +1,6 @@
+!! double check on transactions not showing on transaction ledger.
+
+
 !create separate client accounts and allow viewing of each independently. - links to individual accs from this page
 !transaction page for client account.
 

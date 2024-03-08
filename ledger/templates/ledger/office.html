@@ -244,7 +244,6 @@
             let offID = checkInp.attr('data-off');
             $.post( "{% url 'ledger:show_off' %}", {checked:e.target.checked, off_id:offID, trans_id:transID, form_type:'checkbox'});
         })
-
     })
 </script>
 {% endblock %}
