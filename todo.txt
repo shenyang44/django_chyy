@@ -1,5 +1,8 @@
-!! double check on transactions not showing on transaction ledger.
+!! double check on transactions not showing on transaction ledger. - office account receiving transactions not working??
 
+!Transaction cancellation not pulling the ID correctly.
+
+read this "// ajax for checkbox updating server." in office html.
 
 !create separate client accounts and allow viewing of each independently. - links to individual accs from this page
 !transaction page for client account.
@@ -12,6 +15,8 @@ ask what to be in cheque text, for AT and the auto credit
 ask what does she want in the ref no. column for reimbursed AD
 
 warn user if client file no is duplicate
+
+Find a way to select radio for office acc viewing upon clicking back, etc.
 
 make all datepickers use dd/mm/yyyy format
 make date times tz aware

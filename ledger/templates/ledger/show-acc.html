@@ -259,7 +259,7 @@
                                         <input type="hidden" name="trans_id" value="{{trans.id}}">
                                         <input type="hidden" name="acc_id" value="{{account.id}}">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <button type="submit" class="btn btn-primary">Confirm Removal</button>
+                                        <button type="submit" class="btn btn-primary" id="counterBtn">Confirm Removal</button>
                                     </form>
                                     
                                 </div>
@@ -412,6 +412,9 @@
     </div>
 <script charset="utf-8">
 $(()=>{
+    $('#counterBtn').click(()=>{
+        $('#counterBtn').attr('disabled', true);
+    })
     $('.transRow').dblclick((e)=>{
         id = $(e.currentTarget).attr('data-id');
         $(`#a${id}`)[0].click()

@@ -65,9 +65,14 @@
                 }
             })
             if (filled){
-                subBtn.attr('disabled', false)
+                subBtn.attr('disabled', false);
             } else{
-                subBtn.attr('disabled', true)
+                subBtn.attr('disabled', true);
+            }
+        })
+        subBtn.click(()=>{
+            if (!subBtn.attr('disabled')){
+                subBtn.attr('disabled', true);
             }
         })
     })
