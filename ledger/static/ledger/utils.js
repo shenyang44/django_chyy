@@ -120,7 +120,7 @@ updateTabs = (dateFrom, dateTo, reimbursed, payed, outstanding) =>{
                                 ${trans.receiver}
                             </td>
                             <td class="text-end">${each.amount}</td>
-                            <td>${resolveBtnHTML}</td>
+                            <td class="text-center">${resolveBtnHTML}</td>
                         </tr>`        
                 }
             }

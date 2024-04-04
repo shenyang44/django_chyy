@@ -127,6 +127,7 @@ $(()=>{
             let otherJson = JSON.stringify(otherParties)
             $('#otherPartyPost').val(otherJson)
             $('#newAccForm').submit()
+            accBtn.attr('disabled', true);
         }
         else{
             alert('Their balance value must be a positive number with 2 decimal places.')

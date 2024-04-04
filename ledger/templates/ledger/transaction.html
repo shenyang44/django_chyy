@@ -133,7 +133,11 @@
                 <br>
                 <div class="d-flex justify-content-between">
                     <button id='transBtn' disabled type='button' class="btn btn-primary">Confirm</button>
+                    {% if account.is_office %}
+                    <a class="btn btn-secondary" href="{% url 'ledger:show_off' %}">Back to Account</a>
+                    {% else %}
                     <a class="btn btn-secondary" href="{% url 'ledger:show_acc' account.id %}">Back to Account</a>
+                    {%endif%}
                 </div>
             </form>
         </div>
@@ -496,6 +500,7 @@ $(()=>{
             $('#tableData').val(JSON.stringify(tableData));
             $('#totalInp').val(amountCheck().toFixed(2))
             $('#transForm').submit();
+            transBtn.attr('disabled', true);
         }
     })
 })

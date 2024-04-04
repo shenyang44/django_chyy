@@ -113,7 +113,7 @@
                                             <input type="hidden" name="trans_id" value="{{trans.id}}">
                                             <input type="hidden" name="acc_id" value="{{off_acc.id}}">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary">Confirm Removal</button>
+                                            <button type="submit" class="btn btn-primary" id="counterBtn">Confirm Removal</button>
                                         </form>
                                     </div>
                                 </div>
@@ -242,6 +242,9 @@
             let transID = checkInp.attr('data-id');
             let offID = checkInp.attr('data-off');
             $.post( "{% url 'ledger:show_off' %}", {checked:e.target.checked, off_id:offID, trans_id:transID, form_type:'checkbox'});
+        })
+        $('#counterBtn').click(()=>{
+            $('#counterBtn').attr('disabled', true);
         })
     })
 </script>
