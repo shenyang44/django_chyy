@@ -5,3 +5,4 @@
 /ledger/todo.txt
 .env
 *.dump
+.venv
