@@ -914,6 +914,23 @@ def custom_receipt(request, acc_id):
         }
         return render(request,'ledger/custom_receipt.html', context=context)
 
+def custom_voucher(request, acc_id):
+    if request.method == 'GET':
+        try:
+            acc = Account.objects.get(pk=acc_id)
+        except:
+            messages.warning(request, 'Could not find account details')
+            if acc.is_office():
+                return redirect(reverse('ledger:show_off', args=(acc_id,)))
+            else:
+                return redirect(reverse('ledger:show_acc', args=(acc_id,)))
+
+        context = {
+            "acc": acc,
+        }
+        return render(request,'ledger/custom-voucher.html', context=context)
+
+        
 def uncleared(request):
     if request.method == 'GET':
         trans = Transaction.objects.filter(cleared=False)

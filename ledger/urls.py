@@ -23,6 +23,7 @@ urlpatterns = [
     path('adat-index/', views.adat_index, name="adat_index"),
     path('<int:trans_id>/resolve-adat/', views.resolve, name='resolve'),
     path('<int:acc_id>/custom-receipt/', views.custom_receipt, name='custom_receipt'),
+    path('<int:acc_id>/custom-voucher/', views.custom_voucher, name='custom_voucher'),
     path('uncleared-credits/', views.uncleared, name='uncleared'),
     path('counter_trans/', views.counter_trans, name='counter_trans'),
     path('<int:acc_id>/subj_matter/', views.subj_matter, name='subj_matter'),

@@ -55,12 +55,14 @@
                 Bank : {{off_acc.client_code}}
             </div>
         </div>
-        <div class="text-center mb-3">
+        <div class="text-center mb-3 d-flex justify-content-evenly">
             <div class="btn-group" role="group" aria-label="transaction button group">
                 <a href='{% url "ledger:create_trans" off_acc.id "deb" %}' class="btn btn-outline-secondary">New Voucher</a>
                 <a href='{% url "ledger:create_trans" off_acc.id "cre" %}' class="btn btn-outline-secondary">Receiving</a>
             </div>
-            
+            <div>
+                <a href='{% url "ledger:custom_voucher" off_acc.id %}' class="btn btn-secondary">Print Custom Voucher</a>
+            </div>
         </div>
         <table  class="table">
             <colgroup>
@@ -157,7 +159,7 @@
             </tbody>    
         </table>
     </div>
-    <!-- Modal -->
+    <!-- Modal to edit Office Account Name -->
     <div class="modal fade" id="editNameModal{{off_acc.id}}" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">

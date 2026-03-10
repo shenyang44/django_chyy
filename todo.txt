@@ -1,4 +1,3 @@
-!! double check on transactions not showing on transaction ledger. - office account receiving transactions not working??
 
 !Transaction cancellation not pulling the ID correctly.
 
