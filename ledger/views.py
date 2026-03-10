@@ -820,7 +820,7 @@ def create_cli_acc(request):
         bank_code = request.POST['bank_code']
         new_cli_acc = Client_Account(name=acc_name, bank_code=bank_code, acc_number=acc_number, bank_name=bank_name)
         new_cli_acc.save()
-        return redirect(reverse('ledger:index'))
+        return redirect(reverse('ledger:show_cli'))
     else:
         return render(request, 'ledger/create-cli-acc.html')
 

@@ -141,3 +141,8 @@ MESSAGE_TAGS = {
 }
 
 django_heroku.settings(locals())
+
+# Disable SSL for local development
+DATABASES['default']['OPTIONS'] = {
+    'sslmode': 'disable',
+}

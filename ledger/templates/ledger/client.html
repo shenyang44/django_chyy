@@ -20,14 +20,16 @@
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="trans-tab" data-bs-toggle="tab" data-bs-target="#trans" type="button" role="tab" aria-controls="full" aria-selected="false">Transactions Ledger</button>
     </li>
-    {% if client_accounts %}
+    <!-- COMMENTED OUT BELOW, NOT YET IMPLEMENTED -->
+    <!-- {% if client_accounts %}
         {% for each in client_accounts %}
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="cli-acc-{{each.id}}-tab" data-bs-toggle="tab" data-bs-target="#cli-acc-{{each.id}}" type="button" role="tab" aria-controls="full" aria-selected="false">{{each.name}}</button>
         </li>
         {% endfor %}
-    {% endif %}
+    {% endif %} -->
 </ul>
+<!-- Full Ledger Tab -->
 <div class="tab-content" id="cliTabContent">
     <div class="tab-pane fade show active" id="full" role="tabpanel" aria-labelledby="full-tab">
         <table id='accsView' class="table print-sm">
@@ -66,6 +68,7 @@
             </tbody>
         </table>
     </div>
+    <!-- Transactions Ledger Tab -->
     <div class="tab-pane fade" id="trans" role="tabpanel" aria-labelledby="trans-tab">
         <table id='transView' class="table print-sm">
             <colgroup>
@@ -192,13 +195,14 @@
             </tbody>
         </table>
     </div>
-    {% if client_accounts %}
+    <!-- COMMENTED OUT BELOW, NOT YET IMPLEMENTED -->
+    <!-- {% if client_accounts %}
         {% for each in client_accounts %}
             <div class="tab-pane fade" id="cli-acc-{{each.id}}" role="tabpanel" aria-labelledby="cli-acc-{{each.id}}-tab">
                 hello
             </div>
         {% endfor %}
-    {% endif %}
+    {% endif %} -->
 </div>
 
 <script charset="utf-8">
