@@ -108,12 +108,12 @@
                                         <p>This will create a counter transaction, to correct the account's balance, and does not remove the above transaction from the ledger.</p>
                                     </div>
                                     <div class="modal-footer">
-                                        <form method="post" action="{% url 'ledger:counter_trans' %}">
+                                        <form method="post" action="{% url 'ledger:counter_trans' %}" id="counterForm{{trans.id}}">
                                             {% csrf_token %}
                                             <input type="hidden" name="trans_id" value="{{trans.id}}">
                                             <input type="hidden" name="acc_id" value="{{off_acc.id}}">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary" id="counterBtn">Confirm Removal</button>
+                                            <button type="submit" class="btn btn-primary counterBtn">Confirm Removal</button>
                                         </form>
                                     </div>
                                 </div>
@@ -243,8 +243,9 @@
             let offID = checkInp.attr('data-off');
             $.post( "{% url 'ledger:show_off' %}", {checked:e.target.checked, off_id:offID, trans_id:transID, form_type:'checkbox'});
         })
-        $('#counterBtn').click(()=>{
-            $('#counterBtn').attr('disabled', true);
+        $('.counterBtn').click((e)=>{
+            $(e.currentTarget).parent().submit();
+            $(e.currentTarget).attr('disabled', true);
         })
     })
 </script>
