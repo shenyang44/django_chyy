@@ -8,12 +8,19 @@
     <section class="row mb-4">
         <div class="col-1"></div>
         <div class="col-7">
-            <div class="d-flex mb-3">Our Ref:&nbsp;<div class="border-bottom border-dark w-75">{{acc.file_no}}</div></div>
-            <div class="d-flex">Your Ref:&nbsp;<div class="border-bottom border-dark w-75"></div></div>
+            <div class="d-flex mb-3">Our Ref:&nbsp;
+                <div class="border-bottom border-dark w-75">{{acc.file_no}}</div>
+            </div>
+            <div class="d-flex">Your Ref:&nbsp;
+                <div class='border-bot w-75' type="text" contenteditable></div>
+            </div>
         </div>
         <div class="col-4">
             <div class="mb-3 d-flex ms-3">
-               <div>Receipt No.&nbsp;<span class="fw-bold">B</span></div><input type="text"class="doc-id ms-3 border-0" size="5">
+                <div>
+                    Receipt No.&nbsp;<span class="fw-bold">B</span>
+                </div>
+                <input type="text"class="doc-id ms-3 border-0" size="5">
             </div>
             <div class="ms-3">Date: <span class="border-bottom border-dark">{% now 'j. n. Y' %}</span></div>
         </div>
@@ -81,11 +88,12 @@ $(()=>{
         let deets = $('.deets')
         if(deets.length>1){
             deets.last().remove()
+            sumUp();
         } else{
             alert('You cannot remove all rows.')
         }
     })
-    sumUp = () =>{
+    const sumUp = () =>{
         let total = 0;
         $('.border-start').each((i,e)=>{
             if (isNaN(e.value) || e.value == ''){
