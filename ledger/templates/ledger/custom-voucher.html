@@ -24,7 +24,7 @@
         <div class="my-3 row">
             <div class="col-5 d-flex">No.&nbsp;<input class="w-75 dotted-bot text-center "/></div>
             <div class="col-3"></div>
-            <div class="col-4 d-flex">Date.&nbsp;<div class="w-75 dotted text-center">{% now "j. n. Y" %}</div></div>
+            <div class="col-4 d-flex">Date.&nbsp;<div class="w-75 dotted text-center" contenteditable>{% now "j. n. Y" %}</div></div>
         </div>
         <div class="row mb-2">Debit (帳戶科目) <div class="mx-2 dotted-bot w-50" contenteditable></div> Account</div>
         <div class="row my-3">Bayaran Kepada / Pay / 給何人 <div class="mx-2 dotted-bot w-50" contenteditable></div></div>
@@ -33,12 +33,12 @@
             <div class="col-2 fw-bold text-center">RM</div>
         </div>
         
-        <div class="row border-bottom border-dark">
-            <div class="col-10"></div>
-            <div class="col-2 border-start border-dark text-end"></div>
+        <div class="row border-bottom border-dark deets">
+            <div contenteditable="true" class="col-10"></div>
+            <div class="col-2 border-start border-dark text-end" contenteditable="true"></div>
         </div>
         
-        <div class="row justify-content-end p-3" >
+        <div id="total-row" class="row justify-content-end p-3" >
             Jumlah / Total / 共銀 
             <div class="fw-bold w-auto">RM <span id="total"></span></div>
         </div>
@@ -86,11 +86,11 @@
         if (deets.length>=10){
             alert('Maximum number of input rows have been reached.')
         } else{
-            $('#total').before(`
-            <div class="row deets">
-                <input class="border-bot col-10">
-                <input class="text-end border-bot border-start border-dark col-2">
-            </div>
+            $('#total-row').before(`
+                <div class="row border-bottom border-dark deets">
+                    <div contenteditable="true" class="col-10"></div>
+                    <div class="col-2 border-start border-dark text-end" contenteditable="true"></div>
+                </div>
             `)
         }
     })
@@ -98,24 +98,30 @@
         let deets = $('.deets')
         if(deets.length>1){
             deets.last().remove()
+            sumUp();
         } else{
             alert('You cannot remove all rows.')
         }
     })
-    sumUp = () =>{
+    const parseMoney = (str) => {
+        const v = parseFloat(str.replace(/,/g, '').trim());
+        return Number.isFinite(v) ? v : 0;
+    };
+
+    const sumUp = () => {
         let total = 0;
-        $('.border-start').each((i,e)=>{
-            if (isNaN(e.value) || e.value == ''){
-                return
-            } else{
-                total += parseFloat(e.value);
-            }
-        })
-        $('#summedUp').text(total.toFixed(2))
-    }
-    $('.container').on('change', '.border-start', ((e)=>{
-        sumUp()
-    }))
+        $('.border-start').each((i, e) => {
+            const text = $(e).text().trim();
+            if (text === '') return;
+            total += parseMoney(text);
+        });
+        $('#total').text(total.toFixed(2));
+    };
+
+    // contenteditable elements not procing on.change, so listening to `input`/`blur` instead.
+    $('.container').on('input blur', '.border-start[contenteditable]', () => {
+        sumUp();
+    });
  });
 
 </script>

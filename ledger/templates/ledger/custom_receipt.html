@@ -88,11 +88,12 @@ $(()=>{
         let deets = $('.deets')
         if(deets.length>1){
             deets.last().remove()
+            sumUp();
         } else{
             alert('You cannot remove all rows.')
         }
     })
-    sumUp = () =>{
+    const sumUp = () =>{
         let total = 0;
         $('.border-start').each((i,e)=>{
             if (isNaN(e.value) || e.value == ''){
