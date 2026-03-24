@@ -26,6 +26,9 @@
                     <div style="width: 65%;">
                         <label for="fileNoInput" class="form-label">File Number</label>
                         <input type="text" name='file_no' class="formInput form-control" id="fileNoInput">
+                        <div id="fileNoValidation" class="invalid-feedback">
+                            File No. already exists. Please choose another one.
+                        </div>
                     </div>
                     <div style="width: 30%;">
                         <label for="clientCode" class="form-label">Client Code:</label>
@@ -76,9 +79,14 @@
 $(()=>{
     let accBtn = $('#accBtn')
     let otherParties = [];
+    const fileNoInput = $('#fileNoInput');
+
     // enables button if all inputs are filled with at least 1 non-white space character, else disables.
     updateBtn = () =>{
         let inputChecks = true;
+        if( fileNoInput.hasClass('is-invalid')){
+            inputChecks = false;
+        }
         $('.formInput').each((i, e)=>{
             if (!/\S/.test($(e).val())){
                 inputChecks = false
@@ -90,12 +98,7 @@ $(()=>{
             }
         })
     }
-    $('.form-control').keyup(()=>{
-        updateBtn()
-    })
-    $('select').change((e)=>{
-        updateBtn()
-    })
+ 
     updateOtherList = () =>{
         if (otherParties.length>0){
             let newOther = '';
@@ -133,6 +136,48 @@ $(()=>{
             alert('Their balance value must be a positive number with 2 decimal places.')
         }
     })
+    // ajax for unique file number check
+    let csrftoken = $("[name=csrfmiddlewaretoken]").val();
+    $.ajaxSetup({
+        beforeSend: (xhr, settings)=>{
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    })
+    
+    let debounceTimer;
+    fileNoInput.on('input', ()=>{
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            let fileNo = fileNoInput.val()
+            console.log(fileNo);
+            if (fileNo){
+                $.post("{% url 'ledger:create_acc' %}", {file_no:fileNo, form_type:'file_no'}, (data)=>{
+                    if (data.exists){
+                        fileNoInput.addClass('is-invalid')
+                        fileNoInput.removeClass('is-valid')
+                    } else{
+                        fileNoInput.addClass('is-valid')
+                        fileNoInput.removeClass('is-invalid')
+                    }
+                })
+            } else{
+                fileNoInput.removeClass('is-invalid is-valid')
+            }
+        }, 150);
+    })
+
+    // enable submit button only when all inputs are valid and filled, set 300ms timeout to prevent excessive triggering, and letting file no. ajax check to complete before enabling submit.
+    let updateTimer;
+
+    $('.form-control').on("input", () => {
+        clearTimeout(updateTimer);
+        updateTimer = setTimeout(() => updateBtn(), 300);
+    });
+
+    $('select').on("change", () => {
+        clearTimeout(updateTimer);
+        updateTimer = setTimeout(() => updateBtn(), 300);
+    });
 })
 </script>
 
