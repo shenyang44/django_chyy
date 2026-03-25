@@ -515,7 +515,10 @@ def create_trans(request, acc_id, trans_type):
         custom_receipt_no = request.POST.get('custom_rec_no')
         custom_voucher_no = request.POST.get('custom_vouch_no')
         total = Decimal(request.POST['total'])
+        custom_file_no = request.POST.get('custom_file_no')
+        custom_payee = request.POST.get('custom_payee')
         resolved = True
+            
         # model self ref prop is none unless it is an advance disburse, in which case, it links to the transaction made on the Off Acc.
         ad_link = None
         try:
@@ -600,7 +603,7 @@ def create_trans(request, acc_id, trans_type):
         elif receiver.is_office():
             cleared = False
 
-        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc=cli_acc, cleared=cleared, subj_matter=subject_matter, receipt_no = r_no, voucher_no=v_no, off_voucher_no=off_v_no)
+        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc=cli_acc, cleared=cleared, subj_matter=subject_matter, receipt_no = r_no, voucher_no=v_no, off_voucher_no=off_v_no, custom_file_no=custom_file_no, custom_payee=custom_payee)
             
         try:
             new_trans.save()
@@ -626,12 +629,20 @@ def create_trans(request, acc_id, trans_type):
             return redirect(reverse('ledger:receipt', args=(new_trans.id,)))
         
     else:
-        context = trans_cont(acc_id)
-        context.update({
-            'trans_type':trans_type,
-            'adat':False,
-        })
-        return render(request, 'ledger/transaction.html', context=context)
+        if trans_type == 'custom_voucher':
+            context = trans_cont(acc_id)
+            context.update({
+                'trans_type': trans_type,
+                'adat': False,
+            })
+            return render(request, 'ledger/custom-voucher.html', context=context)
+        else:
+            context = trans_cont(acc_id)
+            context.update({
+                'trans_type':trans_type,
+                'adat':False,
+            })
+            return render(request, 'ledger/transaction.html', context=context)
 
 def counter_trans(request):
     if request.method == 'POST':
