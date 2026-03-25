@@ -22,11 +22,19 @@
             <div class="row text-decoration-underline fw-bold justify-content-center">CLIENTS ACCOUNT'S VOUCHER</div>
         {% endif %}
         <div class="my-3 row">
-            <div class="col-5 d-flex">No.&nbsp;<div class="w-75 dotted text-center ">{% if transaction.voucher_no %}{{transaction.payee.file_no}}{%else%}{{transaction.receiver.file_no}}{%endif%}</div></div>
+            <div class="col-5 d-flex">No.&nbsp;<div class="w-75 dotted text-center ">
+                {% if transaction.custom_file_no %}
+                    {{transaction.custom_file_no}}
+                {% elif transaction.voucher_no %}
+                    {{transaction.payee.file_no}}
+                {%else%}
+                    {{transaction.receiver.file_no}}
+                {%endif%}
+            </div></div>
             <div class="col-3"></div>
             <div class="col-4 d-flex">Date.&nbsp;<div class="w-75 dotted text-center">{{transaction.created_at|date:"j. n. Y"}}</div></div>
         </div>
-        <div class="row mb-2">Debit (帳戶科目) <div class="mx-2 dotted w-50">{{transaction.payee}}</div> Account</div>
+        <div class="row mb-2">Debit (帳戶科目) <div class="mx-2 dotted w-50">{% if transaction.custom_payee %}{{transaction.custom_payee}}{% else %}{{transaction.payee}}{% endif %}</div> Account</div>
         <div class="row my-3">Bayaran Kepada / Pay / 給何人 <div class="mx-2 dotted w-50">{{transaction.receiver}}</div></div>
         <div class="row ">
             <div class="col-10">Untuk / For / 因何費用</div>

@@ -1,129 +1,395 @@
 {% extends 'ledger/layout.html' %}
-{% block title %}Custom Voucher{% endblock %}
-
+{% block title %}New Transaction{% endblock %}
 {% block body %}
-<div class='print-y p-2 m-2'>
-    <header class='d-flex flex-column align-items-center'>
-        <div class='fs-2 fw-bold'>C. H. YEOH & YIEW</div>
-        <div>Lot 25, 2nd Floor Block B, Plaza Pekeliling, Jalan Tun Razak,</div>
-        <div>50400 Kuala Lumpur, Malaysia,</div>
-        <div>Tel: 03-40413288</div>
-    </header>
-    <div class="container mt-3">
-        <div class="row align-items-center">
-            <div class="col"></div>
-            <div class="fw-bold col d-flex justify-content-center">BAUCER</div>
-            <div class="col d-flex justify-content-evenly fs-4"><span class="fw-bold">A</span><input class='doc-id border-0'/></div>
+{% load static %}
+<script src="{% static 'ledger/opt-text.js' %}"></script>
+<div class="fluid-container">
+    <div class="row mt-4">
+        <div class="col"></div>
+        <div class="col-8 col-xxl-7">
+            <h3 class="text-center mb-4">New Voucher</h3>
+            <form id='transForm' action="{% url 'ledger:create_trans' account.id trans_type %}" method="post" class="mt-3">
+                {% csrf_token %}
+                <div class="mb-4 row fs-5">
+                    <div class="col-8 d-flex align-items-center">
+                        <div>
+                            No. : &nbsp;
+                        </div>
+                        <input type="text" class="form-control fs-5 w-75" name="custom_file_no" value="" placeholder="">
+                    </div>
+                </div>
+                <br>
+                <div class="mb-4 row fs-5">
+                    <div class="col">Debit :
+                        <input type="text" class="form-control fs-5" name="custom_payee" value="{{account.name}}">
+                    </div>
+                    <div class="col-1"></div>
+                    <div class="col-auto">Balance : {{balance}}</div>
+                </div>
+
+                <hr>
+                <div id = 'otherDiv' class="d-flex justify-content-between mb-3">
+                    <div class="w-50">
+                        <label for='otherParty' class="form-label">Paying To:</label>
+                        <select name='other_party' class="form-select w-75" aria-label="other-party-select" id='otherParty'>
+                            <option value="" selected></option>     
+                            <option value="external">
+                                External
+                            </option>
+                            <option value="client">
+                                Client File 
+                            </option>
+                        </select>
+                    </div>           
+                </div>
+                <br>
+                <table id='inpTable' style="width:100%" class="bordered">
+                    <colgroup>
+                        {% if account.is_office %}
+                        <col style="width:15%;">
+                        {% else %}
+                        <col style="width:10%">
+                        <col style="width:5%;">
+                        {% endif %}
+                        <col style="width:65%">
+                        <col style="width:10%">
+                        <col style="width:10%;">
+                    </colgroup>
+                    <tr>
+                        {% if account.is_office %}
+                        <th class="bordered">&nbsp; Type</th>
+                        {% else %}
+                        <th class="bordered">&nbsp; Type</th>
+                        <th class="bordered">&nbsp; Cat.</th>
+                        {% endif %}
+                        <th class="bordered">&nbsp; For</th>
+                        <th class="bordered">
+                            &nbsp; Less
+                        </th>
+                        <th class="bordered">&nbsp; RM</th>
+                    </tr>
+                </table>
+                <br>
+                <div class="text-end px-2">
+                    <b>Current Total :</b><span id="currTotal" style="min-width: 10em; display: inline-block;"></span>                
+                </div>
+                <br>
+                <div class="d-flex justify-content-evenly"><button id='addBtn' type="button">+ New Row</button> <button id='rmvBtn' type="button">- Remove Row</button></div> 
+                <input hidden name='table_data' id='tableData' type="text">
+                <input type="hidden" name="total" id="totalInp">
+                <label class="form-label" for="chequeText">Cheque No.</label>
+                <input class="form-control" type="text" name="cheque_text" id="chequeText">
+                <br>
+                <div class="d-flex justify-content-between">
+                    <button id='transBtn' disabled type='button' class="btn btn-primary">Confirm</button>
+                    {% if account.is_office %}
+                    <a class="btn btn-secondary" href="{% url 'ledger:show_off' %}">Back to Account</a>
+                    {% else %}
+                    <a class="btn btn-secondary" href="{% url 'ledger:show_acc' account.id %}">Back to Account</a>
+                    {%endif%}
+                </div>
+            </form>
         </div>
-        <div class="row justify-content-center">現銀支單</div>
-        {% if acc.is_office %}
-            <div class="row text-decoration-underline fw-bold justify-content-center">OFFICE ACCOUNT'S VOUCHER</div>
+        {% if account.is_office or adat %}
+            <div class="col"></div>
         {% else %}
-            <div class="row text-decoration-underline fw-bold justify-content-center">CLIENTS ACCOUNT'S VOUCHER</div>
-        {% endif %}
-        <div class="my-3 row">
-            <div class="col-5 d-flex">No.&nbsp;<input class="w-75 dotted-bot text-center "/></div>
-            <div class="col-3"></div>
-            <div class="col-4 d-flex">Date.&nbsp;<div class="w-75 dotted text-center" contenteditable>{% now "j. n. Y" %}</div></div>
-        </div>
-        <div class="row mb-2">Debit (帳戶科目) <div class="mx-2 dotted-bot w-50" contenteditable></div> Account</div>
-        <div class="row my-3">Bayaran Kepada / Pay / 給何人 <div class="mx-2 dotted-bot w-50" contenteditable></div></div>
-        <div class="row ">
-            <div class="col-10">Untuk / For / 因何費用</div>
-            <div class="col-2 fw-bold text-center">RM</div>
-        </div>
-        
-        <div class="row border-bottom border-dark deets">
-            <div contenteditable="true" class="col-10"></div>
-            <div class="col-2 border-start border-dark text-end" contenteditable="true"></div>
-        </div>
-        
-        <div id="total-row" class="row justify-content-end p-3" >
-            Jumlah / Total / 共銀 
-            <div class="fw-bold w-auto">RM <span id="total"></span></div>
-        </div>
-        <div class="row dotted w-75">
-            <span class="w-auto mr-2 fw-bold d-flex align-items-end">CHEQUE No.</span>
-            <div type="text" class="w-auto fs-5 border-0" contenteditable></div>
-        </div>
-        <div class="row my-3">
-            <div class="col">
-                <div>Diluluskan Oleh:</div>
-                <div>Approved & Passed By:</div>
-            </div>
-            <div class="col"></div>
-            <div class="col">
-                <div>Diterima Oleh:</div>
-                <div>Received By:</div>
-            </div>
-        </div>
-        <div class="row" style="height: 3em;"></div>
-        <div class="row text-center">
-            <div class="col border-top border-dark">Issued / Aprroved By / 經手批准人</div>
-            <div class="col"></div>
-            <div class="col border-top border-dark">Received By / 收銀人</div>
-        </div>
+            <div class="col-xl"></div>
+        {%endif%}
     </div>
-</div>
-<div class='mt-3 print-n btn-cluster'>
-    <button class="btn btn-secondary" type="button" onclick="window.print()">Print</button>
-    <div class="btn-group" role="group" aria-label="Left to add, right to remove.">
-        <button type="button" class="btn btn-danger" id='remBtn'>- Remove Row</button>
-        <button type="button" class="btn btn-success" id='addBtn'>+ Add Row</button>
-    </div>
-    {% if account.is_office %}
-    <a class='btn btn-outline-primary' href="{% url 'ledger:show_off' %}">View Account</a>
-    {% else %}
-    <a class="btn btn-outline-primary" href="{% url 'ledger:show_acc' acc.id %}">View Account</a>
-    {% endif %}
 </div>
 <script charset="utf-8">
- $(()=>{
-    let total = 0;
-    $('#total').text(total.toFixed(2));
-    $('#addBtn').click(()=>{
-        let deets = $('.deets')
-        if (deets.length>=10){
-            alert('Maximum number of input rows have been reached.')
-        } else{
-            $('#total-row').before(`
-                <div class="row border-bottom border-dark deets">
-                    <div contenteditable="true" class="col-10"></div>
-                    <div class="col-2 border-start border-dark text-end" contenteditable="true"></div>
+$(()=>{
+    const ADAT = ('{{adat}}'=='True') ? true : false;
+    const isOffice = ('{{account.is_office}}' == 'True') ? true : false;
+    const otherDiv = $('#otherDiv');
+    let transBtn = $('#transBtn');
+    let otherParty = $('#otherParty');
+    // Label and input change for other party depending on what was selected.
+    otherParty.change((e)=>{
+        let currVal = $(e.target).val()
+        $('#otherInput').remove()
+        if (currVal == 'external'){
+                otherDiv.after(`
+                    <div id='otherInput' class="mb-3">
+                        <label for="otherName" class="form-label">Other Party:</label>
+                        <input name='other_name' type="text" class="formInput form-control w-75" id="otherName">
+                    </div>
+                `)
+        } else if (currVal == 'client'){
+            otherDiv.after(`
+                <div id='otherInput' class="mb-3">
+                    <label for="otherCli" class="form-label">Client's File No. :</label>
+                    <input name='other_name' type="text" class="formInput form-control w-75" id="otherCli">
                 </div>
             `)
         }
     })
-    $('#remBtn').click(()=>{
-        let deets = $('.deets')
-        if(deets.length>1){
-            deets.last().remove()
-            sumUp();
+    // initialising
+    let extraTypeCodes = JSON.parse('{{ tc_dict|escapejs }}');
+    let debCred = '{{trans_type|escapejs}}';
+    let options, meanings;
+    var optTxt = '<option value = ""></option>';
+    // populate optTxt based on whether current acc is office, if not whether ADAT or not.
+    if (isOffice){
+        options = offCodes().concat(Object.keys(extraTypeCodes));
+        meanings = offDescs().concat(Object.values(extraTypeCodes));
+        for (i = 0; i<options.length; i++){
+            optTxt += `<option value="${options[i]}">${options[i]} | ${meanings[i]}</option>`;
+        }
+    } else{
+        if (!ADAT){
+            if (debCred == 'deb'){
+                options = debCodes();
+                meanings = debDescripts();
+            } else{
+                options = credCodes();
+                meanings = credDescripts();
+            }
+            options = options.concat(Object.keys(extraTypeCodes))
+            meanings = meanings.concat(Object.values(extraTypeCodes))
+            for (i = 0; i<options.length; i++){
+                $('#legend').append(`<tr><td class='border'>${options[i]}</td><td class='border'>${meanings[i]}</td></tr>`)
+                optTxt += `<option value="${options[i]}">${options[i]}</option>`;
+            }
+        }
+    }
+
+    // checks if all select fields are filled.
+    btnUpdate = () =>{
+        let btnValid = true;
+        $('.form-select').each((i, e)=>{
+            currVal = $(e).val()
+            if (!currVal){
+                btnValid = false;
+            }
+        })
+        if (btnValid){
+            transBtn.attr('disabled', false)
         } else{
-            alert('You cannot remove all rows.')
+            transBtn.attr('disabled', true)
+        }
+    }
+
+    // Fill category col based on selected typecode
+    $('body').on('select2:select', (e)=>{
+        if (!isOffice){
+            let cat;
+            let typeCode = e.params.data.text
+            if (typeCode == 'RFDG'){
+                cat = 'RO'
+            } else{
+                cat = typeCode.slice(0, 2)
+            }    
+            $(e.target).parent().next().text(cat);
+        }
+        btnUpdate()
+    })
+     
+    // 2 buttons to add or remove input rows.
+    const addBtn = $('#addBtn')
+    addBtn.click(()=>{
+        if ($('.trIn').length < 8){
+            if (ADAT){
+                $('#inpTable').append(`
+                <tr class='trIn'>
+                    <td class="bordered">
+                        <select class='typeCode' style="width: 100%;">
+                            <option selected value="AD">AD</option>
+                        </select>
+                    </td>
+                    <td class='bordered cat-td'>AD</td>
+                    <td class="bordered"><input maxlength='55' type="text" class="descript" id=""></td>
+                    <td class="bordered"><input type="text" class="less amtField" id=""></td>
+                    <td class="bordered"><input type="text" class="amount amtField" id=""></td>
+                </tr>
+            `)
+            } else if(isOffice){
+                $('#inpTable').append(`
+                    <tr class='trIn'>
+                        <td class="bordered">
+                            <select class='typeCode'>
+                                ${optTxt}
+                            </select>
+                        </td>
+                        <td class="bordered"><input maxlength='55' type="text" class="descript" id=""></td>
+                        <td class="bordered"><input type="text" class="less amtField" id=""></td>
+                        <td class="bordered"><input type="text" class="amount amtField" id=""></td>
+                    </tr>
+                `)
+                }
+            else{
+                $('#inpTable').append(`
+                    <tr class='trIn'>
+                        <td class="bordered">
+                            <select class='typeCode'>
+                                ${optTxt}
+                            </select>
+                        </td>
+                        <td class='bordered cat-td'></td>
+                        <td class="bordered"><input maxlength='55' type="text" class="descript" id=""></td>
+                        <td class="bordered"><input type="text" class="less amtField" id=""></td>
+                        <td class="bordered"><input type="text" class="amount amtField" id=""></td>
+                    </tr>
+                `)   
+            }
+            $('.typeCode').select2({
+                dropdownAutoWidth : true,
+            });
+            btnUpdate();
         }
     })
-    const parseMoney = (str) => {
-        const v = parseFloat(str.replace(/,/g, '').trim());
-        return Number.isFinite(v) ? v : 0;
-    };
 
-    const sumUp = () => {
-        let total = 0;
-        $('.border-start').each((i, e) => {
-            const text = $(e).text().trim();
-            if (text === '') return;
-            total += parseMoney(text);
-        });
-        $('#total').text(total.toFixed(2));
-    };
+    amtUpdate = () =>{
+        let currTotal = 0;
+        $('.less').each((i,e)=>{
+            let amt = $(e).val();
+            if (/^\d+\.\d{2}$/.test(amt)){
+                currTotal -=  Number(amt*100);
+            };
+        })
+        $('.amount').each((i,e)=>{
+            let amt = $(e).val();
+            if (/^\d+\.\d{2}$/.test(amt)){
+                currTotal +=  Number(amt*100);
+            }
+        })
+        $('#currTotal').text((currTotal/100).toFixed(2))
+    }
+    
+    $('#rmvBtn').click(()=>{
+        if ($('.trIn').length > 1){
+            $('.trIn').last().remove()
+        }
+        btnUpdate()
+        amtUpdate()
+    })
+    // adding first row
+    addBtn.click()
+    
+    // Button is disabled if select input val is empty on either element.
+    $('form').on('click', 'select', (e)=>{btnUpdate()});
 
-    // contenteditable elements not procing on.change, so listening to `input`/`blur` instead.
-    $('.container').on('input blur', '.border-start[contenteditable]', () => {
-        sumUp();
-    });
- });
+    $('form').on('change', '.amtField', (e)=>{
+        amtUpdate();
+    })
+    // initialising arrays to pass to server.
+    let descriptions,amounts,typeCodes,total;
+    // checks if all descript class inputs are filled.
+    emptyCheck = () =>{
+        descriptions = [];
+        typeCodes = [];
+        let x = true;
+        $('.descript').each((i,e)=>{
+            let desc = $(e).val()
+            if (desc == ''){
+                x = false;
+            } else{
+                descriptions[i] = desc;
+            }
+        })
+        // only 1 type code needs to be filled in.
+        let y = false;
+        $('.typeCode').each((i,e)=>{
+            let typeCode = $(e).val()
+            typeCodes[i] = typeCode;
+            if (typeCode){
+                y = true;
+            }
+        })
+        return(x&&y ? x : alert('No cells under the "For" header can be left empty & at least one type code must be selected.'));
+    }
 
+    // checks if all .amount inputs are positive numbs with 2 decimal places OR empty.
+    amountCheck = () =>{
+        amounts=[];
+        total=0;
+        let y = true;
+        let less = false;
+
+        $('.less').each((i,e)=>{
+            let amt = $(e).val();
+            if (/^\d+\.\d{2}$/.test(amt)){
+                less=true;
+                descriptions[i] += ` : ${amt}`;
+                total -=  Number(amt*100);
+            } else if (!/^$/.test(amt)){
+                y=false;
+            }
+        })
+        $('.amount').each((i,e)=>{
+            let amt = $(e).val();
+            if (/^\d+\.\d{2}$/.test(amt)){
+                if (less){
+                    descriptions[i] += ` : ${amt}`;
+                    amounts[i] = '';
+                } else{
+                    amounts[i] = amt;
+                }
+                total +=  Number(amt*100);
+            } else if (/^$/.test(amt)){
+                amounts[i] = '';
+            } else{
+                y=false;
+            }
+        })
+       
+        if (less){
+            amounts[0] = (total/100).toFixed(2);
+        }
+        if (total<=0){
+                y=false;
+        }
+        return (y ? total/100 : alert('Each amount must be a positive number with 2 decimal places OR empty. And the total cannot be less than 0.00'));
+    }
+
+    let fileNoList = JSON.parse('{{ file_no_list|escapejs }}')
+    cliAccCheck = () =>{
+        if ($("#otherCli").length < 1){
+            return true;
+        }
+        if (!fileNoList.includes($('#otherCli').val())){
+            alert('The client file number provided does not exist.');
+        } else{
+            return true;
+        }
+    }
+    
+    otherPartyCheck = () =>{
+        otherName = $('#otherName')
+        if (otherName.length < 1){
+            return true;
+        }
+        let nonEmpty = /\S/;
+        return (nonEmpty.test(otherName.val())?true:alert("Other party's name cannot be empty."))
+    }
+    
+    customNoCheck = () =>{
+        let x = true;
+        $('.customNo').each((i,e)=>{
+            let custNum = $(e).val();
+            if (!/^\d{5}$/.test(custNum) && custNum){
+                x = false;
+            }
+        })
+        return(x?x:alert('Custom receipt/voucher no. must either be a 5 digit number or blank.'))
+    }
+    // runs the functions above, and submits form if all are true.
+    transBtn.click(()=>{
+        if (emptyCheck() && amountCheck() && otherPartyCheck() && cliAccCheck() && customNoCheck()){
+            let tableData = []; 
+            for (let i = 0; i < amounts.length; i++){
+                tableData.push({
+                    description:descriptions[i],
+                    amount:amounts[i],
+                    type_code:typeCodes[i]
+                })
+            }
+            $('#tableData').val(JSON.stringify(tableData));
+            $('#totalInp').val(amountCheck().toFixed(2))
+            $('#transForm').submit();
+            transBtn.attr('disabled', true);
+        }
+    })
+})
 </script>
 {% endblock %}
-

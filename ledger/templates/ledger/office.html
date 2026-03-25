@@ -61,7 +61,9 @@
                 <a href='{% url "ledger:create_trans" off_acc.id "cre" %}' class="btn btn-outline-secondary">Receiving</a>
             </div>
             <div>
-                <a href='{% url "ledger:custom_voucher" off_acc.id %}' class="btn btn-secondary">Print Custom Voucher</a>
+                <a href='{% url "ledger:create_trans" off_acc.id "custom_voucher" %}' class="btn btn-secondary">
+                    Custom Voucher
+                </a>
             </div>
         </div>
         <table  class="table">
@@ -239,6 +241,7 @@
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
         })
+
         $('.form-check-input').click((e)=>{
             checkInp = $(e.target)
             let transID = checkInp.attr('data-id');

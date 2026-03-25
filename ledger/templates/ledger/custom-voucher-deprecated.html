@@ -1,0 +1,129 @@
+{% extends 'ledger/layout.html' %}
+{% block title %}Custom Voucher{% endblock %}
+
+{% block body %}
+<div class='print-y p-2 m-2'>
+    <header class='d-flex flex-column align-items-center'>
+        <div class='fs-2 fw-bold'>C. H. YEOH & YIEW</div>
+        <div>Lot 25, 2nd Floor Block B, Plaza Pekeliling, Jalan Tun Razak,</div>
+        <div>50400 Kuala Lumpur, Malaysia,</div>
+        <div>Tel: 03-40413288</div>
+    </header>
+    <div class="container mt-3">
+        <div class="row align-items-center">
+            <div class="col"></div>
+            <div class="fw-bold col d-flex justify-content-center">BAUCER</div>
+            <div class="col d-flex justify-content-evenly fs-4"><span class="fw-bold">A</span><input class='doc-id border-0'/></div>
+        </div>
+        <div class="row justify-content-center">現銀支單</div>
+        {% if acc.is_office %}
+            <div class="row text-decoration-underline fw-bold justify-content-center">OFFICE ACCOUNT'S VOUCHER</div>
+        {% else %}
+            <div class="row text-decoration-underline fw-bold justify-content-center">CLIENTS ACCOUNT'S VOUCHER</div>
+        {% endif %}
+        <div class="my-3 row">
+            <div class="col-5 d-flex">No.&nbsp;<input class="w-75 dotted-bot text-center "/></div>
+            <div class="col-3"></div>
+            <div class="col-4 d-flex">Date.&nbsp;<div class="w-75 dotted text-center" contenteditable>{% now "j. n. Y" %}</div></div>
+        </div>
+        <div class="row mb-2">Debit (帳戶科目) <div class="mx-2 dotted-bot w-50" contenteditable></div> Account</div>
+        <div class="row my-3">Bayaran Kepada / Pay / 給何人 <div class="mx-2 dotted-bot w-50" contenteditable></div></div>
+        <div class="row ">
+            <div class="col-10">Untuk / For / 因何費用</div>
+            <div class="col-2 fw-bold text-center">RM</div>
+        </div>
+        
+        <div class="row border-bottom border-dark deets">
+            <div contenteditable="true" class="col-10"></div>
+            <div class="col-2 border-start border-dark text-end" contenteditable="true"></div>
+        </div>
+        
+        <div id="total-row" class="row justify-content-end p-3" >
+            Jumlah / Total / 共銀 
+            <div class="fw-bold w-auto">RM <span id="total"></span></div>
+        </div>
+        <div class="row dotted w-75">
+            <span class="w-auto mr-2 fw-bold d-flex align-items-end">CHEQUE No.</span>
+            <div type="text" class="w-auto fs-5 border-0" contenteditable></div>
+        </div>
+        <div class="row my-3">
+            <div class="col">
+                <div>Diluluskan Oleh:</div>
+                <div>Approved & Passed By:</div>
+            </div>
+            <div class="col"></div>
+            <div class="col">
+                <div>Diterima Oleh:</div>
+                <div>Received By:</div>
+            </div>
+        </div>
+        <div class="row" style="height: 3em;"></div>
+        <div class="row text-center">
+            <div class="col border-top border-dark">Issued / Aprroved By / 經手批准人</div>
+            <div class="col"></div>
+            <div class="col border-top border-dark">Received By / 收銀人</div>
+        </div>
+    </div>
+</div>
+<div class='mt-3 print-n btn-cluster'>
+    <button class="btn btn-secondary" type="button" onclick="window.print()">Print</button>
+    <div class="btn-group" role="group" aria-label="Left to add, right to remove.">
+        <button type="button" class="btn btn-danger" id='remBtn'>- Remove Row</button>
+        <button type="button" class="btn btn-success" id='addBtn'>+ Add Row</button>
+    </div>
+    {% if account.is_office %}
+    <a class='btn btn-outline-primary' href="{% url 'ledger:show_off' %}">View Account</a>
+    {% else %}
+    <a class="btn btn-outline-primary" href="{% url 'ledger:show_acc' acc.id %}">View Account</a>
+    {% endif %}
+</div>
+<script charset="utf-8">
+ $(()=>{
+    let total = 0;
+    $('#total').text(total.toFixed(2));
+    $('#addBtn').click(()=>{
+        let deets = $('.deets')
+        if (deets.length>=10){
+            alert('Maximum number of input rows have been reached.')
+        } else{
+            $('#total-row').before(`
+                <div class="row border-bottom border-dark deets">
+                    <div contenteditable="true" class="col-10"></div>
+                    <div class="col-2 border-start border-dark text-end" contenteditable="true"></div>
+                </div>
+            `)
+        }
+    })
+    $('#remBtn').click(()=>{
+        let deets = $('.deets')
+        if(deets.length>1){
+            deets.last().remove()
+            sumUp();
+        } else{
+            alert('You cannot remove all rows.')
+        }
+    })
+    const parseMoney = (str) => {
+        const v = parseFloat(str.replace(/,/g, '').trim());
+        return Number.isFinite(v) ? v : 0;
+    };
+
+    const sumUp = () => {
+        let total = 0;
+        $('.border-start').each((i, e) => {
+            const text = $(e).text().trim();
+            if (text === '') return;
+            total += parseMoney(text);
+        });
+        $('#total').text(total.toFixed(2));
+    };
+
+    // contenteditable elements not procing on.change, so listening to `input`/`blur` instead.
+    $('.container').on('input blur', '.border-start[contenteditable]', () => {
+        sumUp();
+    });
+ });
+
+</script>
+{% endblock %}
+

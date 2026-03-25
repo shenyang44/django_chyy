@@ -158,47 +158,56 @@ def create_acc(request):
     if request.method == 'GET':
         return render(request, 'ledger/create-acc.html', {'cli_accs':Client_Account.objects.all()})
     else:
-        name = request.POST['name']
-        balance = Decimal(request.POST['balance'])
-        file_no = request.POST['file_no']
-        owing = request.POST['owing']
-        client_acc_id = request.POST['client']
-        subject_matter = request.POST['subject_matter']
-        client_code = request.POST['client_code']
-        subj_list = json.dumps([subject_matter])
+        name = request.POST.get('name')
+        balance = request.POST.get('balance')
+        file_no = request.POST.get('file_no')
+        owing = request.POST.get('owing')
+        client_acc_id = request.POST.get('client')
+        subject_matter = request.POST.get('subject_matter')
+        client_code = request.POST.get('client_code')
         other_parties = request.POST.get('other_parties')
-        if owing == 'no':
-            balance = -(Decimal(balance))
-        else:
-            balance = Decimal(balance)
-        new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=True, client_code=client_code, subj_list=subj_list, subject_matter=subject_matter, other_list=other_parties)
-        try:
-            ext_acc = Account.objects.get(file_no='EXTERNAL_balance_b/f')
-        except:
-            ext_acc = Account(name='Balance b/f', file_no='EXTERNAL_balance_b/f', balance=0.00)
-            ext_acc.save()
-        if owing == 'no':
-            receiver = new_acc
-            payee = ext_acc
-        else:
-            receiver = ext_acc
-            payee = new_acc
-        first_trans = Transaction(receiver=receiver, payee=payee, table_list=json.dumps([{'description':'Balance brought forward.', 'amount':'','type_code':''}]), total=abs(balance), category='NA')
-        try:
-            new_acc.save()
-            first_trans.save()
-        except:
-            messages.error(request, 'Error encountered in saving the account.')
-            return render(request, 'ledger/create-acc.html')
-        
-        new_rb = Running_Balance(account=new_acc, value=balance, transaction=first_trans)
-        try:
-            new_rb.save()
-        except:
-            messages.error(request, 'Error encountered in recording initial balance.')
-            return redirect(reverse('ledger:show_acc', args=(new_acc.id,)))
+        form_type = request.POST.get('form_type')
 
-        return redirect(reverse('ledger:show_acc', args=(new_acc.id,)))
+        if form_type == 'file_no':
+            try:
+                Account.objects.get(file_no=file_no)
+                return JsonResponse({'exists': True})
+            except Account.DoesNotExist:
+                return JsonResponse({'exists': False})
+        else:
+            subj_list = json.dumps([subject_matter])
+            if owing == 'no':
+                balance = -(Decimal(balance))
+            else:
+                balance = Decimal(balance)
+            new_acc = Account(name = name, file_no= file_no, balance = balance, client_account=True, client_code=client_code, subj_list=subj_list, subject_matter=subject_matter, other_list=other_parties)
+            try:
+                ext_acc = Account.objects.get(file_no='EXTERNAL_balance_b/f')
+            except:
+                ext_acc = Account(name='Balance b/f', file_no='EXTERNAL_balance_b/f', balance=0.00)
+                ext_acc.save()
+            if owing == 'no':
+                receiver = new_acc
+                payee = ext_acc
+            else:
+                receiver = ext_acc
+                payee = new_acc
+            first_trans = Transaction(receiver=receiver, payee=payee, table_list=json.dumps([{'description':'Balance brought forward.', 'amount':'','type_code':''}]), total=abs(balance), category='NA')
+            try:
+                new_acc.save()
+                first_trans.save()
+            except:
+                messages.error(request, 'Error encountered in saving the account.')
+                return render(request, 'ledger/create-acc.html')
+            
+            new_rb = Running_Balance(account=new_acc, value=balance, transaction=first_trans)
+            try:
+                new_rb.save()
+            except:
+                messages.error(request, 'Error encountered in recording initial balance.')
+                return redirect(reverse('ledger:show_acc', args=(new_acc.id,)))
+
+            return redirect(reverse('ledger:show_acc', args=(new_acc.id,)))
 
 def show_acc(request, acc_id):
     if request.method == 'POST':
@@ -506,7 +515,10 @@ def create_trans(request, acc_id, trans_type):
         custom_receipt_no = request.POST.get('custom_rec_no')
         custom_voucher_no = request.POST.get('custom_vouch_no')
         total = Decimal(request.POST['total'])
+        custom_file_no = request.POST.get('custom_file_no')
+        custom_payee = request.POST.get('custom_payee')
         resolved = True
+            
         # model self ref prop is none unless it is an advance disburse, in which case, it links to the transaction made on the Off Acc.
         ad_link = None
         try:
@@ -591,7 +603,7 @@ def create_trans(request, acc_id, trans_type):
         elif receiver.is_office():
             cleared = False
 
-        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc=cli_acc, cleared=cleared, subj_matter=subject_matter, receipt_no = r_no, voucher_no=v_no, off_voucher_no=off_v_no)
+        new_trans = Transaction(payee=payee, receiver=receiver, table_list=json.dumps(table_list), total=total, cheque_text=cheque_text, resolved=resolved, ad_link=ad_link, cli_acc=cli_acc, cleared=cleared, subj_matter=subject_matter, receipt_no = r_no, voucher_no=v_no, off_voucher_no=off_v_no, custom_file_no=custom_file_no, custom_payee=custom_payee)
             
         try:
             new_trans.save()
@@ -617,12 +629,20 @@ def create_trans(request, acc_id, trans_type):
             return redirect(reverse('ledger:receipt', args=(new_trans.id,)))
         
     else:
-        context = trans_cont(acc_id)
-        context.update({
-            'trans_type':trans_type,
-            'adat':False,
-        })
-        return render(request, 'ledger/transaction.html', context=context)
+        if trans_type == 'custom_voucher':
+            context = trans_cont(acc_id)
+            context.update({
+                'trans_type': trans_type,
+                'adat': False,
+            })
+            return render(request, 'ledger/custom-voucher.html', context=context)
+        else:
+            context = trans_cont(acc_id)
+            context.update({
+                'trans_type':trans_type,
+                'adat':False,
+            })
+            return render(request, 'ledger/transaction.html', context=context)
 
 def counter_trans(request):
     if request.method == 'POST':
@@ -913,22 +933,6 @@ def custom_receipt(request, acc_id):
             "acc": acc,
         }
         return render(request,'ledger/custom_receipt.html', context=context)
-
-def custom_voucher(request, acc_id):
-    if request.method == 'GET':
-        try:
-            acc = Account.objects.get(pk=acc_id)
-        except:
-            messages.warning(request, 'Could not find account details')
-            if acc.is_office():
-                return redirect(reverse('ledger:show_off', args=(acc_id,)))
-            else:
-                return redirect(reverse('ledger:show_acc', args=(acc_id,)))
-
-        context = {
-            "acc": acc,
-        }
-        return render(request,'ledger/custom-voucher.html', context=context)
 
         
 def uncleared(request):

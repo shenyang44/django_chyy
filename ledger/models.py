@@ -82,6 +82,8 @@ class Transaction(models.Model):
     off_voucher_no = models.IntegerField(null=True, unique=True,)
     voucher_ref = models.TextField(null=True)
     receipt_ref = models.TextField(null=True)
+    custom_file_no = models.CharField(max_length=100, null=True)
+    custom_payee = models.TextField(null=True)
 
     def __str__(self):
         entries = json.loads(self.table_list)
