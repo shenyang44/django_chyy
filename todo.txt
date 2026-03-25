@@ -22,7 +22,3 @@ make date times tz aware
 
 removed  validators=[MinValueValidator()] from modesls... may need in future.
 
-Office account vouchers, not connected to client accounts, changeable  No. and Debit should be editable. 
-- these voucher/transactions, office account view only. not shown anywhere else. Don't link to any other account
-- check if can remove old custom_voucher url;
-
